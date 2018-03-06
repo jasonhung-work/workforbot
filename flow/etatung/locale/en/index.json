@@ -1,0 +1,14 @@
+{
+    "greeting": "Welcome to tsti service system",
+    "menu_main": "Do you want to repair the fault?",
+    "menu_profile": "In order to ensure service quality, confirm your identity here. Please choose how you want to confirm your identity",
+    "text_customer_id": "Please enter your Uniform ID",
+    "text_phone": "Please enter your phone number",
+    "confirm_text": "You are typing",
+    "pardon": "I'm sorry, but I do not know what you mean",
+    "menu_transfer": "Transfer to customer service, wait a moment",
+    "finished": "Thank you for your visit, let you all go with you, goodbye!",
+    "try": "Sorry, we can not recognize your entry. Please re-enter it once",
+    "yes": "YES",
+    "no": "NO"
+}

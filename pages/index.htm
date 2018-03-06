@@ -1,0 +1,445 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <link href="../css/botchat.css" rel="stylesheet" />
+        <link href="../css/bootstrap/bootstrap.css" rel="stylesheet" />
+        <link href="../css/font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet" />
+        <link href="../css/bootstrap/dataTables.bootstrap.css" rel="stylesheet" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>流程清單</title>
+        <style type="text/css">
+            body {
+                padding: 10px;
+                font-family: consolas;
+            }
+            .modal.modal-wide .modal-dialog {
+                width: 90%;
+            }
+            .modal-wide .modal-body {
+                overflow-y: auto;
+            }
+            .modal.modal-middle .modal-dialog {
+                width: 60%;
+            }
+            .modal-middle .modal-body {
+                overflow-y: auto;
+            }
+
+            table.dataTable thead .sorting,
+            table.dataTable thead .sorting_asc,
+            table.dataTable thead .sorting_desc,
+            table.dataTable thead .sorting_asc_disabled,
+            table.dataTable thead .sorting_desc_disabled {
+                background: 0 0;
+            }
+
+            table.dataTable thead .sorting_asc:after {
+                content: "\f0de";
+                float: right;
+                font-family: fontawesome;
+            }
+
+            table.dataTable thead .sorting_desc:after {
+                content: "\f0dd";
+                float: right;
+                font-family: fontawesome;
+            }
+
+            table.dataTable thead .sorting:after {
+                content: "\f0dc";
+                float: right;
+                font-family: fontawesome;
+                color: rgba(50,50,50,.5);
+            }
+
+            .border-highlight {
+                border-width: 2px;
+                border-color: orange;
+                border-style: solid;
+            }
+        </style>
+        <script type="text/javascript" src="../scripts/jquery/jquery-1.9.0.min.js"></script>
+        <script type="text/javascript" src="../scripts/bootstrap/bootstrap.min.js"></script>
+        <script type="text/javascript" src="../scripts/bootstrap/bootbox/bootbox.min.js"></script>
+        <script type="text/javascript" src="../scripts/bootstrap/bootstrapValidator/bootstrapValidator.min.js"></script>
+        <script type="text/javascript" src="../scripts/bootstrap/dataTables/jquery.dataTables.js"></script>
+        <script type="text/javascript" src="../scripts/bootstrap/dataTables/dataTables.bootstrap.js"></script>
+        <script type="text/javascript" src="../scripts/Hashtable.js"></script>
+        <script type="text/javascript">
+            var Flows = [];
+            var $MainTable;
+
+            $(document).ready(function () {
+                Refresh();
+
+                $('#BtnAdd').click(function () {
+                    $('#FlowModal')
+                        .attr({
+                            Mode: 'ADD'
+                        })
+                        .modal();
+                });
+
+                $('#FlowForm').bootstrapValidator({
+                    feedbackIcons: {
+                    },
+                    fields: {
+                        FlowID: {
+                            validators: {
+                                notEmpty: {
+                                    message: '不得為空值'
+                                }
+                            }
+                        }
+                    },
+                    fields: {
+                        Description: {
+                            validators: {
+                                notEmpty: {
+                                    message: '不得為空值'
+                                }
+                            }
+                        }
+                    }
+                }).on('error.form.bv', function (e, data) {
+                }).on('success.form.bv', function (e, data) {
+                    Loading();
+                    if ($('#FlowModal').attr('Mode') == 'EDIT') {
+                        for (var index = 0; index < Flows.length; index++) {
+                            var Flow = Flows[index];
+                            if (Flow.flow_id == $('#TxtFlowID').val()) {
+                                Flow.flow_id = $('#TxtFlowID').val();
+                                Flow.description = $('#TxtDescription').val();
+                                Flow.active = $('#TxtActive').val();
+                                Flows[index] = Flow;
+                                $.ajax({
+                                    url: '../flow/' + Flows[index].flow_id,
+                                    type: 'PUT',
+                                    data: { flow: Flows[index] },
+                                    success: function (ret) {
+                                        Loaded();
+                                        $('#FlowModal').modal('toggle');
+                                        Refresh();
+                                    }
+                                });
+                                break;
+                            }
+                        }
+                    } else {
+                        var Flow = {};
+                        Flow.flow_id = $('#TxtFlowID').val();
+                        Flow.description = $('#TxtDescription').val();
+                        Flow.active = $('#TxtActive').val();
+                        $.post('../flow',
+                            { flow: Flow },
+                            function (ret, status) {
+                                Loaded();
+                                if (status == 'success') {
+                                    $('#FlowModal').modal('toggle');
+                                    Refresh();
+                                } else {
+                                    ShowMessage(ret);
+                                }
+                            }
+                        );
+                    }
+                    return false;   // 防止 Submit 造成畫面 Reload
+                });
+
+                $('#FlowModal').on('shown.bs.modal', function () {
+                    if ($(this).attr('Mode') == 'EDIT') {
+                        $('#ModalTitle').text('流程修改');
+                        $('#TxtFlowID').prop('disabled', true);
+                        $('#TxtFlowID').val($(this).attr('FlowID'));
+                        TargetFlow = JSON.parse($(this).attr('Flow'));
+                        $('#TxtDescription').val($(this).attr('Description'));
+                        $('#TxtActive').val($(this).attr('Active'));
+                        $('#TxtActive').prop('disabled', false);
+                    } else {
+                        $('#ModalTitle').text('流程新增');
+                        $('#TxtFlowID').prop('disabled', false);
+                        $('#TxtFlowID').val('');
+                        $('#TxtDescription').val('');
+                        $('#TxtActive').val('false');
+                        $('#TxtActive').prop('disabled', true);
+                    }
+                    $('#FlowForm').data('bootstrapValidator').resetForm();
+                });
+            });
+
+            var TargetFlow = {};
+            function Refresh() {
+                try {
+                    $MainTable.fnDestroy();
+                } catch (e) {
+                }
+                var $Table = $('#TableFlows tbody');
+                $Table.empty();
+                $.getJSON('../flows', function (data) {
+                    Flows = data;
+                    for (var index = 0; index < Flows.length; index++) {
+                        $('#TableFlows')
+                            .append(
+                                $(document.createElement('tr'))
+                                    .append(
+                                        $(document.createElement('td'))
+                                            .append(
+                                                $(document.createElement('button'))
+                                                    .attr('title', '刪除')
+                                                    .attr('FlowID', Flows[index].flow_id)
+                                                    .addClass('btn btn-warning btn-circle')
+                                                    .addClass(Flows[index].active == 'true' ? 'hidden' : '')
+                                                    .append(
+                                                        $(document.createElement('i'))
+                                                            .addClass('fa fa-times')
+                                                    )
+                                                    .click(function () {
+                                                        FlowID_Delete = $(this).attr('FlowID');
+                                                        bootbox.dialog({
+                                                            message: '確定要刪除此項目？',
+                                                            title: '',
+                                                            buttons: {
+                                                                Cancel: {
+                                                                    label: '取消',
+                                                                    className: 'btn-default'
+                                                                },
+                                                                OK: {
+                                                                    label: '確定刪除',
+                                                                    className: 'btn-danger',
+                                                                    callback: function () {
+                                                                        $.ajax({
+                                                                            url: '../flow/' + FlowID_Delete,
+                                                                            type: 'DELETE',
+                                                                            success: function (data) {
+                                                                                Loaded();
+                                                                                Refresh();
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
+                                                    })
+                                            )
+                                    )
+                                    .append(
+                                        $(document.createElement('td'))
+                                            .append(
+                                                $(document.createElement('button'))
+                                                    .attr('title', '編輯')
+                                                    .addClass('btn btn-primary btn-circle')
+                                                    .attr({
+                                                        FlowID: Flows[index].flow_id,
+                                                        Flow: JSON.stringify(Flows[index], null, 4),
+                                                        Description: Flows[index].description,
+                                                        Active: Flows[index].active
+                                                    })
+                                                    .append(
+                                                        $(document.createElement('i'))
+                                                            .addClass('fa fa-pencil-square-o')
+                                                    )
+                                                    .click(function () {
+                                                        $('#FlowModal')
+                                                            .attr({
+                                                                FlowID: $(this).attr('FlowID'),
+                                                                Flow: $(this).attr('Flow'),
+                                                                Description: $(this).attr('Description'),
+                                                                Active: $(this).attr('Active'),
+                                                                Mode: 'EDIT'
+                                                            })
+                                                            .modal();
+                                                    })
+                                            )
+                                    )
+                                    .append(
+                                        $(document.createElement('td'))
+                                            .append(
+                                                $(document.createElement('button'))
+                                                    .attr('title', '開啟流程編輯器')
+                                                    .addClass('btn btn-success btn-circle')
+                                                    .attr({
+                                                        FlowID: Flows[index].flow_id
+                                                    })
+                                                    .append(
+                                                        $(document.createElement('i'))
+                                                            .addClass('fa fa-eye')
+                                                    )
+                                                    .click(function () {
+                                                        window.open('flow/' + $(this).attr('FlowID'));
+                                                    })
+                                            )
+                                    )
+                                    .append(
+                                        $(document.createElement('td'))
+                                            .append(
+                                                $(document.createElement('button'))
+                                                    .attr('title', '下載')
+                                                    .addClass('btn btn-danger btn-circle')
+                                                    .attr({
+                                                        FlowID: Flows[index].flow_id
+                                                    })
+                                                    .append(
+                                                        $(document.createElement('i'))
+                                                            .addClass('fa fa-save')
+                                                    )
+                                                    .click(function () {
+                                                        window.open('../download/flow/' + $(this).attr('FlowID'));
+                                                    })
+                                            )
+                                    )
+                                    .append(
+                                        $(document.createElement('td'))
+                                            .append(
+                                                $(document.createElement('div'))
+                                                    .attr('id', Flows[index].flow_id)
+                                                    .css('word-break', 'break-all')
+                                                    .html(Flows[index].flow_id)
+                                            )
+                                    )
+                                    .append(
+                                        $(document.createElement('td')).html(Flows[index].description)
+                                    )
+                                    .append(
+                                        $(document.createElement('td')).html(Flows[index].active)
+                                    )
+                            );
+                    }
+                    $MainTable = $('#TableFlows').dataTable({
+                        'columnDefs': [
+                            { 'searchable': false, 'sortable': false, 'targets': [0, 1, 2, 3, 4, 5] }
+                        ],
+                        'aaSorting': [[2, 'asc']],
+                        'autoWidth': false,
+                        'bPaginate': false,
+                        'bFilter': false,
+                        'sPaginationType': 'full_numbers',
+                        'oLanguage': {
+                            'sLengthMenu': '每頁顯示 _MENU_ 筆資料',
+                            'sZeroRecords': '找不到資料',
+                            'sInfo': '',
+                            'sInfoEmpty': '',
+                            'sInfoFiltered': ' (從 _MAX_ 資料的查詢結果)',
+                            'sSearch': '快速搜尋：',
+                            'oPaginate': {
+                                'sFirst': '第一頁',
+                                'sPrevious': '上一頁',
+                                'sNext': '下一頁',
+                                'sLast': '最末頁'
+                            }
+                        }
+                    });
+                });
+            }
+
+            function Loading() {
+                bootbox.dialog({
+                    message: '請稍後',
+                    title: '',
+                    closeButton: false
+                });
+            }
+
+            function Loaded() {
+                bootbox.hideAll();
+            }
+
+            function ShowMessage(Message, Callback) {
+                bootbox.alert({
+                    message: Message,
+                    title: ''
+                });
+                if (typeof (Callback) == 'function') {
+                    Callback();
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="page-wrapper">
+                <div class="row" style="position: relative">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">對話流程清單</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" style="height: 60px">
+                            <div class="pull-right">
+                                <div class="btn-group">
+                                    <button type="button" id="BtnAdd" title="新增" class="btn btn-success btn-sm">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered table-hover" id="TableFlows">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 20px"></th>
+                                            <th style="width: 20px"></th>
+                                            <th style="width: 20px"></th>
+                                            <th style="width: 20px"></th>
+                                            <th style="width: 150px">編號</th>
+                                            <th>描述</th>
+                                            <th style="width: 20px">啟用</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Flow Modal -->
+        <div class="modal modal-wide fade" id="FlowModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form id="FlowForm" role="form">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 id="ModalTitle" class="modal-title"></h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <span class="fa fa-asterisk"></span><label>流程編號：</label>
+                                        <input class="form-control" id="TxtFlowID" name="FlowID">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label>啟用：</label>
+                                        <select class="form-control" id="TxtActive" name="Active">
+                                            <option value="true">是</option>
+                                            <option value="false">否</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        <span class="fa fa-asterisk"></span><label>描述：</label>
+                                        <input class="form-control" id="TxtDescription" name="Descrption">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button type="submit" id="BtnSave" class="btn btn-primary">儲存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

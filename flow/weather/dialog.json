@@ -1,0 +1,167 @@
+[
+    {
+        "dialog_id": "0",
+        "type": "choice",
+        "field": "City",
+        "prompt": {
+            "attachments": [
+                {
+                    "contentType": "application/vnd.microsoft.card.hero",
+                    "content": {
+                        "title": "歡迎來到大世科氣象台",
+                        "subtitle": "請問您要查詢哪間分公司的天氣？",
+                        "images": [
+                            {
+                                "url": "http://www.star-villa.com.tw/upload/20131015162814.jpg"
+                            }
+                        ],
+                        "buttons": [
+                            {
+                                "type": "postBack",
+                                "title": "台北總公司",
+                                "value": "Taipei",
+                                "dialog_id": "1"
+                            },
+                            {
+                                "type": "postBack",
+                                "title": "新竹分公司",
+                                "value": "Hsinchu",
+                                "dialog_id": "1"
+                            },
+                            {
+                                "type": "postBack",
+                                "title": "台中分公司",
+                                "value": "Taichung",
+                                "dialog_id": "1"
+                            },
+                            {
+                                "title": "台南分公司",
+                                "dialog_id": "1",
+                                "value": "Tainan",
+                                "type": "postBack"
+                            },
+                            {
+                                "title": "高雄分公司",
+                                "dialog_id": "1",
+                                "value": "Kaohsiung",
+                                "type": "postBack"
+                            },
+                            {
+                                "title": "上海分公司",
+                                "dialog_id": "1",
+                                "value": "Shanghai",
+                                "type": "postBack"
+                            },
+                            {
+                                "title": "結束",
+                                "dialog_id": "6",
+                                "value": "None",
+                                "type": "postBack"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "used": false,
+        "description": "主選單",
+        "next": "0"
+    },
+    {
+        "dialog_id": "1",
+        "type": "condition",
+        "field": "",
+        "prompt": "",
+        "description": "是否為台北",
+        "next": "0",
+        "condition": {
+            "type": "2",
+            "field": "City",
+            "target_type": "0",
+            "target_field": "Taipei",
+            "success_dialog_id": "2",
+            "fail_dialog_id": "3"
+        },
+        "used": false
+    },
+    {
+        "dialog_id": "2",
+        "type": "operate",
+        "field": "Image_City",
+        "prompt": "",
+        "next": "4",
+        "operate": "session.dialogData.form['Image_City'] = 'http://www.discoverytaiwan.com.tw/uploadfile/be55ae59798f3b43e0a1719db4d8da0e.jpg';",
+        "description": "指定台北圖片",
+        "used": false
+    },
+    {
+        "dialog_id": "3",
+        "type": "operate",
+        "field": "Image_City",
+        "prompt": "",
+        "next": "4",
+        "operate": "CityImages = [];\nCityImages['Taipei'] = 'http://www.discoverytaiwan.com.tw/uploadfile/be55ae59798f3b43e0a1719db4d8da0e.jpg';\nCityImages['Hsinchu'] = 'http://web2.ctsh.hcc.edu.tw/stu101/s10111338/public_html/public_html/684_6655_1278404554.jpg';\nCityImages['Taichung'] = 'http://www.warm-house.com.tw/uploadpic/images/5.jpg';\nCityImages['Tainan'] = 'http://5.blog.xuite.net/5/2/1/2/10365296/blog_316367/txt/46531186/0.jpg';\nCityImages['Kaohsiung'] = 'http://img.ezfly.com/dhtl/DHTL000000415/711.jpg';\nCityImages['Shanghai'] = 'http://img1.gtimg.com/city/pics/hv1/19/32/2187/142217854.jpg';\nsession.dialogData.form['Image_City'] = CityImages['%City%'];",
+        "description": "指定其他城市圖片",
+        "used": "false"
+    },
+    {
+        "dialog_id": "4",
+        "type": "webapi",
+        "field": "Weather",
+        "prompt": "",
+        "next": "5",
+        "description": "查詢天氣概況",
+        "webapi": {
+            "protocol": "http",
+            "host": "localhost",
+            "port": "9487",
+            "path": "weather/%City%",
+            "method": "post",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                },
+                {
+                    "name": "A",
+                    "value": "A1"
+                }
+            ],
+            "body": "{ \"A\": \"A1\" }"
+        },
+        "used": "false"
+    },
+    {
+        "dialog_id": "5",
+        "type": "card",
+        "field": "",
+        "prompt": {
+            "attachments": [
+                {
+                    "contentType": "application/vnd.microsoft.card.hero",
+                    "content": {
+                        "title": "",
+                        "subtitle": "%Weather%",
+                        "images": [
+                            {
+                                "url": "%Image_City%"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "description": "播報城市天氣概況",
+        "next": "0",
+        "used": false
+    },
+    {
+        "dialog_id": "6",
+        "type": "text",
+        "prompt": "{finished}",
+        "field": "",
+        "description": "結束",
+        "next": "-2",
+        "used": false
+    }
+]

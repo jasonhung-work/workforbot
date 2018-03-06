@@ -1,0 +1,28 @@
+{
+  "name": "hello-chatconnector",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "azure-publish": "node publish.js",
+    "start": "node app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "latest",
+    "botbuilder": "latest",
+    "copy-dir": "latest",
+    "express": "latest",
+    "jointjs": "^2.0.1",
+    "log4js": "latest",
+    "log4js-extend": "latest",
+    "restify": "latest",
+    "socket.io": "^1.7.3"
+  },
+  "devDependencies": {
+    "request": "^2.81.0",
+    "zip-folder": "^1.0.0"
+  }
+}

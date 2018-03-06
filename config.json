@@ -1,0 +1,15 @@
+{
+    "bot_app_id": "8d0f2881-ab37-43cf-9093-889c1ee02e9e",
+    "bot_app_password": "gDf4xCmNoh0iPyacqLvY4Jb",
+    "luis_code": "6d9d5cf0-f01f-4609-b737-e4f5691cf770",
+    "luis_key": "0ce340e781cd4b4a84dab9e11b1783bc",
+    "active_flow": "etatung",
+    "port": 50000,
+	"ssl": {
+        "enable": false,
+        "type": "crt",
+        "key": "private.key",
+        "cert": "certificate.crt",
+        "ca": "ca_bundle.crt"
+    }
+}
