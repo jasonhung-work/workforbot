@@ -256,6 +256,12 @@ app.get('/dialogs/:flow_id', function (request, response) {
         dialogs = JSON.parse(dialogs);
 
         for (var idx = 0; idx < dialogs.length; idx++) {
+            if (dialogs[idx].dialog_uuid == undefined) {
+                dialogs[idx].dialog_uuid = dialogs[idx].dialog_id;
+            }
+        }
+
+        for (var idx = 0; idx < dialogs.length; idx++) {
             dialogs[idx].used = false;
         }
         for (var idx = 0; idx < dialogs.length; idx++) {
@@ -311,7 +317,12 @@ app.put('/dialog/:dialog_id/:flow_id', function (request, response) {
         var dialogs = {};
         dialogs = require('fs').readFileSync(__dirname + '/flow/' + flow.flow_id + '/dialog.json');
         dialogs = JSON.parse(dialogs);
-        dialogs[request.params.dialog_id] = dialog;
+        if (request.params.dialog_id == 'editAll') {
+            dialogs = dialog;
+            dialogs.sort(UP);
+        } else {
+            dialogs[request.params.dialog_id] = dialog;
+        }
         if (flow.active == 'true') {
             global.dialogs = dialogs;
         }
@@ -321,6 +332,10 @@ app.put('/dialog/:dialog_id/:flow_id', function (request, response) {
         }.bind({ res: response }));
     }
 });
+function UP(x, y) {
+    return (x.dialog_id < y.dialog_id) ? -1 : 1
+
+}
 app.delete('/dialog/:dialog_id/:flow_id', function (request, response) {
     request.header('Content-Type', 'application/json');
     var delete_dialog_id = request.params.dialog_id;
@@ -464,119 +479,110 @@ app.get("/getDialog/:flow_id", function (request, response) {
     dialog = JSON.parse(dialog);
     var postdata = [];
     for (var i = 0; i < dialog.length; i++) {
+        var data = {
+            'id': dialog[i].dialog_id,
+            'type': '',
+            'text': dialog[i].description,
+            'goto': '',
+            'next': '',
+            'color': ''
+        }
         switch (dialog[i].type) {
             case 'choice':
                 GetProcess(dialog[i].prompt.attachments[0].content.buttons, function (processi) {
-                    var data = {
-                        'id': dialog[i].dialog_id,
-                        'type': 'condition',
-                        'text': dialog[i].description,
-                        'goto': processi,
-                        'next': "",
-                        'color':'#09f'
-                    }
+                    data.type = 'condition';
+                    data.goto = processi;
+                    data.color = '#09f';
                     postdata.push(data);
                 });
                 break;
             case 'text':
-                if (dialog[i].description == '結束') {
-                    var data = {
-                        'id': dialog[i].dialog_id,
-                        'type': 'end',
-                        'text': dialog[i].description,
-                        'goto': '',
-                        'next': '',
-                        'color':'black'
-                    }
-                }
-                else {
-                    var data = {
-                        'id': dialog[i].dialog_id,
-                        'type': 'operation',
-                        'text': dialog[i].description,
-                        'goto': '',
-                        'next': dialog[i].next,
-                        'color': 'blanchedalmond'
-                    }
+                data.type = 'operation';
+                data.color = 'blanchedalmond';
+                if (dialog[i].next == -2 || dialog[i].next == -3) {
+                    data.next = dialog[i].next;
+                } else {
+                    data.next = dialog[i].next_id;
                 }
                 postdata.push(data);
                 break;
             case 'confirm':
                 GetProcess(dialog[i].prompt.attachments[0].content.buttons, function (processi) {
-                    var data = {
-                        'id': dialog[i].dialog_id,
-                        'type': 'condition',
-                        'text': dialog[i].description,
-                        'goto': processi,
-                        'next': "",
-                        'color':"#0f5"
-                    }
+                    data.type = 'condition';
+                    data.goto = processi;
+                    data.color = '#0f5';
                     postdata.push(data);
                 });
                 break;
             case 'card':
-                var data = {
-                    'id': dialog[i].dialog_id,
-                    'type': 'operation',
-                    'text': dialog[i].description,
-                    'goto': '',
-                    'next': dialog[i].next,
-                    'color':"pink"
+                data.type = 'operation';
+                data.color = "pink";
+                if (dialog[i].next == -2 || dialog[i].next == -3) {
+                    data.next = dialog[i].next;
+                } else {
+                    data.next = dialog[i].next_id;
                 }
                 postdata.push(data);
                 break;
             case 'input':
-                var data = {
-                    'id': dialog[i].dialog_id,
-                    'type': 'inputoutput',
-                    'text': dialog[i].description,
-                    'goto': '',
-                    'next': dialog[i].next,
-                    'color':"gray"
+                data.type = 'inputoutput';
+                data.color = "gray";
+                if (dialog[i].next == -2 || dialog[i].next == -3) {
+                    data.next = dialog[i].next;
+                } else {
+                    data.next = dialog[i].next_id;
                 }
                 postdata.push(data);
                 break;
             case 'condition':
-                var data = {
-                    'id': dialog[i].dialog_id,
-                    'type': 'subroutine',
-                    'text': dialog[i].description,
-                    'goto': "",
-                    'next': dialog[i].next,
-                    'color':'orange'
+                var processi = [];
+                for (var j = 0; j < 2; j++) {
+                    var processdata;
+                    if (j == 0) {
+                        processdata = {
+                            'processname': 'success',
+                            'next': dialog[i].condition.success_dialog_id
+                        }
+                    } else {
+                        processdata = {
+                            'processname': 'fail',
+                            'next': dialog[i].condition.fail_dialog_id
+                        }
+                    }
+                    processi.push(processdata);
                 }
+                data.type = 'subroutine';
+                data.goto = processi;
+                data.color = 'orange';
                 postdata.push(data);
                 break;
             case 'operate':
-                var data = {
-                    'id': dialog[i].dialog_id,
-                    'type': 'subroutine',
-                    'text': dialog[i].description,
-                    'goto': "",
-                    'next': dialog[i].next,
-                    'color':'mediumpurple'
+                data.type = 'subroutine';
+                data.color = "mediumpurple";
+                if (dialog[i].next == -2 || dialog[i].next == -3) {
+                    data.next = dialog[i].next;
+                } else {
+                    data.next = dialog[i].next_id;
                 }
                 postdata.push(data);
                 break;
             case 'webapi':
-                var data = {
-                    'id': dialog[i].dialog_id,
-                    'type': 'subroutine',
-                    'text': dialog[i].description,
-                    'goto': "",
-                    'next': dialog[i].next,
-                    'color':'yellow'
+                data.type = 'subroutine';
+                data.color = "yellow";
+                if (dialog[i].next == -2 || dialog[i].next == -3) {
+                    data.next = dialog[i].next;
+                } else {
+                    data.next = dialog[i].next_id;
                 }
                 postdata.push(data);
                 break;
             case 'qna_maker':
-                var data = {
-                    'id': dialog[i].dialog_id,
-                    'type': 'subroutine',
-                    'text': dialog[i].description,
-                    'goto': "",
-                    'next': dialog[i].next,
-                    'color':"#f40"
+                data.type = 'subroutine';
+                data.color = '#f40';
+                if (dialog[i].next == -2 || dialog[i].next == -3) {
+                    data.next = dialog[i].next;
+                } else {
+                    data.next = dialog[i].next_id;
                 }
                 postdata.push(data);
                 break;
@@ -758,8 +764,8 @@ function LoadFlow(flow) {
 
 // Create chat bot
 var connector = new builder.ChatConnector({
-    appId: process.env.MicrosoftAppId, // process.env.MICROSOFT_APP_ID
-    appPassword: process.env.MicrosoftAppPassword // process.env.MICROSOFT_APP_PASSWORD
+    appId: config.bot_app_id, // process.env.MICROSOFT_APP_ID
+    appPassword: config.bot_app_password // process.env.MICROSOFT_APP_PASSWORD
 });
 var bot = new builder.UniversalBot(connector);
 app.post('/api/messages', connector.listen());

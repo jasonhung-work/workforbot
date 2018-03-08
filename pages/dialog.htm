@@ -467,7 +467,6 @@
                 Loading();
                 if ($('#DialogModal').attr('Mode') == 'EDIT') {
                     if ($('#TxtExistedDialogID').val() != $('#TxtRecordDialogID').val()) {
-                        var needEdit, edit;
                         var changeDialog_id = parseInt($('#TxtExistedDialogID').val());
                         var orginalDialog_id = parseInt($('#TxtRecordDialogID').val());
                         if (orginalDialog_id < changeDialog_id) {
@@ -475,27 +474,39 @@
                             for (var index = orginalDialog_id + 1; index <= changeDialog_id; index++) {
                                 Dialogs[index].dialog_id = index - 1;
                             }
-                            needEdit = changeDialog_id;
-                            edit = orginalDialog_id;
                         } else if (orginalDialog_id > changeDialog_id) {
                             Dialogs[orginalDialog_id].dialog_id = changeDialog_id;
                             for (var index = orginalDialog_id - 1; index >= changeDialog_id; index--) {
                                 Dialogs[index].dialog_id = index + 1;
                             }
-                            needEdit = orginalDialog_id;
-                            edit = changeDialog_id;
                         }
-                        UpdateEdit(needEdit, edit);
+                        for (var i = 0; i < Dialogs.length; i++) {
+                            for (var j = 0; j < Dialogs.length; j++) {
+                                if (Dialogs[i].next == Dialogs[j].dialog_uuid) {
+                                    Dialogs[i].next_id = Dialogs[j].dialog_id;
+                                }
+                            }
+                        }
+                        $.ajax({
+                            url: '../../dialog/' + 'editAll' + '/' + FlowID,
+                            type: 'PUT',
+                            data: { dialog: Dialogs },
+                            success: function (ret) {
+                                updateEdit();
+                            }
+                        });
                     } else {
-                        UpdateEdit(0,1);
+                        updateEdit();
                     }
                 } else {
+                    TempDialog.dialog_uuid = $('#TxtUniqueDialogID').val();
                     TempDialog.dialog_id = $('#TxtDialogID').val();
                     TempDialog.field = $('#TxtField').val();
                     TempDialog.description = $('#TxtDescription').val();
-                    alert($('#TxtNext').val());
                     TempDialog.next = $('#TxtNext').val();
-                    alert(TempDialog.next);
+                    for (var index = 0; index < Dialogs.length; index++) {
+                        if (TempDialog.next == Dialogs[index].dialog_uuid) TempDialog.next_id = Dialogs[index].dialog_id;
+                    }
                     if (TempDialog.next == -3) {
                         TempDialog.skill = $('#TxtSkill').val();
                     }
@@ -555,6 +566,8 @@
                 $('#TxtNext option[value="-2"]').remove();
                 $('#TxtNext option[value="-3"]').remove();
                 if ($(this).attr('Mode') == 'EDIT') {
+                    $('#TxtNext').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
+                    $('#TxtNext').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
                     $('#ModalTitle').text('對話框修改');
                     $('#TxtDialogID').prop('disabled', false);
                     $('#TxtDialogID').val($(this).attr('DialogID'));
@@ -563,7 +576,7 @@
                     Dialog_length = $(this).attr('Dialog_length');
                     $('#TxtExistedDialogID').empty();
                     for (var index = 0; index < Dialog_length; index++) {
-                        $('#TxtExistedDialogID').append('<option value=' + index +'>' + index +'</option>');
+                        $('#TxtExistedDialogID').append('<option value=' + index + '>' + index + '</option>');
                     }
                     $('#TxtExistedDialogID').val($(this).attr('DialogID'));
                     $('#TxtRecordDialogID').val($(this).attr('DialogID'));
@@ -578,8 +591,6 @@
                     if (TargetDialog.type == 'text') {
                         $('#DivNext').removeClass('hidden');
                         $('#TxtField').prop('disabled', true);
-                        $('#TxtNext').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
-                        $('#TxtNext').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
                         $('#TxtNext').val(TargetDialog.next);
                     } else if (TargetDialog.type == 'input') {
                         $('#DivNext').removeClass('hidden');
@@ -665,6 +676,8 @@
                     $('#TxtType').val($(this).attr('Type'));
                 } else {
                     $('#ModalTitle').text('對話框新增');
+                    var uuid = guid();
+                    $('#TxtUniqueDialogID').val(uuid);
                     $('#TxtDialogID').removeClass('hidden');
                     $('#TxtDialogID').prop('disabled', true);
                     $('#TxtExistedDialogID').addClass('hidden');
@@ -676,7 +689,7 @@
                     $('#DivCondition').addClass('hidden');
                     $('#DivOperate').addClass('hidden');
                     $('#DivWebAPI').addClass('hidden');
-                    $('#DivQnaMaker').addClass('hidden');
+                    $('#DivQnAMaker').addClass('hidden');
                     $('#TxtField').val('');
                     $('#TxtField').prop('disabled', true);
                     $('#TxtDescription').val('');
@@ -754,79 +767,74 @@
         var TargetDialog = {};
         var TempDialog = {};
         var TargetDialogItem;
-        function UpdateEdit(needEdit, edit) {
-            if (needEdit - edit == -1) {
-                for (var index = 0; index < Dialogs.length; index++) {
-                    var Dialog = Dialogs[index];
-                    if (Dialog.dialog_id == $('#TxtExistedDialogID').val()) {
-                        TempDialog.dialog_id = $('#TxtExistedDialogID').val();
-                        TempDialog.field = $('#TxtField').val();
-                        TempDialog.description = $('#TxtDescription').val();
-                        TempDialog.next = $('#TxtNext').val();
-                        if (TempDialog.next == -3) {
-                            TempDialog.skill = $('#TxtSkill').val();
+        function updateEdit() {
+            for (var index = 0; index < Dialogs.length; index++) {
+                var Dialog = Dialogs[index];
+                if (Dialog.dialog_id == $('#TxtExistedDialogID').val()) {
+                    TempDialog.dialog_uuid = Dialog.dialog_uuid;
+                    TempDialog.dialog_id = $('#TxtExistedDialogID').val();
+                    TempDialog.field = $('#TxtField').val();
+                    TempDialog.description = $('#TxtDescription').val();
+                    TempDialog.next = $('#TxtNext').val();
+                    for (var i = 0; i < Dialogs.length; i++) {
+                        if (TempDialog.next == Dialogs[i].dialog_uuid) {
+                            TempDialog.next_id = Dialogs[i].dialog_id;
+                            break;
                         }
-                        if (TempDialog.type == 'condition') {
-                            var condition = {};
-                            condition.type = $('#DivCondition').find('[name="Type"]').val();
-                            condition.field = $('#DivCondition').find('[name="Field"]').val();
-                            condition.target_type = $('#DivCondition').find('[name="TargetType"]').val();
-                            if (condition.target_type == 'Const') {
-                                condition.target_type = '0';
-                                condition.target_field = $('#DivCondition').find('input[name="TargetField"]').val();
-                            } else {
-                                condition.target_type = '1';
-                                condition.target_field = $('#DivCondition').find('select[name="TargetField"]').val();
-                            }
-                            condition.success_dialog_id = $('#DivCondition').find('[name="SuccessDialog"]').val();
-                            condition.fail_dialog_id = $('#DivCondition').find('[name="FailDialog"]').val();
-                            TempDialog.condition = condition;
-                        }
-                        if (TempDialog.type == 'operate') {
-                            TempDialog.operate = $('#DivOperate').find('[name="Operate"]').val();
-                        }
-                        if (TempDialog.type == 'webapi') {
-                            var webapi = {};
-                            webapi.protocol = $('#DivWebAPI').find('[name="Protocol"]').val();
-                            webapi.host = $('#DivWebAPI').find('[name="Host"]').val();
-                            webapi.port = $('#DivWebAPI').find('[name="Port"]').val();
-                            webapi.path = $('#DivWebAPI').find('[name="Path"]').val();
-                            webapi.method = $('#DivWebAPI').find('[name="Method"]').val();
-                            webapi.headers = TempDialog.webapi.headers;
-                            webapi.body = TempDialog.webapi.body;
-                            TempDialog.webapi = webapi;
-                        }
-                        if (TempDialog.type == 'qna_maker') {
-                            var qna_maker = {};
-                            qna_maker.code = $('#DivQnAMaker').find('[name="Code"]').val();
-                            qna_maker.key = $('#DivQnAMaker').find('[name="Key"]').val();
-                            qna_maker.problem = $('#DivQnAMaker').find('[name="Problem"]').val();
-                            TempDialog.qna_maker = qna_maker;
-                        }
-                        Dialogs[index] = TempDialog;
-                        $.ajax({
-                            url: '../../dialog/' + Dialogs[index].dialog_id + '/' + FlowID,
-                            type: 'PUT',
-                            data: { dialog: Dialogs[index] },
-                            success: function (ret) {
-                                Loaded();
-                                $('#DialogModal').modal('toggle');
-                                Refresh();
-                            }
-                        });
-                        break;
                     }
+                    if (TempDialog.next == -3) {
+                        TempDialog.skill = $('#TxtSkill').val();
+                    }
+                    if (TempDialog.type == 'condition') {
+                        var condition = {};
+                        condition.type = $('#DivCondition').find('[name="Type"]').val();
+                        condition.field = $('#DivCondition').find('[name="Field"]').val();
+                        condition.target_type = $('#DivCondition').find('[name="TargetType"]').val();
+                        if (condition.target_type == 'Const') {
+                            condition.target_type = '0';
+                            condition.target_field = $('#DivCondition').find('input[name="TargetField"]').val();
+                        } else {
+                            condition.target_type = '1';
+                            condition.target_field = $('#DivCondition').find('select[name="TargetField"]').val();
+                        }
+                        condition.success_dialog_id = $('#DivCondition').find('[name="SuccessDialog"]').val();
+                        condition.fail_dialog_id = $('#DivCondition').find('[name="FailDialog"]').val();
+                        TempDialog.condition = condition;
+                    }
+                    if (TempDialog.type == 'operate') {
+                        TempDialog.operate = $('#DivOperate').find('[name="Operate"]').val();
+                    }
+                    if (TempDialog.type == 'webapi') {
+                        var webapi = {};
+                        webapi.protocol = $('#DivWebAPI').find('[name="Protocol"]').val();
+                        webapi.host = $('#DivWebAPI').find('[name="Host"]').val();
+                        webapi.port = $('#DivWebAPI').find('[name="Port"]').val();
+                        webapi.path = $('#DivWebAPI').find('[name="Path"]').val();
+                        webapi.method = $('#DivWebAPI').find('[name="Method"]').val();
+                        webapi.headers = TempDialog.webapi.headers;
+                        webapi.body = TempDialog.webapi.body;
+                        TempDialog.webapi = webapi;
+                    }
+                    if (TempDialog.type == 'qna_maker') {
+                        var qna_maker = {};
+                        qna_maker.code = $('#DivQnAMaker').find('[name="Code"]').val();
+                        qna_maker.key = $('#DivQnAMaker').find('[name="Key"]').val();
+                        qna_maker.problem = $('#DivQnAMaker').find('[name="Problem"]').val();
+                        TempDialog.qna_maker = qna_maker;
+                    }
+                    Dialogs[index] = TempDialog;
+                    $.ajax({
+                        url: '../../dialog/' + Dialogs[index].dialog_id + '/' + FlowID,
+                        type: 'PUT',
+                        data: { dialog: Dialogs[index] },
+                        success: function (ret) {
+                            Loaded();
+                            $('#DialogModal').modal('toggle');
+                            Refresh();
+                        }
+                    });
+                    break;
                 }
-            } else {
-                $.ajax({
-                    url: '../../dialog/' + Dialogs[edit].dialog_id + '/' + FlowID,
-                    type: 'PUT',
-                    data: { dialog: Dialogs[edit] },
-                    success: function (ret) {
-                        edit++;
-                        UpdateEdit(needEdit, edit);
-                    }
-                });
             }
         }
         function Refresh() {
@@ -845,12 +853,18 @@
                     $('#TemplateButton').find('[name="DialogID"]').empty();
                     $('#DivCondition').find('[name="SuccessDialog"]').empty();
                     $('#DivCondition').find('[name="FailDialog"]').empty();
+                    $('#TemplateButton').find('[name="DialogID"]').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
+                    $('#TemplateButton').find('[name="DialogID"]').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
+                    $('#DivCondition').find('[name="SuccessDialog"]').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
+                    $('#DivCondition').find('[name="SuccessDialog"]').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
+                    $('#DivCondition').find('[name="FailDialog"]').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
+                    $('#DivCondition').find('[name="FailDialog"]').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
                     $('#TxtNext').empty();
                     for (var index = 0; index < Dialogs.length; index++) {
                         $('#TemplateButton').find('[name="DialogID"]').append('<option value="' + Dialogs[index].dialog_id + '">#' + Dialogs[index].dialog_id + ' ' + Dialogs[index].description + '</option>');
                         $('#DivCondition').find('[name="SuccessDialog"]').append('<option value="' + Dialogs[index].dialog_id + '">#' + Dialogs[index].dialog_id + ' ' + Dialogs[index].description + '</option>');
                         $('#DivCondition').find('[name="FailDialog"]').append('<option value="' + Dialogs[index].dialog_id + '">#' + Dialogs[index].dialog_id + ' ' + Dialogs[index].description + '</option>');
-                        $('#TxtNext').append('<option value="' + Dialogs[index].dialog_id + '">#' + Dialogs[index].dialog_id + ' ' + Dialogs[index].description + '</option>');
+                        $('#TxtNext').append('<option value="' + Dialogs[index].dialog_uuid + '">#' + Dialogs[index].dialog_id + ' ' + Dialogs[index].description + '</option>');
                         var Type;
                         if (Dialogs[index].type == 'text') {
                             Type = '文字';
@@ -930,6 +944,7 @@
                                                     .attr('title', '編輯')
                                                     .addClass('btn btn-primary btn-circle')
                                                     .attr({
+                                                        Dialog_uuid: Dialogs[index].dialog_uuid,
                                                         Dialog_length: Dialogs.length,
                                                         DialogID: Dialogs[index].dialog_id,
                                                         Dialog: JSON.stringify(Dialogs[index], null, 4),
@@ -946,6 +961,7 @@
                                                     .click(function () {
                                                         $('#DialogModal')
                                                             .attr({
+                                                                Dialog_uuid: $(this).attr('Dialog_uuid'),
                                                                 Dialog_length: $(this).attr('Dialog_length'),
                                                                 DialogID: $(this).attr('DialogID'),
                                                                 Type: $(this).attr('Type'),
@@ -983,9 +999,9 @@
                                     )
                                     .append(
                                         $(document.createElement('td'))
-                                            .append(Dialogs[index].next == 0 ? '' : $(document.createElement('button'))
-                                                .text(Dialogs[index].next == 0 ? '0' : (Dialogs[index].next == -2 ? '結束' : (Dialogs[index].next == -3 ? '客服' : Dialogs[index].next)))
-                                                .addClass(Dialogs[index].next < 0 ? 'btn btn-success' : 'btn')
+                                            .append((Dialogs[index].next_id == 0 && Dialogs[index].next != -2 && Dialogs[index].next != -3) ? '' : $(document.createElement('button'))
+                                                .text(Dialogs[index].next == -2 ? '結束' : (Dialogs[index].next == -3 ? '客服' : ( Dialogs[index].next_id == 0 ? '0' : Dialogs[index].next_id)))
+                                                .addClass(Dialogs[index].next_id < 0 ? 'btn btn-success' : 'btn')
                                                 .click(function () {
                                                     location.href = '#' + $(this).text();
                                                     $('#TableDialogs tr')
@@ -2133,6 +2149,13 @@
                 Callback();
             }
         }
+
+        function guid() {
+            function S4() {
+                return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+            }
+            return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+        }
     </script>
 </head>
 
@@ -2210,6 +2233,9 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <input class="form-control hidden" id="TxtRecordDialogID" name="RecordDialogID">
+                                </div>
+                                <div class="form-group">
+                                    <input class="form-control hidden" id="TxtUniqueDialogID" name="UniqueDialogID">
                                 </div>
                                 <div class="form-group">
                                     <span class="fa fa-asterisk"></span>
