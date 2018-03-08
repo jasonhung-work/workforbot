@@ -254,11 +254,26 @@ app.get('/dialogs/:flow_id', function (request, response) {
         var dialogs = {};
         dialogs = require('fs').readFileSync(__dirname + '/flow/' + flow.flow_id + '/dialog.json');
         dialogs = JSON.parse(dialogs);
+        var isNew = 1;
 
         for (var idx = 0; idx < dialogs.length; idx++) {
             if (dialogs[idx].dialog_uuid == undefined) {
                 dialogs[idx].dialog_uuid = dialogs[idx].dialog_id;
+                isNew = 0;
             }
+        }
+
+        if (isNew == 0) {
+            for (var idx = 0; idx < dialogs.length; idx++) {
+                for (var idy = 0; idy < dialogs.length; idy++) {
+                    if (dialogs[idx].next == dialogs[idy].dialog_uuid) {
+                        dialogs[idx].next_id = dialogs[idy].dialog_id;
+                        break;
+                    } 
+                }
+            }
+            require('fs').writeFile(__dirname + '/flow/' + flow.flow_id + '/dialog.json', JSON.stringify(dialogs), function (err) {
+            });
         }
 
         for (var idx = 0; idx < dialogs.length; idx++) {
