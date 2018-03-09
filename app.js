@@ -269,7 +269,7 @@ app.get('/dialogs/:flow_id', function (request, response) {
                     if (dialogs[idx].next == dialogs[idy].dialog_uuid) {
                         dialogs[idx].next_id = dialogs[idy].dialog_id;
                         break;
-                    } 
+                    }
                 }
             }
             require('fs').writeFile(__dirname + '/flow/' + flow.flow_id + '/dialog.json', JSON.stringify(dialogs), function (err) {
@@ -370,21 +370,14 @@ app.delete('/dialog/:dialog_id/:flow_id', function (request, response) {
         for (var idx = 0; idx < dialogs.length; idx++) {
             if (dialogs[idx].type == 'choice' || dialogs[idx].type == 'confirm') {
                 for (var idy = 0; idy < dialogs[idx].prompt.attachments[0].content.buttons.length; idy++) {
-                    if (dialogs[idx].prompt.attachments[0].content.buttons[idy].dialog_id == delete_dialog_id) {
+                    if (dialogs[idx].prompt.attachments[0].content.buttons[idy].dialog_id == dialogs[delete_dialog_id].dialog_uuid) {
                         // 指向自己
-                        dialogs[idx].prompt.attachments[0].content.buttons[idy].dialog_id = dialogs[idx].dialog_id;
+                        dialogs[idx].prompt.attachments[0].content.buttons[idy].dialog_id = dialogs[idx].dialog_uuid;
                     }
                 }
-            }
-        }
-        for (var idx = 0; idx < dialogs.length; idx++) {
-            if (dialogs[idx].type == 'choice' || dialogs[idx].type == 'confirm') {
-                for (var idy = 0; idy < dialogs[idx].prompt.attachments[0].content.buttons.length; idy++) {
-                    if (dialogs[idx].prompt.attachments[0].content.buttons[idy].dialog_id > delete_dialog_id) {
-                        // 因被刪除的 Dialog 往後的 DialogID 都要減 1，修改連結的編號
-                        dialogs[idx].prompt.attachments[0].content.buttons[idy].dialog_id--;
-                    }
-                }
+            } else if (dialogs[idx].type == 'condition') {
+                if(dialogs[delete_dialog_id].dialog_uuid == dialogs[idx].condition.success_dialog_id)dialogs[idx].condition.success_dialog_id = dialogs[idx].dialog_uuid;
+                else if (dialogs[delete_dialog_id].dialog_uuid ==dialogs[idx].condition.fail_dialog_id)dialogs[idx].condition.fail_dialog_id = dialogs[idx].dialog_uuid;
             }
         }
         dialogs.splice(delete_dialog_id, 1);
@@ -504,7 +497,7 @@ app.get("/getDialog/:flow_id", function (request, response) {
         }
         switch (dialog[i].type) {
             case 'choice':
-                GetProcess(dialog[i].prompt.attachments[0].content.buttons, function (processi) {
+                GetProcess(dialog[i].prompt.attachments[0].content.buttons, flow_id, function (processi) {
                     data.type = 'condition';
                     data.goto = processi;
                     data.color = '#09f';
@@ -522,7 +515,7 @@ app.get("/getDialog/:flow_id", function (request, response) {
                 postdata.push(data);
                 break;
             case 'confirm':
-                GetProcess(dialog[i].prompt.attachments[0].content.buttons, function (processi) {
+                GetProcess(dialog[i].prompt.attachments[0].content.buttons, flow_id, function (processi) {
                     data.type = 'condition';
                     data.goto = processi;
                     data.color = '#0f5';
@@ -551,21 +544,38 @@ app.get("/getDialog/:flow_id", function (request, response) {
                 break;
             case 'condition':
                 var processi = [];
-                for (var j = 0; j < 2; j++) {
-                    var processdata;
-                    if (j == 0) {
-                        processdata = {
-                            'processname': 'success',
-                            'next': dialog[i].condition.success_dialog_id
-                        }
-                    } else {
-                        processdata = {
-                            'processname': 'fail',
-                            'next': dialog[i].condition.fail_dialog_id
+                var success_dialog_id;
+                var fail_dialog_id;
+                if (dialog[i].condition.success_dialog_id < 0) {
+                    success_dialog_id = dialog[i].condition.success_dialog_id;
+                } else {
+                    for (var j = 0; j < dialog.length; j++) {
+                        if (dialog[i].condition.success_dialog_id == dialog[j].dialog_uuid) {
+                            success_dialog_id = dialog[j].dialog_id;
+                            break;
                         }
                     }
-                    processi.push(processdata);
                 }
+                var process_success_data = {
+                    'processname': 'success',
+                    'next': success_dialog_id
+                }
+                processi.push(process_success_data);
+                if (dialog[i].condition.fail_dialog_id < 0) {
+                    fail_dialog_id = dialog[i].condition.fail_dialog_id;
+                } else {
+                    for (var j = 0; j < dialog.length; j++) {
+                        if (dialog[i].condition.fail_dialog_id == dialog[j].dialog_uuid) {
+                            fail_dialog_id = dialog[j].dialog_id;
+                            break;
+                        } 
+                    }
+                }
+                var process_fail_data = {
+                    'processname': 'fail',
+                    'next': fail_dialog_id
+                }
+                processi.push(process_fail_data);
                 data.type = 'subroutine';
                 data.goto = processi;
                 data.color = 'orange';
@@ -606,12 +616,23 @@ app.get("/getDialog/:flow_id", function (request, response) {
     response.send(postdata);
 });
 
-function GetProcess(data, callback) {
+function GetProcess(data, flow_id, callback) {
     var process = [];
-    for (i = 0; i < data.length; i++) {
+    var fs = require('fs');
+    var dialog = fs.readFileSync(__dirname + '/flow/' + flow_id + '/dialog.json', 'utf8');
+    dialog = JSON.parse(dialog);
+    for (var i = 0; i < data.length; i++) {
+        var dialog_id;
+        if (data[i].dialog_id < 0) {
+            dialog_id = data[i].dialog_id;
+        } else {
+            for (var j = 0; j < dialog.length; j++) {
+                if (data[i].dialog_id == dialog[j].dialog_uuid) dialog_id = dialog[j].dialog_id;
+            }
+        }
         var postdata = {
             'processname': data[i].title,
-            'next': data[i].dialog_id
+            'next': dialog_id
         }
         process.push(postdata);
     }

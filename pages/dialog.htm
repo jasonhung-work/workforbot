@@ -503,7 +503,18 @@
                     TempDialog.dialog_id = $('#TxtDialogID').val();
                     TempDialog.field = $('#TxtField').val();
                     TempDialog.description = $('#TxtDescription').val();
-                    TempDialog.next = $('#TxtNext').val();
+                    if (TargetDialog.type != 'condition' && TargetDialog.type != 'confirm' && TargetDialog.type != 'choice') {
+                        TempDialog.next = $('#TxtNext').val();
+                        for (var i = 0; i < Dialogs.length; i++) {
+                            if (TempDialog.next == Dialogs[i].dialog_uuid) {
+                                TempDialog.next_id = Dialogs[i].dialog_id;
+                                break;
+                            }
+                        }
+                    } else {
+                        TempDialog.next = TempDialog.dialog_uuid;
+                        TempDialog.next_id = 0;
+                    }
                     for (var index = 0; index < Dialogs.length; index++) {
                         if (TempDialog.next == Dialogs[index].dialog_uuid) TempDialog.next_id = Dialogs[index].dialog_id;
                     }
@@ -669,7 +680,7 @@
                         $('#DivWebAPI').addClass('hidden');
                         $('#DivQnAMaker').addClass('hidden');
                     }
-                    if ($('#TxtNext').val() == '-3') {
+                    if ($('#TxtNext').val() == '-3' && $(this).attr('Next') != 0) {
                         $('#DivTransfer').removeClass('hidden');
                     }
                     $('#TxtDescription').val($(this).attr('Description'));
@@ -700,7 +711,12 @@
                     $('#DivTransfer').addClass('hidden');
                     $('#TxtNext').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
                     $('#TxtNext').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
-                    $('#TxtNext').val(0);
+                    var TxtNextIndex = $("#TxtNext").children("option").length;
+                    if (TxtNextIndex < 3) {
+                        $("#TxtNext")[0].selectedIndex = 0;
+                    } else {
+                        $("#TxtNext")[0].selectedIndex = 2;
+                    }
                     // Condition
                     $('#DivCondition').find('select').prop('selectedIndex', 0);
                     $('#DivCondition').find('input[name="TargetField"]').removeClass('hidden');
@@ -775,12 +791,17 @@
                     TempDialog.dialog_id = $('#TxtExistedDialogID').val();
                     TempDialog.field = $('#TxtField').val();
                     TempDialog.description = $('#TxtDescription').val();
-                    TempDialog.next = $('#TxtNext').val();
-                    for (var i = 0; i < Dialogs.length; i++) {
-                        if (TempDialog.next == Dialogs[i].dialog_uuid) {
-                            TempDialog.next_id = Dialogs[i].dialog_id;
-                            break;
+                    if (Dialog.type != 'condition' && Dialog.type != 'confirm' && Dialog.type != 'choice') {
+                        TempDialog.next = $('#TxtNext').val();
+                        for (var i = 0; i < Dialogs.length; i++) {
+                            if (TempDialog.next == Dialogs[i].dialog_uuid) {
+                                TempDialog.next_id = Dialogs[i].dialog_id;
+                                break;
+                            }
                         }
+                    } else {
+                        TempDialog.next = 0;
+                        TempDialog.next_id = 0;
                     }
                     if (TempDialog.next == -3) {
                         TempDialog.skill = $('#TxtSkill').val();
@@ -856,14 +877,14 @@
                     $('#TemplateButton').find('[name="DialogID"]').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
                     $('#TemplateButton').find('[name="DialogID"]').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
                     $('#DivCondition').find('[name="SuccessDialog"]').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
-                    $('#DivCondition').find('[name="SuccessDialog"]').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
+                    $('#DivCondition').find('[name="SuccessDialog"]').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
                     $('#DivCondition').find('[name="FailDialog"]').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
-                    $('#DivCondition').find('[name="FailDialog"]').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
+                    $('#DivCondition').find('[name="FailDialog"]').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
                     $('#TxtNext').empty();
                     for (var index = 0; index < Dialogs.length; index++) {
-                        $('#TemplateButton').find('[name="DialogID"]').append('<option value="' + Dialogs[index].dialog_id + '">#' + Dialogs[index].dialog_id + ' ' + Dialogs[index].description + '</option>');
-                        $('#DivCondition').find('[name="SuccessDialog"]').append('<option value="' + Dialogs[index].dialog_id + '">#' + Dialogs[index].dialog_id + ' ' + Dialogs[index].description + '</option>');
-                        $('#DivCondition').find('[name="FailDialog"]').append('<option value="' + Dialogs[index].dialog_id + '">#' + Dialogs[index].dialog_id + ' ' + Dialogs[index].description + '</option>');
+                        $('#TemplateButton').find('[name="DialogID"]').append('<option value="' + Dialogs[index].dialog_uuid + '">#' + Dialogs[index].dialog_id + ' ' + Dialogs[index].description + '</option>');
+                        $('#DivCondition').find('[name="SuccessDialog"]').append('<option value="' + Dialogs[index].dialog_uuid + '">#' + Dialogs[index].dialog_id + ' ' + Dialogs[index].description + '</option>');
+                        $('#DivCondition').find('[name="FailDialog"]').append('<option value="' + Dialogs[index].dialog_uuid + '">#' + Dialogs[index].dialog_id + ' ' + Dialogs[index].description + '</option>');
                         $('#TxtNext').append('<option value="' + Dialogs[index].dialog_uuid + '">#' + Dialogs[index].dialog_id + ' ' + Dialogs[index].description + '</option>');
                         var Type;
                         if (Dialogs[index].type == 'text') {
@@ -1000,8 +1021,8 @@
                                     .append(
                                         $(document.createElement('td'))
                                             .append((Dialogs[index].next_id == 0 && Dialogs[index].next != -2 && Dialogs[index].next != -3) ? '' : $(document.createElement('button'))
-                                                .text(Dialogs[index].next == -2 ? '結束' : (Dialogs[index].next == -3 ? '客服' : ( Dialogs[index].next_id == 0 ? '0' : Dialogs[index].next_id)))
-                                                .addClass(Dialogs[index].next_id < 0 ? 'btn btn-success' : 'btn')
+                                                .text(Dialogs[index].next == -2 ? '結束' : (Dialogs[index].next == -3 ? '客服' : (Dialogs[index].next_id == 0 ? '0' : Dialogs[index].next_id)))
+                                                .addClass(Dialogs[index].next < 0 ? 'btn btn-success' : 'btn')
                                                 .click(function () {
                                                     location.href = '#' + $(this).text();
                                                     $('#TableDialogs tr')
@@ -1792,12 +1813,23 @@
                     for (var Idx = 0; Idx < Dialog.prompt.attachments[0].content.buttons.length; Idx++) {
                         var $Li = $('<li></li>');
                         var $Button = $('<button name="Button' + Idx + '"></button>');
+                        var dialog_id;
                         $Button.text(ReplaceMessage(Dialog.prompt.attachments[0].content.buttons[Idx].title, Locale));
+                        if (Dialog.prompt.attachments[0].content.buttons[Idx].dialog_id == -2 || Dialog.prompt.attachments[0].content.buttons[Idx].dialog_id == -3) {
+                            dialog_id = Dialog.prompt.attachments[0].content.buttons[Idx].dialog_id;
+                        } else {
+                            for (var Idy = 0; Idy < Dialogs.length; Idy++) {
+                                if (Dialog.prompt.attachments[0].content.buttons[Idx].dialog_id == Dialogs[Idy].dialog_uuid) {
+                                    dialog_id = Dialogs[Idy].dialog_id;
+                                    break;
+                                }
+                            }
+                        }
                         if (!Mode) {
-                            $Button.text($Button.text() + ' (' + Dialog.prompt.attachments[0].content.buttons[Idx].dialog_id + ')');
+                            $Button.text($Button.text() + ' (' + dialog_id + ')');
                         }
                         $Button = $('<div name="Button' + Idx + '"></div>').append($Button);
-                        $Button.attr('dialog_id', Dialog.prompt.attachments[0].content.buttons[Idx].dialog_id);
+                        $Button.attr('dialog_id', dialog_id);
                         $Button.click(function () {
                             if (Mode == 'Edit') {
                                 $('#BtnRemoveButton').show();
@@ -1944,12 +1976,23 @@
                     for (var Idx = 0; Idx < Dialog.prompt.attachments[0].content.buttons.length; Idx++) {
                         var $Li = $('<li></li>');
                         var $Button = $('<button name="Button' + Idx + '"></button>');
+                        var dialog_id;
                         $Button.text(ReplaceMessage(Dialog.prompt.attachments[0].content.buttons[Idx].title, Locale));
+                        if (Dialog.prompt.attachments[0].content.buttons[Idx].dialog_id == -2 || Dialog.prompt.attachments[0].content.buttons[Idx].dialog_id == -3) {
+                            dialog_id = Dialog.prompt.attachments[0].content.buttons[Idx].dialog_id;
+                        } else {
+                            for (var Idy = 0; Idy < Dialogs.length; Idy++) {
+                                if (Dialog.prompt.attachments[0].content.buttons[Idx].dialog_id == Dialogs[Idy].dialog_uuid) {
+                                    dialog_id = Dialogs[Idy].dialog_id;
+                                    break;
+                                }
+                            }
+                        }
                         if (!Mode) {
-                            $Button.text($Button.text() + ' (' + Dialog.prompt.attachments[0].content.buttons[Idx].dialog_id + ')');
+                            $Button.text($Button.text() + ' (' + dialog_id + ')');
                         }
                         $Button = $('<div name="Button' + Idx + '"></div>').append($Button);
-                        $Button.attr('dialog_id', Dialog.prompt.attachments[0].content.buttons[Idx].dialog_id);
+                        $Button.attr('dialog_id', dialog_id);
                         $Button.click(function () {
                             if (Mode == 'Edit') {
                                 $('#BtnRemoveButton').show();
@@ -2001,8 +2044,25 @@
                         case '0': Html = Html + '【' + Dialog.condition.target_field + '】，'; break;
                         case '1': Html = Html + '<span class="text-primary">【' + Variables.get(Dialog.condition.target_field).description + '】</span>，'; break;
                     }
-                    Html = Html + '<mark>是</mark>則轉跳至對話框【' + GetDialogName(Dialog.condition.success_dialog_id) + '】，';
-                    Html = Html + '<mark>否</mark>則轉跳至對話框【' + GetDialogName(Dialog.condition.fail_dialog_id) + '】';
+
+                    var success_dialog_id, fail_dialog_id;
+                    if (Dialog.condition.success_dialog_id > 0) {
+                        for (var Idx = 0; Idx < Dialogs.length; Idx++) {
+                            if (Dialog.condition.success_dialog_id == Dialogs[Idx].dialog_uuid) success_dialog_id = Dialogs[Idx].dialog_id;
+                        }
+                    } else {
+                        success_dialog_id = Dialog.condition.success_dialog_id;
+                    }
+                    if (Dialog.condition.fail_dialog_id > 0) {
+                        for (var Idx = 0; Idx < Dialogs.length; Idx++) {
+                            if (Dialog.condition.fail_dialog_id == Dialogs[Idx].dialog_uuid) fail_dialog_id = Dialogs[Idx].dialog_id;
+                        }
+                    } else {
+                        fail_dialog_id = Dialog.condition.fail_dialog_id;
+                    }
+
+                    Html = Html + '<mark>是</mark>則轉跳至對話框【' + GetDialogName(success_dialog_id) + '】，';
+                    Html = Html + '<mark>否</mark>則轉跳至對話框【' + GetDialogName(fail_dialog_id) + '】';
                     Html = Html + '</div>';
                     return Html;
                 }
@@ -2040,9 +2100,15 @@
         }
 
         function GetDialogName(DialogID) {
-            for (var idx = 0; idx < Dialogs.length; idx++) {
-                if (Dialogs[idx].dialog_id == DialogID) {
-                    return Dialogs[idx].description;
+            if (DialogID == -2) {
+                return "服務結束";
+            } else if (DialogID == -3) {
+                return "客服專線";
+            } else {
+                for (var idx = 0; idx < Dialogs.length; idx++) {
+                    if (Dialogs[idx].dialog_uuid == DialogID) {
+                        return Dialogs[idx].description;
+                    }
                 }
             }
             return '未知';

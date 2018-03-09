@@ -23,108 +23,83 @@
                 method: 'GET',
                 async: true
             }).done(function (dialog) {
-                var paper = new joint.dia.Paper({
-                    el: $('#myholder'),
-                    width: dialog.length * 180,
-                    height: 700,
-                    model: graph,
-                    gridSize: 1
-                });
+                if (dialog.length != 0) {
+                    var paper = new joint.dia.Paper({
+                        el: $('#myholder'),
+                        width: dialog.length * 180 + 100,
+                        height: 700,
+                        model: graph,
+                        gridSize: 1
+                    });
 
-                for (var i = 0; i < dialog.length; i++) {
-                    var height;
-                    if (i == 0) height = 0;
-                    else if (i % 2 == 0) height = 1;
-                    else height = -1;
-                    switch (dialog[i].type) {
-                        case 'condition':
-                            var polygon = new joint.shapes.basic.Rect({
-                                position: { x: 150 * i + 100, y: 200 + height * 100 },
-                                size: { width: 90, height: 90 },
-                                attrs: { rect: { fill: dialog[i].color, 'fill-opacity': "1", 'stroke-opacity': "0.8" }, text: { text: dialog[i].text, fill: 'black', 'font-size': '18px' } }
-                            });
-                            node.push(polygon);
-                            graph.addCell(polygon);
-                            break;
-                        case 'operation':
-                            var rect = new joint.shapes.basic.Rect({
-                                position: { x: 150 * i + 100, y: 200 + height * 100 },
-                                size: { width: 120, height: 70 },
-                                attrs: { rect: { fill: dialog[i].color }, text: { text: dialog[i].text, fill: "black", 'font-size': '18px' } }
-                            });
-                            node.push(rect);
-                            graph.addCell(rect);
-                            break;
-                        case 'inputoutput':
-                            var polygon = new joint.shapes.basic.Circle({
-                                position: { x: 150 * i + 100, y: 200 + height * 100 },
-                                size: { width: 150, height: 100 },
-                                attrs: { circle: { fill: dialog[i].color }, text: { text: dialog[i].text, fill: 'black', 'font-size': '18px' } }
-                            });
-                            node.push(polygon);
-                            graph.addCell(polygon);
-                            break;
-                        case 'end':
+                    for (var i = 0; i < dialog.length; i++) {
+                        var height;
+                        if (i == 0 || i == dialog.length - 1) height = 0;
+                        else if (i % 2 == 0) height = 1;
+                        else height = -1;
+                        switch (dialog[i].type) {
+                            case 'condition':
+                                var polygon = new joint.shapes.basic.Rect({
+                                    position: { x: 150 * i + 100, y: 200 + height * 100 },
+                                    size: { width: 90, height: 90 },
+                                    attrs: { rect: { fill: dialog[i].color, 'fill-opacity': "1", 'stroke-opacity': "0.8" }, text: { text: dialog[i].text, fill: 'black', 'font-size': '18px' } }
+                                });
+                                node.push(polygon);
+                                graph.addCell(polygon);
+                                break;
+                            case 'operation':
+                                var rect = new joint.shapes.basic.Rect({
+                                    position: { x: 150 * i + 100, y: 200 + height * 100 },
+                                    size: { width: 120, height: 70 },
+                                    attrs: { rect: { fill: dialog[i].color }, text: { text: dialog[i].text, fill: "black", 'font-size': '18px' } }
+                                });
+                                node.push(rect);
+                                graph.addCell(rect);
+                                break;
+                            case 'inputoutput':
+                                var polygon = new joint.shapes.basic.Circle({
+                                    position: { x: 150 * i + 100, y: 200 + height * 100 },
+                                    size: { width: 150, height: 100 },
+                                    attrs: { circle: { fill: dialog[i].color }, text: { text: dialog[i].text, fill: 'black', 'font-size': '18px' } }
+                                });
+                                node.push(polygon);
+                                graph.addCell(polygon);
+                                break;
+                            case 'end':
 
-                            break;
-                        case 'subroutine':
-                            var rect = new joint.shapes.basic.Rect({
-                                position: { x: 150 * i + 100, y: 200 + height * 100 },
-                                size: { width: 120, height: 70 },
-                                attrs: { rect: { 'stroke-dasharray': 2, fill: dialog[i].color }, text: { text: dialog[i].text, fill: "black", 'font-size': '18px' } }
-                            });
-                            node.push(rect);
-                            graph.addCell(rect);
-                            break;
-                    }
-                }
-                var customer_service = new joint.shapes.basic.Circle({
-                    position: { x: 150 * dialog.length / 2, y: 500 },
-                    size: { width: 100, height: 100 },
-                    attrs: { circle: { fill: 'deepskyblue' }, text: { text: '客服電話', fill: 'white', 'font-size': '18px' } }
-                });
-                graph.addCell(customer_service);
-                var circle = new joint.shapes.basic.Circle({
-                    position: { x: 150 * dialog.length / 2 + 100, y: 500 },
-                    size: { width: 100, height: 100 },
-                    attrs: { circle: { fill: 'black' }, text: { text: '結束', fill: 'white', 'font-size': '18px' } }
-                });
-                graph.addCell(circle);
-                for (var i = 0; i < dialog.length; i++) {
-                    if (dialog[i].next != "") {
-                        var link;
-                        if (dialog[i].next == -3) {
-                            link = new joint.dia.Link({
-                                source: { id: node[i].id },
-                                target: { id: customer_service.id },
-                            });
-                        } else if (dialog[i].next == -2) {
-                            link = new joint.dia.Link({
-                                source: { id: node[i].id },
-                                target: { id: circle.id },
-                            });
-                        } else {
-                            link = new joint.dia.Link({
-                                source: { id: node[i].id },
-                                target: { id: node[dialog[i].next].id },
-                            });
+                                break;
+                            case 'subroutine':
+                                var rect = new joint.shapes.basic.Rect({
+                                    position: { x: 150 * i + 100, y: 200 + height * 100 },
+                                    size: { width: 120, height: 70 },
+                                    attrs: { rect: { 'stroke-dasharray': 2, fill: dialog[i].color }, text: { text: dialog[i].text, fill: "black", 'font-size': '18px' } }
+                                });
+                                node.push(rect);
+                                graph.addCell(rect);
+                                break;
                         }
-                        link.attr({
-                            '.marker-target': { fill: 'yellow', d: 'M 10 0 L 0 5 L 10 10 z' }
-                        });
-                        link.set('router', { name: 'manhattan' });
-                        link.set('smooth', true);
-                        unsurelink.push(link);
                     }
-                    else if (dialog[i].next == "" && dialog[i].goto != "") {
-                        for (var j = 0; j < dialog[i].goto.length; j++) {
+                    var customer_service = new joint.shapes.basic.Circle({
+                        position: { x: 150 * dialog.length / 2, y: 500 },
+                        size: { width: 100, height: 100 },
+                        attrs: { circle: { fill: 'deepskyblue' }, text: { text: '客服電話', fill: 'white', 'font-size': '18px' } }
+                    });
+                    graph.addCell(customer_service);
+                    var circle = new joint.shapes.basic.Circle({
+                        position: { x: 150 * dialog.length / 2 + 100, y: 500 },
+                        size: { width: 100, height: 100 },
+                        attrs: { circle: { fill: 'black' }, text: { text: '結束', fill: 'white', 'font-size': '18px' } }
+                    });
+                    graph.addCell(circle);
+                    for (var i = 0; i < dialog.length; i++) {
+                        if (dialog[i].next != "") {
                             var link;
-                            if (dialog[i].goto[j].next == -3) {
+                            if (dialog[i].next == -3) {
                                 link = new joint.dia.Link({
                                     source: { id: node[i].id },
                                     target: { id: customer_service.id },
                                 });
-                            } else if (dialog[i].goto[j].next == -2) {
+                            } else if (dialog[i].next == -2) {
                                 link = new joint.dia.Link({
                                     source: { id: node[i].id },
                                     target: { id: circle.id },
@@ -132,7 +107,7 @@
                             } else {
                                 link = new joint.dia.Link({
                                     source: { id: node[i].id },
-                                    target: { id: node[dialog[i].goto[j].next].id },
+                                    target: { id: node[dialog[i].next].id },
                                 });
                             }
                             link.attr({
@@ -140,45 +115,75 @@
                             });
                             link.set('router', { name: 'manhattan' });
                             link.set('smooth', true);
-                            link.set('labels', [{ position: .5, attrs: { text: { text: dialog[i].goto[j].processname || '', 'font-weight': 'bold' } } }]);
                             unsurelink.push(link);
                         }
-                    }
-                    else {
-
-                    }
-                }
-                var linktempone, linktemptwo;
-                for (var i = 0; i < unsurelink.length; i++) {
-                    if (unsurelink[i] != undefined) {
-                        linktempone = JSON.stringify(unsurelink[i]);
-                        linktempone = JSON.parse(linktempone);
-                        for (var j = i + 1; j < unsurelink.length; j++) {
-                            linktemptwo = JSON.stringify(unsurelink[j]);
-                            linktemptwo = JSON.parse(linktemptwo);
-                            if (linktempone != "") {
-                                if (linktempone.source.id == linktemptwo.source.id && linktempone.target.id == linktemptwo.target.id) {
-                                    unsurelink[i].label(0, {
-                                        position: .5,
-                                        attrs: {
-                                            text: { text: linktempone.labels[0].attrs.text.text + ',' + linktemptwo.labels[0].attrs.text.text }
-                                        }
+                        else if (dialog[i].next == "" && dialog[i].goto != "") {
+                            for (var j = 0; j < dialog[i].goto.length; j++) {
+                                var link;
+                                if (dialog[i].goto[j].next == -3) {
+                                    link = new joint.dia.Link({
+                                        source: { id: node[i].id },
+                                        target: { id: customer_service.id },
                                     });
-                                    linktempone.labels[0].attrs.text.text = linktempone.labels[0].attrs.text.text + ',' + linktemptwo.labels[0].attrs.text.text;
-                                    delete unsurelink[j];
+                                } else if (dialog[i].goto[j].next == -2) {
+                                    link = new joint.dia.Link({
+                                        source: { id: node[i].id },
+                                        target: { id: circle.id },
+                                    });
+                                } else {
+                                    link = new joint.dia.Link({
+                                        source: { id: node[i].id },
+                                        target: { id: node[dialog[i].goto[j].next].id },
+                                    });
+                                }
+                                link.attr({
+                                    '.marker-target': { fill: 'yellow', d: 'M 10 0 L 0 5 L 10 10 z' }
+                                });
+                                link.set('router', { name: 'manhattan' });
+                                link.set('smooth', true);
+                                link.set('labels', [{ position: .5, attrs: { text: { text: dialog[i].goto[j].processname || '', 'font-weight': 'bold' } } }]);
+                                unsurelink.push(link);
+                            }
+                        }
+                        else {
+
+                        }
+                    }
+                    var linktempone, linktemptwo;
+                    for (var i = 0; i < unsurelink.length; i++) {
+                        if (unsurelink[i] != undefined) {
+                            linktempone = JSON.stringify(unsurelink[i]);
+                            linktempone = JSON.parse(linktempone);
+                            for (var j = i + 1; j < unsurelink.length; j++) {
+                                linktemptwo = JSON.stringify(unsurelink[j]);
+                                linktemptwo = JSON.parse(linktemptwo);
+                                if (linktempone != "") {
+                                    if (linktempone.source.id == linktemptwo.source.id && linktempone.target.id == linktemptwo.target.id) {
+                                        unsurelink[i].label(0, {
+                                            position: .5,
+                                            attrs: {
+                                                text: { text: linktempone.labels[0].attrs.text.text + ',' + linktemptwo.labels[0].attrs.text.text }
+                                            }
+                                        });
+                                        linktempone.labels[0].attrs.text.text = linktempone.labels[0].attrs.text.text + ',' + linktemptwo.labels[0].attrs.text.text;
+                                        delete unsurelink[j];
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                for (var i = 0; i < unsurelink.length; i++) {
-                    if (unsurelink[i] != undefined) {
-                        graph.addCell(unsurelink[i]);
+                    for (var i = 0; i < unsurelink.length; i++) {
+                        if (unsurelink[i] != undefined) {
+                            graph.addCell(unsurelink[i]);
+                        }
                     }
                 }
-
+                else{
+                    alert("目前沒有流程圖可以顯示");
+                    window.close();
+                }
             }).fail(function (jqXhr, text, et) {
-            });
+                });
         });
     </script>
 </head>
