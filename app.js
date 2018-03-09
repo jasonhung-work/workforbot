@@ -800,8 +800,8 @@ function LoadFlow(flow) {
 
 // Create chat bot
 var connector = new builder.ChatConnector({
-    appId: config.bot_app_id, // process.env.MICROSOFT_APP_ID
-    appPassword: config.bot_app_password // process.env.MICROSOFT_APP_PASSWORD
+    appId: process.env.MicrosoftAppId,
+    appPassword: process.env.MicrosoftAppPassword
 });
 var bot = new builder.UniversalBot(connector);
 app.post('/api/messages', connector.listen());
