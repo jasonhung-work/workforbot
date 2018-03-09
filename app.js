@@ -1600,7 +1600,8 @@ bot.dialog('/flow', [
             }
         }
         session.conversationData.form = args ? args.form : {};
-        logger.info('Dialog ID: ' + session.conversationData.index + ', Description: ' + session.userData.dialogs[session.conversationData.index].description);
+        
+        logger.info('Dialog ID: ' + session.conversationData.index + ', Description: ' + session.userData.dialogs[session.conversationData.index]);
 
         if (sessions.containsKey(session.userData.userId)) {
             sessions.remove(session.userData.userId);
