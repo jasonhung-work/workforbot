@@ -376,8 +376,8 @@ app.delete('/dialog/:dialog_id/:flow_id', function (request, response) {
                     }
                 }
             } else if (dialogs[idx].type == 'condition') {
-                if(dialogs[delete_dialog_id].dialog_uuid == dialogs[idx].condition.success_dialog_id)dialogs[idx].condition.success_dialog_id = dialogs[idx].dialog_uuid;
-                else if (dialogs[delete_dialog_id].dialog_uuid ==dialogs[idx].condition.fail_dialog_id)dialogs[idx].condition.fail_dialog_id = dialogs[idx].dialog_uuid;
+                if (dialogs[delete_dialog_id].dialog_uuid == dialogs[idx].condition.success_dialog_id) dialogs[idx].condition.success_dialog_id = dialogs[idx].dialog_uuid;
+                else if (dialogs[delete_dialog_id].dialog_uuid == dialogs[idx].condition.fail_dialog_id) dialogs[idx].condition.fail_dialog_id = dialogs[idx].dialog_uuid;
             }
         }
         dialogs.splice(delete_dialog_id, 1);
@@ -568,7 +568,7 @@ app.get("/getDialog/:flow_id", function (request, response) {
                         if (dialog[i].condition.fail_dialog_id == dialog[j].dialog_uuid) {
                             fail_dialog_id = dialog[j].dialog_id;
                             break;
-                        } 
+                        }
                     }
                 }
                 var process_fail_data = {
@@ -1600,7 +1600,7 @@ bot.dialog('/flow', [
             }
         }
         session.conversationData.form = args ? args.form : {};
-        
+
         logger.info('Dialog ID: ' + session.conversationData.index + ', Description: ' + session.userData.dialogs[session.conversationData.index].description);
 
         if (sessions.containsKey(session.userData.userId)) {
@@ -1610,6 +1610,7 @@ bot.dialog('/flow', [
         session.userData._updateTime = new Date();
 
         var dialog = session.userData.dialogs[session.conversationData.index];
+        var dialogs_for_id = session.userData.dialogs;
         // 還原 Dialog 的文字內容，讓變數與訊息可以被重新置換
         if (dialog.prompt) {
             if (dialog._prompt) {
@@ -1807,9 +1808,31 @@ bot.dialog('/flow', [
                     break;
             }
             if (success) {
-                session.conversationData.index = dialog.condition.success_dialog_id;
+                var success_dialog_id;
+                if (dialog.condition.success_dialog_id == -2 || dialog.condition.success_dialog_id == -3) {
+                    dialog_id_choice = dialog.condition.success_dialog_id;
+                } else {
+                    for (var i = 0; i < dialogs_for_id.length; i++) {
+                        if (dialogs_for_id[i].dialog_uuid == dialog.condition.success_dialog_id) {
+                            success_dialog_id = dialogs_for_id[i].dialog_id;
+                            break;
+                        }
+                    }
+                }
+                session.conversationData.index = success_dialog_id;
             } else {
-                session.conversationData.index = dialog.condition.fail_dialog_id;
+                var fail_dialog_id;
+                if (dialog.condition.fail_dialog_id == -2 || dialog.condition.fail_dialog_id == -3) {
+                    dialog_id_choice = dialog.condition.fail_dialog_id;
+                } else {
+                    for (var i = 0; i < dialogs_for_id.length; i++) {
+                        if (dialogs_for_id[i].dialog_uuid == dialog.condition.fail_dialog_id) {
+                            fail_dialog_id = dialogs_for_id[i].dialog_id;
+                            break;
+                        }
+                    }
+                }
+                session.conversationData.index = fail_dialog_id;
             }
             session.replaceDialog('/flow', session.conversationData);
         } else if (dialog.type == 'operate') {
@@ -2027,6 +2050,7 @@ bot.dialog('/flow', [
     function (session, results) {
         session.userData._updateTime = new Date();
         var dialog = session.userData.dialogs[session.conversationData.index];
+        var dialogs_for_id = session.userData.dialogs;
         var field = dialog.field;
         logger.info('dialog type: ' + dialog.type);
         logger.info('index: ' + session.conversationData.index + ', field: ' + field + ', value: ' + results.response);
@@ -2062,14 +2086,48 @@ bot.dialog('/flow', [
 				if (!exist) {
 					session.conversationData.index++;
 				}
-				**/
-                session.conversationData.index = dialog.prompt.attachments[0].content.buttons[results.response.index].dialog_id;
+                **/
+                var dialog_id_choice;
+                if (dialog.prompt.attachments[0].content.buttons[results.response.index].dialog_id == -2 || dialog.prompt.attachments[0].content.buttons[results.response.index].dialog_id == -3) {
+                    dialog_id_choice = dialog.prompt.attachments[0].content.buttons[results.response.index].dialog_id;
+                } else {
+                    for (var i = 0; i < dialogs_for_id.length; i++) {
+                        if (dialogs_for_id[i].dialog_uuid == dialog.prompt.attachments[0].content.buttons[results.response.index].dialog_id) {
+                            dialog_id_choice = dialogs_for_id[i].dialog_id;
+                            break;
+                        }
+                    }
+                }
+                session.conversationData.index = dialog_id_choice;
             } else if (dialog.type == 'confirm') {
+
                 // Confirm 的 Button 需固定第一個為 YES
                 if (results.response) {
-                    session.conversationData.index = dialog.prompt.attachments[0].content.buttons[0].dialog_id;
+                    var dialog_id_confirm;
+                    if (dialog.prompt.attachments[0].content.buttons[0].dialog_id == -2 || dialog.prompt.attachments[0].content.buttons[0].dialog_id == -3) {
+                        dialog_id_confirm = dialog.prompt.attachments[0].content.buttons[0].dialog_id;
+                    } else {
+                        for (var i = 0; i < dialogs_for_id.length; i++) {
+                            if (dialogs_for_id[i].dialog_uuid == dialog.prompt.attachments[0].content.buttons[0].dialog_id) {
+                                dialog_id_confirm = dialogs_for_id[i].dialog_id;
+                                break;
+                            }
+                        }
+                    }
+                    session.conversationData.index = dialog_id_confirm;
                 } else {
-                    session.conversationData.index = dialog.prompt.attachments[0].content.buttons[1].dialog_id;
+                    var dialog_id_confirm;
+                    if (dialog.prompt.attachments[0].content.buttons[1].dialog_id == -2 || dialog.prompt.attachments[0].content.buttons[1].dialog_id == -3) {
+                        dialog_id_confirm = dialog.prompt.attachments[0].content.buttons[1].dialog_id;
+                    } else {
+                        for (var i = 0; i < dialogs_for_id.length; i++) {
+                            if (dialogs_for_id[i].dialog_uuid == dialog.prompt.attachments[0].content.buttons[1].dialog_id) {
+                                dialog_id_confirm = dialogs_for_id[i].dialog_id;
+                                break;
+                            }
+                        }
+                    }
+                    session.conversationData.index = dialog_id_confirm;
                 }
             }
             if (session.conversationData.index == -2) {
