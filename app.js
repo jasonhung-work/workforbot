@@ -10,7 +10,7 @@ log4js_extend(log4js, {
     path: __dirname,
     format: '(@file:@line:@column)'
 });
-log4js.configure(__dirname + '/lson');
+log4js.configure(__dirname + '/log4js.json');
 var logger = log4js.getLogger('bot');
 
 var express = require('express');
