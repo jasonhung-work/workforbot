@@ -4,10 +4,10 @@ var fs = require('fs');
 var request = require('request');
 
 var rootFolder = path.resolve('.');
-var zipPath = path.resolve(rootFolder, '../flow-bot-jason-test.zip');
-var kuduApi = 'https://flow-bot-jason-test.scm.azurewebsites.net/api/zip/site/wwwroot';
-var userName = '$flow-bot-jason-test';
-var password = 'arvcx2r4s08RxFbE8innXbDDEJlLB9ze1GwGro5Z5dtrNtGl8o1JNF4H7imf';
+var zipPath = path.resolve(rootFolder, '../bot-for-work.zip');
+var kuduApi = 'https://bot-for-work.scm.azurewebsites.net/api/zip/site/wwwroot';
+var userName = '$bot-for-work';
+var password = 'ri280TvvrcnKwscdjmt23S5QFRhwj0uzmva9GrgsvJrnS3KLjALbNJHWqoev';
 
 function uploadZip(callback) {
   fs.createReadStream(zipPath).pipe(request.put(kuduApi, {
@@ -45,8 +45,8 @@ function publish(callback) {
 
 publish(function(err) {
   if (!err) {
-    console.log('flow-bot-jason-test publish');
+    console.log('bot-for-work publish');
   } else {
-    console.error('failed to publish flow-bot-jason-test', err);
+    console.error('failed to publish bot-for-work', err);
   }
 });

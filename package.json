@@ -1,28 +1,29 @@
 {
   "name": "hello-chatconnector",
   "version": "1.0.0",
-  "description": "",
+  "description": "1. make code change in the online editor",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "azure-publish": "node publish.js",
-    "start": "node app.js"
+    "azure-publish": "node publish.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "latest",
-    "botbuilder": "latest",
-    "copy-dir": "latest",
-    "express": "latest",
-    "jointjs": "^2.0.1",
-    "log4js": "latest",
-    "log4js-extend": "latest",
-    "restify": "latest",
-    "socket.io": "^1.7.3"
+    "botbuilder": "^3.13.1",
+    "botbuilder-azure": "^3.0.4",
+    "restify": "^5.0.0"
   },
   "devDependencies": {
     "request": "^2.81.0",
     "zip-folder": "^1.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jasonhung-work/workforbot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jasonhung-work/workforbot/issues"
+  },
+  "homepage": "https://github.com/jasonhung-work/workforbot#readme"
 }
