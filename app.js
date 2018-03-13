@@ -1523,7 +1523,7 @@ function ReplaceMessage(target, locale) {
 bot.dialog('/flow', [
     function (session, args) {
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-        //logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
+        logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         session.conversationData.index = args ? args.index : 0;
 
