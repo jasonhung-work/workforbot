@@ -1523,7 +1523,7 @@ function ReplaceMessage(target, locale) {
 bot.dialog('/flow', [
     function (session, args) {
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-        logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
+        //logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         session.conversationData.index = args ? args.index : 0;
 
@@ -1601,7 +1601,8 @@ bot.dialog('/flow', [
         }
         session.conversationData.form = args ? args.form : {};
         
-        logger.info('Dialog ID: ' + session.conversationData.index + ', Description: ' + session.userData.dialogs[session.conversationData.index].description);
+        logger.info("Dialog UserData:" + JSON.stringify(session.userData));
+        //logger.info('Dialog ID: ' + session.conversationData.index + ', Description: ' + session.userData.dialogs[session.conversationData.index].description);
 
         if (sessions.containsKey(session.userData.userId)) {
             sessions.remove(session.userData.userId);
