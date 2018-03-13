@@ -10,7 +10,7 @@ log4js_extend(log4js, {
     path: __dirname,
     format: '(@file:@line:@column)'
 });
-log4js.configure(__dirname + '/log4js.json');
+log4js.configure(__dirname + '/lson');
 var logger = log4js.getLogger('bot');
 
 var express = require('express');
@@ -1706,7 +1706,7 @@ bot.dialog('/flow', [
             session.send(dialog.prompt);
             session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
             // session.conversationData.index++;
-            session.conversationData.index = dialog.next;
+            session.conversationData.index = dialog.next_id;
             if (session.conversationData.index == -2) {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
@@ -1722,7 +1722,7 @@ bot.dialog('/flow', [
             session.send(dialog.prompt);
             session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
             logger.info('session.send: ' + JSON.stringify(dialog.prompt));
-            session.conversationData.index = dialog.next;
+            session.conversationData.index = dialog.next_id;
             if (session.conversationData.index == -2) {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
@@ -1829,7 +1829,7 @@ bot.dialog('/flow', [
                 }
             }
             // eval('session.conversationData.form["' + dialog.field + '"] = ' + dialog.operate);
-            session.conversationData.index = dialog.next;
+            session.conversationData.index = dialog.next_id;
             session.replaceDialog('/flow', session.conversationData);
         } else if (dialog.type == 'webapi') {
             var http;
@@ -2048,7 +2048,7 @@ bot.dialog('/flow', [
             if (dialog.type == 'input') {
                 session.conversationData.form[session.userData.dialogs[session.conversationData.index.field]] = results.response;
                 // session.conversationData.index++;
-                session.conversationData.index = dialog.next;
+                session.conversationData.index = dialog.next_id;
             } else if (dialog.type == 'choice') {
 				/**
 				var exist = false;
