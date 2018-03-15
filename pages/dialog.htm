@@ -563,6 +563,7 @@
                             if (status == 'success') {
                                 $('#DialogModal').modal('toggle');
                                 Refresh();
+                                RefreshVariable();
                             } else {
                                 ShowMessage(ret);
                             }
@@ -852,6 +853,7 @@
                             Loaded();
                             $('#DialogModal').modal('toggle');
                             Refresh();
+                            RefreshVariable();
                         }
                     });
                     break;
