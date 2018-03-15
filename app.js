@@ -1439,7 +1439,7 @@ var lz_string = require('lz-string');
 function CompressData(session, callback) {
     session.userData = {};  // 若要保留上次的內容，可註解掉這一行
     session.userData.locale = 'tw';
-    session.userData.dialogs = JSON.parse(JSON.stringify(global.dialogs));
+    //session.userData.dialogs = JSON.parse(JSON.stringify(global.dialogs));
     session.userData.status = undefined;
     session.userData._updateTime = undefined;
     session.userData.channelId = session.message.address.channelId;
@@ -1463,6 +1463,7 @@ function CompressData(session, callback) {
     } else {
         session.userData.userId = session.message.user.id;
     }
+    logger.info("type of session" + typeof(session));
     session = lz_string.compress(JSON.stringify(session));
     callback(session);
 }
