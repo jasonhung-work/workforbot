@@ -1469,7 +1469,7 @@ function CompressData(session, callback) {
 
 bot.dialog('/',
     function (session) {
-        compress(session, function(data){
+        CompressData(session, function(data){
             logger.info("begin Data:" + data);
             session = data;
             session.beginDialog('/flow');
