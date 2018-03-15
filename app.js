@@ -1439,7 +1439,7 @@ bot.dialog('/',
     function (session) {
         session.userData = {};  // 若要保留上次的內容，可註解掉這一行
         session.userData.locale = 'tw';
-        session.userData.dialogs = JSON.parse(JSON.stringify(global.dialogs));
+        session.userData.dialogs = JSON.stringify(global.dialogs);
         session.userData.status = undefined;
         session.userData._updateTime = undefined;
         session.userData.channelId = session.message.address.channelId;
@@ -1522,6 +1522,7 @@ function ReplaceMessage(target, locale) {
 
 bot.dialog('/flow', [
     function (session, args) {
+        session.userData.dialogs = JSON.parse(session.userData.dialogs);
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
