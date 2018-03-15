@@ -1523,8 +1523,8 @@ function ReplaceMessage(target, locale) {
 
 bot.dialog('/flow', [
     function (session, args) {
-        logger.info("session.userData.dialogs type:" + typeof(session.userData.dialogs) + "session.userData.dialogs string" + lz-string.decompress(session.userData.dialogs));
-        if(typeof(session.userData.dialogs) == 'string')session.userData.dialogs = JSON.parse(lz-string.decompress(session.userData.dialogs));
+        logger.info("session.userData.dialogs type:" + typeof(session.userData.dialogs) + "session.userData.dialogs string" + lz_string.decompress(session.userData.dialogs));
+        if(typeof(session.userData.dialogs) == 'string')session.userData.dialogs = JSON.parse(lz_string.decompress(session.userData.dialogs));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
