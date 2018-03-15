@@ -1522,7 +1522,7 @@ function ReplaceMessage(target, locale) {
 
 bot.dialog('/flow', [
     function (session, args) {
-        session.userData.dialogs = JSON.parse(session.userData.dialogs);
+        if(typeof(session.userData.dialogs) == String)session.userData.dialogs = JSON.parse(session.userData.dialogs);
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
