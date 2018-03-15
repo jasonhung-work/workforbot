@@ -1441,6 +1441,9 @@ bot.dialog('/',
         session.userData = {};  // 若要保留上次的內容，可註解掉這一行
         session.userData.locale = 'tw';
         session.userData.dialogs = lz_string.compress(JSON.stringify(global.dialogs));
+        logger.info('=========================================================');
+        logger.info(session.userData.dialogs);
+        logger.info('=========================================================');
         session.userData.status = undefined;
         session.userData._updateTime = undefined;
         session.userData.channelId = session.message.address.channelId;
@@ -1449,7 +1452,7 @@ bot.dialog('/',
         } else {
             session.userData.snapin_name = session.message.address.channelId;
         }
-        logger.info('=========================================================');
+        /* logger.info('=========================================================');
         logger.info('conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('localizer: ' + JSON.stringify(session.localizer));
         logger.info('sessionState: ' + JSON.stringify(session.sessionState));
@@ -1458,7 +1461,7 @@ bot.dialog('/',
         logger.info('userData: ' + JSON.stringify(session.userData));
         logger.info('privateConversationData: ' + JSON.stringify(session.privateConversationData));
         logger.info('user: ' + JSON.stringify(session.message.user));
-        logger.info('=========================================================');
+        logger.info('========================================================='); */
         if (session.message.address.channelId == 'webchat') {   // 每一通 WebChat 的 User ID 都一樣，只能用 Conversation ID 區分
             session.userData.userId = session.message.address.conversation.id;
         } else {
