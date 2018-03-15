@@ -1463,7 +1463,7 @@ function CompressData(session, callback) {
     } else {
         session.userData.userId = session.message.user.id;
     }
-    session.userData = lz_string.compress(JSON.stringify(session.userData));
+    session = lz_string.compress(JSON.stringify(session));
     callback(session);
 }
 
@@ -1532,8 +1532,8 @@ function ReplaceMessage(target, locale) {
 
 bot.dialog('/flow', [
     function (session, args) {
-        logger.info("session type:" + typeof (session.userData));
-        if (typeof (session.userData) == 'string') session.userData = JSON.parse(lz_string.decompress(session.userData));
+        logger.info("session type:" + typeof (session));
+        if (typeof (session) == 'string') session = JSON.parse(lz_string.decompress(session));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
