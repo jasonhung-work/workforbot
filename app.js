@@ -1436,38 +1436,44 @@ function RegisterSnapinEvent(client) {
 //=========================================================
 var lz_string = require('lz-string');
 
+function CompressData(session, callback) {
+    session.userData = {};  // 若要保留上次的內容，可註解掉這一行
+    session.userData.locale = 'tw';
+    session.userData.dialogs = JSON.parse(JSON.stringify(global.dialogs));
+    session.userData.status = undefined;
+    session.userData._updateTime = undefined;
+    session.userData.channelId = session.message.address.channelId;
+    if (session.message.address.channelId == 'directline') {
+        session.userData.snapin_name = session.message.user.snapin_name;
+    } else {
+        session.userData.snapin_name = session.message.address.channelId;
+    }
+    logger.info('=========================================================');
+    logger.info('conversationData: ' + JSON.stringify(session.conversationData));
+    logger.info('localizer: ' + JSON.stringify(session.localizer));
+    logger.info('sessionState: ' + JSON.stringify(session.sessionState));
+    logger.info('conversationData: ' + JSON.stringify(session.conversationData));
+    logger.info('message: ' + JSON.stringify(session.message));
+    //logger.info('userData: ' + JSON.stringify(session.userData));
+    logger.info('privateConversationData: ' + JSON.stringify(session.privateConversationData));
+    logger.info('user: ' + JSON.stringify(session.message.user));
+    logger.info('=========================================================');
+    if (session.message.address.channelId == 'webchat') {   // 每一通 WebChat 的 User ID 都一樣，只能用 Conversation ID 區分
+        session.userData.userId = session.message.address.conversation.id;
+    } else {
+        session.userData.userId = session.message.user.id;
+    }
+    session.userData = lz_string.compress(JSON.stringify(session.userData));
+    callback(session);
+}
+
 bot.dialog('/',
     function (session) {
-        session.userData = {};  // 若要保留上次的內容，可註解掉這一行
-        session.userData.locale = 'tw';
-        session.userData.dialogs = lz_string.compress(JSON.stringify(global.dialogs));
-        logger.info('=========================================================');
-        logger.info(session.userData.dialogs);
-        logger.info('=========================================================');
-        session.userData.status = undefined;
-        session.userData._updateTime = undefined;
-        session.userData.channelId = session.message.address.channelId;
-        if (session.message.address.channelId == 'directline') {
-            session.userData.snapin_name = session.message.user.snapin_name;
-        } else {
-            session.userData.snapin_name = session.message.address.channelId;
-        }
-        /* logger.info('=========================================================');
-        logger.info('conversationData: ' + JSON.stringify(session.conversationData));
-        logger.info('localizer: ' + JSON.stringify(session.localizer));
-        logger.info('sessionState: ' + JSON.stringify(session.sessionState));
-        logger.info('conversationData: ' + JSON.stringify(session.conversationData));
-        logger.info('message: ' + JSON.stringify(session.message));
-        logger.info('userData: ' + JSON.stringify(session.userData));
-        logger.info('privateConversationData: ' + JSON.stringify(session.privateConversationData));
-        logger.info('user: ' + JSON.stringify(session.message.user));
-        logger.info('========================================================='); */
-        if (session.message.address.channelId == 'webchat') {   // 每一通 WebChat 的 User ID 都一樣，只能用 Conversation ID 區分
-            session.userData.userId = session.message.address.conversation.id;
-        } else {
-            session.userData.userId = session.message.user.id;
-        }
-        session.beginDialog('/flow');
+        compress(session, function(data){
+            logger.info("begin Data:" + data);
+            session = data;
+            session.beginDialog('/flow');
+        })
     }
 );
 
@@ -1526,8 +1532,8 @@ function ReplaceMessage(target, locale) {
 
 bot.dialog('/flow', [
     function (session, args) {
-        logger.info("session.userData.dialogs type:" + typeof(session.userData.dialogs));
-        if(typeof(session.userData.dialogs) == 'string')session.userData.dialogs = JSON.parse(lz_string.decompress(session.userData.dialogs));
+        logger.info("session type:" + typeof (session.userData));
+        if (typeof (session.userData) == 'string') session.userData = JSON.parse(lz_string.decompress(session.userData));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
