@@ -2058,6 +2058,7 @@ bot.dialog('/flow', [
                                 } catch (e) {
                                 }
                                 console.log('------------------ ' + result.answer);
+                                this.session.send(result.answer);
                                 this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = result.answer;
                             } catch (e) {
                                 logger.error(e);
