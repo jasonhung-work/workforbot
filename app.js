@@ -2064,7 +2064,16 @@ bot.dialog('/flow', [
                                 this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
                             }
                             this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
-                            this.session.replaceDialog('/flow', this.session.conversationData);
+                            if (this.session.conversationData.index == -2) {
+                                this.session.endDialogWithResult({ response: this.session.conversationData.form });
+                                if (this.session.message.address.channelId == 'directline') {
+                                    this.session.send('{ "action": "end_service" }');
+                                }
+                            } else if (this.session.conversationData.index == -3) {
+                                this.session.replaceDialog('/transfer', this.session.conversationData);
+                            } else {
+                                this.session.replaceDialog('/flow', this.session.conversationData);
+                            }
                         }.bind({ session: this.session, dialog: this.dialog, userDialog: this.userDialog }));
                     }.bind({ session: this.session, dialog: this.dialog, userDialog: this.userDialog }));
                     req.on('error', function (e) {
