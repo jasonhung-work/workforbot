@@ -1472,11 +1472,11 @@ function CompressData(session, callback) {
 bot.dialog('/',
     function (session) {
         logger.info('session:' + JSON.stringify(session));
-        /* CompressData(session, function(data){
+        CompressData(session, function(data){
             logger.info("begin Data:" + data);
             session = data;
             session.beginDialog('/flow');
-        }) */
+        }) 
     }
 );
 
