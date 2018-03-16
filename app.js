@@ -2065,7 +2065,7 @@ bot.dialog('/flow', [
                             }
                             this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                             this.session.replaceDialog('/flow', this.session.conversationData);
-                        }.bind({ session: this.session, dialog: this.dialog }));
+                        }.bind({ session: this.session, dialog: this.dialog, userDialog: this.userDialog }));
                     }.bind({ session: this.session, dialog: this.dialog, userDialog: this.userDialog }));
                     req.on('error', function (e) {
                         logger.error(e);
