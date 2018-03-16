@@ -1,3 +1,1 @@
-[
-    
-]
+[{"dialog_id":"0","type":"text","prompt":"WTF","dialog_uuid":"6503b975-d9e9-8fd0-3e40-ee3f5e87c8dc","field":"","description":"Hi","next":"600ba11e-46ce-34b1-2774-dcd0b2afeac9","skill":"DEFAULT","used":"false","next_id":"1"},{"dialog_id":"1","type":"card","field":"","prompt":{"attachments":[{"contentType":"application/vnd.microsoft.card.hero","content":{"title":"貓","subtitle":"貓","images":[{"url":"https://cdn.free.com.tw/blog/wp-content/uploads/2014/08/Placekitten480-g.jpg"}]}}]},"dialog_uuid":"600ba11e-46ce-34b1-2774-dcd0b2afeac9","description":"dddd","next":"-2","next_id":"0","used":"false","skill":"DEFAULT"}]

@@ -950,7 +950,7 @@ app.put('/api/registered/:acct/:token', function (req, res) {
             session.userData.status = 'start_service';
             var queue = snapin_queue.get(session.userData.snapin_name);
             if (queue != undefined) {
-                var Messages = session.conversationData.Messages;
+                var Messages = preventMessage.get(session.userData.userId);
                 if (sessions.get(acct).conversationData.form == undefined) {
                     sessions.get(acct).conversationData.form = {};
                 }
@@ -1009,10 +1009,12 @@ app.put('/api/message/:acct/:token', function (req, res) {
     var token = req.params.token;
     logger.info('從 Snapin [' + token + '] 接收到 message 指令，使用者是 ' + acct);
     var session = sessions.get(acct);
+    var userConversationMessage = preventMessage.get(session.userData.userId);
     if (session != undefined) {
         if (session.userData.status != undefined) {
             session.send(msg);
-            session.conversationData.Messages.push({ type: 'message', acct: 'agent', message: msg });
+            userConversationMessage.push({ type: 'message', acct: 'agent', message: msg });
+            preventMessage.set(session.userData.userId, userConversationMessage);
             session.userData._updateTime = new Date();
             res.end(JSON.stringify({ result: true }));
         } else {
@@ -1064,6 +1066,7 @@ app.put('/api/resource/:acct/:token', function (req, res) {
     logger.info('從 Snapin [' + token + '] 接收到 resource 指令，使用者是 ' + acct);
 
     var session = sessions.get(acct);
+    var userConversationMessage = preventMessage.get(session.userData.userId);
     if (session != undefined) {
         if (session.userData.status != undefined) {
             logger.info('resource.Type ' + resource.Type);
@@ -1101,7 +1104,8 @@ app.put('/api/resource/:acct/:token', function (req, res) {
             }
             if (msg != undefined) {
                 session.send(msg);
-                session.conversationData.Messages.push({ type: 'resource', acct: 'agent', message: msg });
+                userConversationMessage.push({ type: 'message', acct: 'agent', message: msg });
+                preventMessage.set(session.userData.userId, userConversationMessage);
             }
             session.userData._updateTime = new Date();
             res.end(JSON.stringify({ result: true }));
@@ -1270,7 +1274,7 @@ function RegisterSnapinEvent(client) {
                 // sessions.get(acct).userData.Agent = 'i-robot';  // 指定機器人
                 logger.info('Dialog data: ' + JSON.stringify(sessions.get(acct).conversationData));
                 logger.info('Dialog form data: ' + JSON.stringify(sessions.get(acct).conversationData.form));
-                var Messages = session.conversationData.Messages;
+                var Messages = preventMessage.get(session.userData.userId);
                 if (sessions.get(acct).conversationData.form == undefined) {
                     sessions.get(acct).conversationData.form = {};
                 }
@@ -1308,7 +1312,9 @@ function RegisterSnapinEvent(client) {
         var session = sessions.get(acct);
         if (session != undefined) {
             session.send(msg);
-            session.conversationData.Messages.push({ type: 'message', acct: 'agent', message: msg });
+            var userConversationMessage = preventMessage.get(session.userData.userId);
+            userConversationMessage.push({ type: 'message', acct: 'agent', message: msg });
+            preventMessage.set(session.userData.userId, userConversationMessage);
         }
     });
     client.on('locate', function (acct, agent) {
@@ -1353,7 +1359,9 @@ function RegisterSnapinEvent(client) {
             }
             if (msg != undefined) {
                 session.send(msg);
-                session.conversationData.Messages.push({ type: 'resource', acct: 'agent', message: msg });
+                var userConversationMessage = preventMessage.get(session.userData.userId);
+                userConversationMessage.push({ type: 'resource', acct: 'agent', message: msg });
+                preventMessage.set(session.userData.userId, userConversationMessage);
             }
         }
         // clients.get(acct).emit('resource', _resource, workitem_id);
@@ -1379,7 +1387,9 @@ function RegisterSnapinEvent(client) {
         var session = sessions.get(acct);
         if (session != undefined) {
             session.send('資料查詢中，請稍後片刻');
-            session.conversationData.Messages.push({ type: 'message', acct: 'agent', message: '資料查詢中，請稍後片刻' });
+            var userConversationMessage = preventMessage.get(session.userData.userId);
+            userConversationMessage.push({ type: 'message', acct: 'agent', message: '資料查詢中，請稍後片刻' });
+            preventMessage.set(session.userData.userId, userConversationMessage);
         }
     });
     client.on('retrieved', function (acct) {
@@ -1436,6 +1446,7 @@ function RegisterSnapinEvent(client) {
 //=========================================================
 var lz_string = require('lz-string');
 var preventDialog = new Map();
+var preventMessage = new Map();
 
 bot.dialog('/',
     function (session) {
@@ -1455,7 +1466,7 @@ bot.dialog('/',
         session.userData.dialogs = JSON.parse(JSON.stringify(global.dialogs)); 
         */
         session.userData = {};  // 若要保留上次的內容，可註解掉這一行
-        session.userData.locale = 'tw';        
+        session.userData.locale = 'tw';
         session.userData.status = undefined;
         session.userData._updateTime = undefined;
         session.userData.channelId = session.message.address.channelId;
@@ -1479,6 +1490,10 @@ bot.dialog('/',
             session.userData.userId = session.message.user.id;
         }
         preventDialog.set(session.userData.userId, JSON.stringify(global.dialogs));
+        if (!preventMessage.has(session.userData.userId)) {
+            var new_message = [];
+            preventMessage.set(session.userData.userId, new_message);
+        }
         session.beginDialog('/flow');
     }
 );
@@ -1539,6 +1554,7 @@ function ReplaceMessage(target, locale) {
 bot.dialog('/flow', [
     function (session, args) {
         var userDialog = JSON.parse(preventDialog.get(session.userData.userId));
+        var userConversationMessage = preventMessage.get(session.userData.userId);
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
@@ -1546,9 +1562,6 @@ bot.dialog('/flow', [
 
         if (session.conversationData.messageTimestamp != session.message.timestamp) {
             session.conversationData.messageTimestamp = session.message.timestamp;
-            if (session.conversationData.Messages == undefined) {
-                session.conversationData.Messages = [];
-            }
             if (session.message.type == 'message') {
                 logger.info('session.message.text: ' + session.message.text);
                 var message = session.message.text;
@@ -1563,11 +1576,11 @@ bot.dialog('/flow', [
                         if (session.message.attachments[index].contentType.indexOf('image') >= 0) {
                             resource.Type = 'Image';
                             resource.Content = session.message.attachments[index].contentUrl;
-                            session.conversationData.Messages.push({ type: 'resource', acct: session.userData.userId, resource: resource });
+                            userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
                         } else if (session.message.attachments[index].contentType.indexOf('video') >= 0) {
                             resource.Type = 'Image';
                             resource.Content = session.message.attachments[index].contentUrl;
-                            session.conversationData.Messages.push({ type: 'resource', acct: session.userData.userId, resource: resource });
+                            userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
                         }
                     }
                 }
@@ -1578,7 +1591,7 @@ bot.dialog('/flow', [
                             location.latitude = session.message.entities[index].geo.latitude;
                             location.longitude = session.message.entities[index].geo.longitude;
                             location.accuracy = 0;
-                            session.conversationData.Messages.push({ type: 'location', acct: session.userData.userId, location: location });
+                            userConversationMessage.push({ type: 'location', acct: session.userData.userId, location: location });
                         } else if (session.message.entities[index].type == 'clientInfo') {
                         }
                     }
@@ -1588,23 +1601,23 @@ bot.dialog('/flow', [
                         var resource = {};
                         resource.Type = 'Image';
                         resource.Content = message.url;
-                        session.conversationData.Messages.push({ type: 'resource', acct: session.userData.userId, resource: resource });
+                        userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
                     } else if (message.type == 'audio') {
                         var resource = {};
                         resource.Type = 'Audio';
                         resource.Content = message.url;
-                        session.conversationData.Messages.push({ type: 'resource', acct: session.userData.userId, resource: resource });
+                        userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
                     } else if (message.type == 'video') {
                         var resource = {};
                         resource.Type = 'Video';
                         resource.Content = message.url;
-                        session.conversationData.Messages.push({ type: 'resource', acct: session.userData.userId, resource: resource });
+                        userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
                     } else if (message.type == 'location') {
-                        session.conversationData.Messages.push({ type: 'location', acct: session.userData.userId, location: location });
+                        userConversationMessage.push({ type: 'location', acct: session.userData.userId, location: location });
                     }
                 } else {
                     logger.info('send message to snapin, message is ' + session.message.text);
-                    session.conversationData.Messages.push({ type: 'message', acct: session.userData.userId, message: message });
+                    userConversationMessage.push({ type: 'message', acct: session.userData.userId, message: message });
                 }
             }
         }
@@ -1722,7 +1735,8 @@ bot.dialog('/flow', [
         if (dialog.type == 'text') {
             logger.info('session.send: ' + JSON.stringify(dialog.prompt));
             session.send(dialog.prompt);
-            session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
+            userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
+            preventMessage.set(session.userData.userId, userConversationMessage);
             // session.conversationData.index++;
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
@@ -1740,7 +1754,8 @@ bot.dialog('/flow', [
         } else if (dialog.type == 'image') {
         } else if (dialog.type == 'card') {
             session.send(dialog.prompt);
-            session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
+            userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
+            preventMessage.set(session.userData.userId, userConversationMessage);
             logger.info('session.send: ' + JSON.stringify(dialog.prompt));
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
@@ -1774,12 +1789,14 @@ bot.dialog('/flow', [
                         }
                         logger.info('builder.Prompts.choice: ' + JSON.stringify(answer));
                         builder.Prompts.choice(session, answer.prompt, IIsMessage.join('|'));
-                        session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: answer.prompt });
+                        userConversationMessage.push({ type: 'message', acct: 'flowbot', message: answer.prompt });
+                        preventMessage.set(session.userData.userId, userConversationMessage);
                     }
                 }
             } else {
                 builder.Prompts.text(session, dialog.prompt);
-                session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
+                userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
+                preventMessage.set(session.userData.userId, userConversationMessage);
             }
         } else if (dialog.type == 'choice') {
             var IIsMessage = [];
@@ -1788,11 +1805,13 @@ bot.dialog('/flow', [
             }
             logger.info('builder.Prompts.choice: ' + JSON.stringify(dialog.prompt));
             builder.Prompts.choice(session, dialog.prompt, IIsMessage.join('|'), { maxRetries: 3, retryPrompt: '請重新輸入' });
-            session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
+            userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
+            preventMessage.set(session.userData.userId, userConversationMessage);
         } else if (dialog.type == 'confirm') {
             logger.info('builder.Prompts.confirm: ' + JSON.stringify(dialog.prompt));
             builder.Prompts.confirm(session, dialog.prompt, { maxRetries: 3, retryPrompt: '請重新輸入' });
-            session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
+            userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
+            preventMessage.set(session.userData.userId, userConversationMessage);
         } else if (dialog.type == 'condition') {
             var success = false;
             var target_field;
@@ -2178,6 +2197,7 @@ bot.dialog('/flow', [
 ]);
 
 bot.dialog('/transfer', function (session) {
+    var userConversationMessage = preventMessage.get(session.userData.userId);
     logger.info('================================');
     logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
     logger.info('================================');
@@ -2189,7 +2209,8 @@ bot.dialog('/transfer', function (session) {
     if (session.userData.status == undefined) {
         session.userData.status = 'register';
         session.send(locales[session.userData.locale]['menu_transfer']);
-        session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: locales[session.userData.locale]['menu_transfer'] });
+        userConversationMessage.push({ type: 'message', acct: 'flowbot', message: locales[session.userData.locale]['menu_transfer'] });
+        preventMessage.set(session.userData.userId, userConversationMessage);
         var snapin = snapins.get(session.userData.snapin_name);
         var queue = snapin_queue.get(session.userData.snapin_name);
         if (snapin != undefined) {
@@ -2209,7 +2230,8 @@ bot.dialog('/transfer', function (session) {
         if (snapin == undefined && queue == undefined) {
             logger.info('Snapin [' + session.userData.snapin_name + '] 不存在');
             session.send('很抱歉，目前客服人員都在忙線中，為了節省您寶貴的時間，請稍後再來訪，謝謝');
-            session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: '很抱歉，目前客服人員都在忙線中，為了節省您寶貴的時間，請稍後再來訪，謝謝' });
+            userConversationMessage.push({ type: 'message', acct: 'flowbot', message: '很抱歉，目前客服人員都在忙線中，為了節省您寶貴的時間，請稍後再來訪，謝謝' });
+            preventMessage.set(session.userData.userId, userConversationMessage);
             session.userData.status = undefined;
             session.userData._updateTime = undefined;
             session.beginDialog('/end');
@@ -2360,8 +2382,10 @@ bot.dialog('/transfer', function (session) {
 });
 
 bot.dialog('/end', function (session) {
+    var userConversationMessage = preventMessage.get(session.userData.userId);
     session.send(locales[session.userData.locale]['finished']);
-    session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: locales[session.userData.locale]['finished'] });
+    userConversationMessage.push({ type: 'message', acct: 'flowbot', message: locales[session.userData.locale]['finished'] });
+    preventMessage.set(session.userData.userId, userConversationMessage);
     // 20170321 告知 Social Gateway
     if (session.message.address.channelId == 'directline') {
         session.send('{ "action": "end_service" }');
@@ -2369,6 +2393,7 @@ bot.dialog('/end', function (session) {
     session.userData.status = undefined;
     session.userData._updateTime = undefined;
     preventDialog.delete(session.userData.userId);
+    preventMessage.delete(session.userData.userId);
     // session.endDialog();
     session.endConversation();
 });
@@ -2409,23 +2434,29 @@ setInterval(function () {
 
     for (var idx = 0; idx < sessions.getKeys().length; idx++) {
         var session = sessions.get(sessions.getKeys()[idx]);
+        var userConversationMessage = preventMessage.get(session.userData.userId);
         if (session.userData._updateTime != undefined) {
             if ((new Date().getTime() - session.userData._updateTime.getTime()) > 10 * 60 * 1000) {
                 if (session.userData.status == 'register') {
                     session.endConversation('很抱歉，目前客服人員都在忙線中，為了節省您寶貴的時間，請稍後再來訪，謝謝');
-                    session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: '很抱歉，目前客服人員都在忙線中，為了節省您寶貴的時間，請稍後再來訪，謝謝' });
+                    userConversationMessage.push({ type: 'message', acct: 'flowbot', message: '很抱歉，目前客服人員都在忙線中，為了節省您寶貴的時間，請稍後再來訪，謝謝' });
+                    preventMessage.set(session.userData.userId, userConversationMessage);
                 } else if (session.userData.status == 'start_service') {
                     session.endConversation('很抱歉，目前客服人員都在忙線中，為了節省您寶貴的時間，請稍後再來訪，謝謝');
-                    session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: '很抱歉，目前客服人員都在忙線中，為了節省您寶貴的時間，請稍後再來訪，謝謝' });
+                    userConversationMessage.push({ type: 'message', acct: 'flowbot', message: '很抱歉，目前客服人員都在忙線中，為了節省您寶貴的時間，請稍後再來訪，謝謝' });
+                    preventMessage.set(session.userData.userId, userConversationMessage);
                 } else if (session.userData.status == 'ringing') {
                     session.endConversation('很抱歉，目前客服人員都在忙線中，為了節省您寶貴的時間，請稍後再來訪，謝謝');
-                    session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: '很抱歉，目前客服人員都在忙線中，為了節省您寶貴的時間，請稍後再來訪，謝謝' });
+                    userConversationMessage.push({ type: 'message', acct: 'flowbot', message: '很抱歉，目前客服人員都在忙線中，為了節省您寶貴的時間，請稍後再來訪，謝謝' });
+                    preventMessage.set(session.userData.userId, userConversationMessage);
                 } else if (session.userData.status == 'answer') {
                     session.endConversation('很抱歉，因遲遲沒有得到您的回應，本次通話已自動斷線');
-                    session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: '很抱歉，因遲遲沒有得到您的回應，本次通話已自動斷線' });
+                    userConversationMessage.push({ type: 'message', acct: 'flowbot', message: '很抱歉，因遲遲沒有得到您的回應，本次通話已自動斷線' });
+                    preventMessage.set(session.userData.userId, userConversationMessage);
                 } else {
                     session.endConversation('很抱歉，因遲遲沒有得到您的回應，本次通話已自動斷線');
-                    session.conversationData.Messages.push({ type: 'message', acct: 'flowbot', message: '很抱歉，因遲遲沒有得到您的回應，本次通話已自動斷線' });
+                    userConversationMessage.push({ type: 'message', acct: 'flowbot', message: '很抱歉，因遲遲沒有得到您的回應，本次通話已自動斷線' });
+                    preventMessage.set(session.userData.userId, userConversationMessage);
                 }
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
@@ -2440,6 +2471,7 @@ setInterval(function () {
                 session.userData.status = undefined;
                 session.userData._updateTime = undefined;
                 preventDialog.delete(session.userData.userId);
+                preventMessage.delete(session.userData.userId);
                 sessions.remove(sessions.getKeys()[idx]);
             }
         }
