@@ -2014,6 +2014,7 @@ bot.dialog('/flow', [
                     this.dialog.qna_maker.body = {
                         'question': ReplaceVariable(this.dialog.qna_maker.problem, this.session.conversationData)
                     };
+                    logger.info('qna_maker_body: ' + JSON.stringify(this.dialog.qna_maker.body));
                     logger.info('To QnAMaker: ' + this.dialog.qna_maker.body.question);
                     var length = Buffer.byteLength(JSON.stringify(this.dialog.qna_maker.body), 'utf8')
                     options.headers['Content-Length'] = length;
