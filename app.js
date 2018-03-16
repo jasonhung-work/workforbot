@@ -2199,7 +2199,7 @@ bot.dialog('/flow', [
 bot.dialog('/transfer', function (session) {
     var userConversationMessage = preventMessage.get(session.userData.userId);
     logger.info('================================');
-    logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
+    logger.info('/transfer session conversationData: ' + JSON.stringify(session.conversationData));
     logger.info('================================');
     if (sessions.containsKey(session.userData.userId)) {
         sessions.remove(session.userData.userId);
