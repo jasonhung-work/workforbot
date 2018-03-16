@@ -1465,7 +1465,7 @@ function CompressData(session, callback) {
     }
     logger.info("type of session" + typeof(session));
     logger.info("session:" + session);
-    session = lz_string.compress(session.tostring());
+    session = lz_string.compress(session.toString());
     callback(session);
 }
 
