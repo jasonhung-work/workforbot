@@ -1464,14 +1464,14 @@ function CompressData(session, callback) {
         session.userData.userId = session.message.user.id;
     }
     logger.info("type of session" + typeof(session));
-    logger.info("session:" + session);
+    logger.info("session:" + session.toString());
     session = lz_string.compress(session.toString());
     callback(session);
 }
 
 bot.dialog('/',
     function (session) {
-        logger.info('session:' + JSON.stringify(session));
+        logger.info('session:' + session.toString());
         CompressData(session, function(data){
             logger.info("begin Data:" + data);
             session = data;
