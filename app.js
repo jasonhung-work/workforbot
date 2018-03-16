@@ -2058,7 +2058,6 @@ bot.dialog('/flow', [
                                 } catch (e) {
                                 }
                                 console.log('------------------ ' + result.answer);
-                                console.log("what is userDialog: " + JSON.stringify(this.userDialog));
                                 this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = result.answer;
                             } catch (e) {
                                 logger.error(e);
