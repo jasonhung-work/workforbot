@@ -1435,42 +1435,11 @@ function RegisterSnapinEvent(client) {
 // Bots Dialogs
 //=========================================================
 var lz_string = require('lz-string');
-
-function CompressData(session, callback) {
-    session.userData = {};  // 若要保留上次的內容，可註解掉這一行
-    session.userData.locale = 'tw';
-    //session.userData.dialogs = JSON.parse(JSON.stringify(global.dialogs));
-    session.userData.status = undefined;
-    session.userData._updateTime = undefined;
-    session.userData.channelId = session.message.address.channelId;
-    if (session.message.address.channelId == 'directline') {
-        session.userData.snapin_name = session.message.user.snapin_name;
-    } else {
-        session.userData.snapin_name = session.message.address.channelId;
-    }
-    logger.info('=========================================================');
-    logger.info('conversationData: ' + JSON.stringify(session.conversationData));
-    logger.info('localizer: ' + JSON.stringify(session.localizer));
-    logger.info('sessionState: ' + JSON.stringify(session.sessionState));
-    logger.info('conversationData: ' + JSON.stringify(session.conversationData));
-    logger.info('message: ' + JSON.stringify(session.message));
-    //logger.info('userData: ' + JSON.stringify(session.userData));
-    logger.info('privateConversationData: ' + JSON.stringify(session.privateConversationData));
-    logger.info('user: ' + JSON.stringify(session.message.user));
-    logger.info('=========================================================');
-    if (session.message.address.channelId == 'webchat') {   // 每一通 WebChat 的 User ID 都一樣，只能用 Conversation ID 區分
-        session.userData.userId = session.message.address.conversation.id;
-    } else {
-        session.userData.userId = session.message.user.id;
-    }
-    logger.info("type of session" + typeof (session));
-    logger.info("session:" + JSON.stringify(session));
-    session = lz_string.compress(JSON.stringify(session));
-    callback(session);
-}
+var preventDialog = new Map();
 
 bot.dialog('/',
     function (session) {
+        /*  這邊是用來查看
         seen = [];
 
         var replacer = function (key, value) {
@@ -1482,12 +1451,36 @@ bot.dialog('/',
             }
             return value;
         };
-        logger.info('session:' + JSON.stringify(session, replacer));
-        CompressData(session, function (data) {
-            logger.info("begin Data:" + data);
-            session = data;
-            session.beginDialog('/flow');
-        })
+        logger.info('session:' + JSON.stringify(session, replacer)); 
+        session.userData.dialogs = JSON.parse(JSON.stringify(global.dialogs)); 
+        */
+        session.userData = {};  // 若要保留上次的內容，可註解掉這一行
+        session.userData.locale = 'tw';        
+        session.userData.status = undefined;
+        session.userData._updateTime = undefined;
+        session.userData.channelId = session.message.address.channelId;
+        if (session.message.address.channelId == 'directline') {
+            session.userData.snapin_name = session.message.user.snapin_name;
+        } else {
+            session.userData.snapin_name = session.message.address.channelId;
+        }
+        logger.info('=========================================================');
+        logger.info('conversationData: ' + JSON.stringify(session.conversationData));
+        logger.info('localizer: ' + JSON.stringify(session.localizer));
+        logger.info('sessionState: ' + JSON.stringify(session.sessionState));
+        logger.info('conversationData: ' + JSON.stringify(session.conversationData));
+        logger.info('message: ' + JSON.stringify(session.message));
+        logger.info('userData: ' + JSON.stringify(session.userData));
+        logger.info('privateConversationData: ' + JSON.stringify(session.privateConversationData));
+        logger.info('user: ' + JSON.stringify(session.message.user));
+        logger.info('=========================================================');
+        if (session.message.address.channelId == 'webchat') {   // 每一通 WebChat 的 User ID 都一樣，只能用 Conversation ID 區分
+            session.userData.userId = session.message.address.conversation.id;
+        } else {
+            session.userData.userId = session.message.user.id;
+        }
+        preventDialog.set(session.userData.userId, JSON.stringify(global.dialogs));
+        session.beginDialog('/flow');
     }
 );
 
@@ -1546,6 +1539,7 @@ function ReplaceMessage(target, locale) {
 
 bot.dialog('/flow', [
     function (session, args) {
+        var userDialog = JSON.parse(preventDialog.get(session.userData.userId));
         logger.info("session type:" + typeof (session));
         if (typeof (session) == 'string') session = JSON.parse(lz_string.decompress(session));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
@@ -1627,7 +1621,7 @@ bot.dialog('/flow', [
         }
         session.conversationData.form = args ? args.form : {};
 
-        logger.info('Dialog ID: ' + session.conversationData.index + ', Description: ' + session.userData.dialogs[session.conversationData.index].description);
+        logger.info('Dialog ID: ' + session.conversationData.index + ', Description: ' + userDialog[session.conversationData.index].description);
 
         if (sessions.containsKey(session.userData.userId)) {
             sessions.remove(session.userData.userId);
@@ -1635,8 +1629,8 @@ bot.dialog('/flow', [
         sessions.add(session.userData.userId, session);
         session.userData._updateTime = new Date();
 
-        var dialog = session.userData.dialogs[session.conversationData.index];
-        var dialogs_for_id = session.userData.dialogs;
+        var dialog = userDialog[session.conversationData.index];
+        var dialogs_for_id = userDialog;
         // 還原 Dialog 的文字內容，讓變數與訊息可以被重新置換
         if (dialog.prompt) {
             if (dialog._prompt) {
@@ -1923,21 +1917,21 @@ bot.dialog('/flow', [
                     logger.info('REQUEST END');
                     try {
                         var result = res.body;
-                        this.session.conversationData.form[this.session.userData.dialogs[this.session.conversationData.index].field] = result;
+                        this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = result;
                     } catch (e) {
                         logger.error(e);
-                        this.session.conversationData.form[this.session.userData.dialogs[this.session.conversationData.index].field] = e.message;
+                        this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
                     }
-                    this.session.conversationData.index = this.session.userData.dialogs[this.session.conversationData.index].next;
+                    this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                     this.session.replaceDialog('/flow', this.session.conversationData);
                 }.bind({ session: this.session }));
-            }.bind({ session: session }));
+            }.bind({ session: session, userDialog: userDialog }));
             req.on('error', function (e) {
                 logger.error(e);
-                this.session.conversationData.form[this.session.userData.dialogs[this.session.conversationData.index].field] = e.message;
-                this.session.conversationData.index = this.session.userData.dialogs[this.session.conversationData.index].next;
+                this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
+                this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                 this.session.replaceDialog('/flow', this.session.conversationData);
-            }.bind({ session: session }));
+            }.bind({ session: session, userDialog: userDialog }));
             if (dialog.webapi.method == 'post' || dialog.webapi.method == 'put') {
                 req.write(body);
             }
@@ -2045,41 +2039,42 @@ bot.dialog('/flow', [
                                 } catch (e) {
                                 }
                                 console.log('------------------ ' + result.answer);
-                                this.session.conversationData.form[this.session.userData.dialogs[this.session.conversationData.index].field] = result.answer;
+                                this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = result.answer;
                             } catch (e) {
                                 logger.error(e);
-                                this.session.conversationData.form[this.session.userData.dialogs[this.session.conversationData.index].field] = e.message;
+                                this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
                             }
-                            this.session.conversationData.index = this.session.userData.dialogs[this.session.conversationData.index].next;
+                            this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                             this.session.replaceDialog('/flow', this.session.conversationData);
                         }.bind({ session: this.session, dialog: this.dialog }));
-                    }.bind({ session: this.session, dialog: this.dialog }));
+                    }.bind({ session: this.session, dialog: this.dialog, userDialog: this.userDialog }));
                     req.on('error', function (e) {
                         logger.error(e);
-                        this.session.conversationData.form[this.session.userData.dialogs[this.session.conversationData.index].field] = e.message;
-                        this.session.conversationData.index = this.session.userData.dialogs[this.session.conversationData.index].next;
+                        this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
+                        this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                         this.session.replaceDialog('/flow', this.session.conversationData);
-                    }.bind({ session: this.session }));
+                    }.bind({ session: this.session, userDialog: this.userDialog }));
                     req.write(JSON.stringify(this.dialog.qna_maker.body));
                     req.end();
 
 
 
-                }.bind({ session: this.session, dialog: this.dialog }));
-            }.bind({ session: session, dialog: dialog }));
+                }.bind({ session: this.session, dialog: this.dialog, userDialog: this.userDialog }));
+            }.bind({ session: session, dialog: dialog, userDialog: userDialog }));
             req.on('error', function (e) {
                 logger.error(e);
-                this.session.conversationData.form[this.session.userData.dialogs[this.session.conversationData.index].field] = e.message;
-                this.session.conversationData.index = this.session.userData.dialogs[this.session.conversationData.index].next;
+                this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
+                this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                 this.session.replaceDialog('/flow', this.session.conversationData);
-            }.bind({ session: session }));
+            }.bind({ session: session, userDialog: userDialog }));
             req.end();
         }
     },
     function (session, results) {
         session.userData._updateTime = new Date();
-        var dialog = session.userData.dialogs[session.conversationData.index];
-        var dialogs_for_id = session.userData.dialogs;
+        var userDialog = JSON.parse(preventDialog.get(session.userData.userId));
+        var dialog = userDialog[session.conversationData.index];
+        var dialogs_for_id = userDialog;
         var field = dialog.field;
         logger.info('dialog type: ' + dialog.type);
         logger.info('index: ' + session.conversationData.index + ', field: ' + field + ', value: ' + results.response);
@@ -2099,7 +2094,7 @@ bot.dialog('/flow', [
                 session.userData['locale'] = results.response.entity;
             }
             if (dialog.type == 'input') {
-                session.conversationData.form[session.userData.dialogs[session.conversationData.index.field]] = results.response;
+                session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response;
                 // session.conversationData.index++;
                 if (dialog.next < 0) session.conversationData.index = dialog.next;
                 else session.conversationData.index = dialog.next_id;
@@ -2374,6 +2369,7 @@ bot.dialog('/end', function (session) {
     }
     session.userData.status = undefined;
     session.userData._updateTime = undefined;
+    preventDialog.delete(session.userData.userId);
     // session.endDialog();
     session.endConversation();
 });
@@ -2444,6 +2440,7 @@ setInterval(function () {
                 }
                 session.userData.status = undefined;
                 session.userData._updateTime = undefined;
+                preventDialog.delete(session.userData.userId);
                 sessions.remove(sessions.getKeys()[idx]);
             }
         }
