@@ -1463,7 +1463,7 @@ function CompressData(session, callback) {
     } else {
         session.userData.userId = session.message.user.id;
     }
-    logger.info("type of session" + typeof(session));
+    logger.info("type of session" + typeof (session));
     logger.info("session:" + JSON.stringify(session));
     session = lz_string.compress(JSON.stringify(session));
     callback(session);
@@ -1471,12 +1471,23 @@ function CompressData(session, callback) {
 
 bot.dialog('/',
     function (session) {
-        logger.info('session:' + session);
-        CompressData(session, function(data){
+        seen = [];
+
+        var replacer = function (key, value) {
+            if (value != null && typeof value == "object") {
+                if (seen.indexOf(value) >= 0) {
+                    return;
+                }
+                seen.push(value);
+            }
+            return value;
+        };
+        logger.info('session:' + JSON.stringify(session, replacer));
+        CompressData(session, function (data) {
             logger.info("begin Data:" + data);
             session = data;
             session.beginDialog('/flow');
-        }) 
+        })
     }
 );
 
