@@ -1465,9 +1465,8 @@ bot.dialog('/',
             session.userData.snapin_name = session.message.address.channelId;
         }
         logger.info('=========================================================');
-        logger.info('conversationData: ' + JSON.stringify(session.conversationData));
-        logger.info('localizer: ' + JSON.stringify(session.localizer));
-        logger.info('sessionState: ' + JSON.stringify(session.sessionState));
+        //logger.info('localizer: ' + JSON.stringify(session.localizer));
+        //logger.info('sessionState: ' + JSON.stringify(session.sessionState));
         logger.info('conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('message: ' + JSON.stringify(session.message));
         logger.info('userData: ' + JSON.stringify(session.userData));
@@ -1540,8 +1539,6 @@ function ReplaceMessage(target, locale) {
 bot.dialog('/flow', [
     function (session, args) {
         var userDialog = JSON.parse(preventDialog.get(session.userData.userId));
-        logger.info("session type:" + typeof (session));
-        if (typeof (session) == 'string') session = JSON.parse(lz_string.decompress(session));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
@@ -1729,6 +1726,7 @@ bot.dialog('/flow', [
             // session.conversationData.index++;
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
+            logger.info('index: ' + session.conversationData.index);
             if (session.conversationData.index == -2) {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
@@ -1746,6 +1744,7 @@ bot.dialog('/flow', [
             logger.info('session.send: ' + JSON.stringify(dialog.prompt));
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
+            logger.info('index: ' + session.conversationData.index);
             if (session.conversationData.index == -2) {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
