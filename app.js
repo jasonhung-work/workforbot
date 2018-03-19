@@ -21,10 +21,10 @@ var hashtable = require(__dirname + '/hashtable.js');
 var sessions = new hashtable.Hashtable;
 
 // Setup Express Server
-app.use(bodyParser.urlencoded({
+app.use(bodyParser.urlencoded({limit:'2mb',
     extended: true
 }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '2mb'}));
 app.all('*', function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
