@@ -335,6 +335,7 @@ app.put('/dialog/:dialog_id/:flow_id', function (request, response) {
         if (request.params.dialog_id == 'editAll') {
             dialogs = dialog;
             dialogs.sort(UP);
+            console.log('dialogs: ' + JSON.stringify(dialogs));
         } else {
             dialogs[request.params.dialog_id] = dialog;
         }
