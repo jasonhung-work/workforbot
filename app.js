@@ -380,6 +380,11 @@ app.delete('/dialog/:dialog_id/:flow_id', function (request, response) {
                 else if (dialogs[delete_dialog_id].dialog_uuid == dialogs[idx].condition.fail_dialog_id) dialogs[idx].condition.fail_dialog_id = dialogs[idx].dialog_uuid;
             }
         }
+        dialogs.splice(delete_dialog_id, 1);
+        // 將後面的 Dialog 重新編制編號
+        for (var idx = delete_dialog_id; idx < dialogs.length; idx++) {
+            dialogs[idx].dialog_id = idx;
+        }
         for (var idx = 0; idx < dialogs.length; idx++) {
             //將編號改完正確的
             for (var idy = 0; idy < dialogs.length; idy++) {
@@ -388,11 +393,6 @@ app.delete('/dialog/:dialog_id/:flow_id', function (request, response) {
                     break;
                 }
             }
-        }
-        dialogs.splice(delete_dialog_id, 1);
-        // 將後面的 Dialog 重新編制編號
-        for (var idx = delete_dialog_id; idx < dialogs.length; idx++) {
-            dialogs[idx].dialog_id = idx;
         }
         if (flow.active == 'true') {
             global.dialogs = dialogs;
