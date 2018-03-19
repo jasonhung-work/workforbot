@@ -474,6 +474,7 @@
                             Dialogs[orginalDialog_id].dialog_id = changeDialog_id;
                             for (var index = orginalDialog_id + 1; index <= changeDialog_id; index++) {
                                 Dialogs[index].dialog_id = index - 1;
+                                alert(Dialogs[index].dialog_id);
                             }
                         } else if (orginalDialog_id > changeDialog_id) {
                             Dialogs[orginalDialog_id].dialog_id = changeDialog_id;
@@ -488,6 +489,7 @@
                                 }
                             }
                         }
+                        alert(JSON.stringify(Dialogs));
                         $.ajax({
                             url: '../../dialog/' + 'editAll' + '/' + FlowID,
                             type: 'PUT',
