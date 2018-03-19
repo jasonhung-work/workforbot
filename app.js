@@ -350,8 +350,7 @@ app.put('/dialog/:dialog_id/:flow_id', function (request, response) {
     }
 });
 function UP(x, y) {
-    return (x["dialog_id"] > y["dialog_id"]) ? 1 : -1
-
+    return (parseInt(x["dialog_id"]) > parseInt(y["dialog_id"])) ? 1 : -1
 }
 app.delete('/dialog/:dialog_id/:flow_id', function (request, response) {
     request.header('Content-Type', 'application/json');
