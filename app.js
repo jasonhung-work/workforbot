@@ -20,7 +20,7 @@ var builder = require('botbuilder');
 var hashtable = require(__dirname + '/hashtable.js');
 var sessions = new hashtable.Hashtable;
 
-// Setup Express Server
+// Setup Express Server////////////////////////
 app.use(bodyParser.urlencoded({limit:'2mb',
     extended: true
 }));
