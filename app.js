@@ -320,7 +320,6 @@ app.post('/dialog/:flow_id', function (request, response) {
 app.put('/dialog/:dialog_id/:flow_id', function (request, response) {
     request.header('Content-Type', 'application/json');
     var dialog = request.body.dialog;
-    console.log('dialog: ' + JSON.stringify(dialog));
     var flow_id = request.params.flow_id;
     var flow;
     for (var index = 0; index < flows.length; index++) {
@@ -337,7 +336,6 @@ app.put('/dialog/:dialog_id/:flow_id', function (request, response) {
             dialogs = dialog;
             dialogs.sort(UP);
         } else {
-            console.log('dialog_id: ' + request.params.dialog_id);
             dialogs[request.params.dialog_id] = dialog;
         }
         if (flow.active == 'true') {

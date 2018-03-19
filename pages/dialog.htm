@@ -469,12 +469,10 @@
                     if ($('#TxtExistedDialogID').val() != $('#TxtRecordDialogID').val()) {
                         var changeDialog_id = parseInt($('#TxtExistedDialogID').val());
                         var orginalDialog_id = parseInt($('#TxtRecordDialogID').val());
-                        alert('changeDialog_id: ' + changeDialog_id + 'orginalDialog_id: ' + orginalDialog_id);
                         if (orginalDialog_id < changeDialog_id) {
                             Dialogs[orginalDialog_id].dialog_id = changeDialog_id;
                             for (var index = orginalDialog_id + 1; index <= changeDialog_id; index++) {
                                 Dialogs[index].dialog_id = index - 1;
-                                alert(Dialogs[index].dialog_id);
                             }
                         } else if (orginalDialog_id > changeDialog_id) {
                             Dialogs[orginalDialog_id].dialog_id = changeDialog_id;
