@@ -378,6 +378,8 @@ app.delete('/dialog/:dialog_id/:flow_id', function (request, response) {
             } else if (dialogs[idx].type == 'condition') {
                 if (dialogs[delete_dialog_id].dialog_uuid == dialogs[idx].condition.success_dialog_id) dialogs[idx].condition.success_dialog_id = dialogs[idx].dialog_uuid;
                 else if (dialogs[delete_dialog_id].dialog_uuid == dialogs[idx].condition.fail_dialog_id) dialogs[idx].condition.fail_dialog_id = dialogs[idx].dialog_uuid;
+            } else {
+                if(dialogs[delete_dialog_id].dialog_uuid == dialogs[idx].next) dialogs[idx].next = dialogs[idx].dialog_uuid;
             }
         }
         dialogs.splice(delete_dialog_id, 1);
