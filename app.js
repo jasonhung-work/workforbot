@@ -337,6 +337,7 @@ app.put('/dialog/:dialog_id/:flow_id', function (request, response) {
             dialogs = dialog;
             dialogs.sort(UP);
         } else {
+            console.log('dialog_id: ' + request.params.dialog_id);
             dialogs[request.params.dialog_id] = dialog;
         }
         if (flow.active == 'true') {
@@ -349,7 +350,7 @@ app.put('/dialog/:dialog_id/:flow_id', function (request, response) {
     }
 });
 function UP(x, y) {
-    return (x.dialog_id < y.dialog_id) ? -1 : 1
+    return (x[dialog_id] > y[dialog_id]) ? 1 : -1
 
 }
 app.delete('/dialog/:dialog_id/:flow_id', function (request, response) {
