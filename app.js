@@ -1905,7 +1905,16 @@ bot.dialog('/flow', [
             // eval('session.conversationData.form["' + dialog.field + '"] = ' + dialog.operate);
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
-            session.replaceDialog('/flow', session.conversationData);
+            if (session.conversationData.index == -2) {
+                this.session.endDialogWithResult({ response: session.conversationData.form });
+                if (session.message.address.channelId == 'directline') {
+                    session.send('{ "action": "end_service" }');
+                }
+            } else if (session.conversationData.index == -3) {
+                session.replaceDialog('/transfer', session.conversationData);
+            } else {
+                session.replaceDialog('/flow', session.conversationData);
+            }
         } else if (dialog.type == 'webapi') {
             var http;
             if (dialog.webapi.protocol == 'http') {
@@ -1951,15 +1960,35 @@ bot.dialog('/flow', [
                         logger.error(e);
                         this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
                     }
-                    this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
-                    this.session.replaceDialog('/flow', this.session.conversationData);
+                    if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
+                    else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
+                    if (this.session.conversationData.index == -2) {
+                        this.session.endDialogWithResult({ response: this.session.conversationData.form });
+                        if (this.session.message.address.channelId == 'directline') {
+                            this.session.send('{ "action": "end_service" }');
+                        }
+                    } else if (this.session.conversationData.index == -3) {
+                        this.session.replaceDialog('/transfer', this.session.conversationData);
+                    } else {
+                        this.session.replaceDialog('/flow', this.session.conversationData);
+                    }
                 }.bind({ session: this.session, userDialog: this.userDialog }));
             }.bind({ session: session, userDialog: userDialog }));
             req.on('error', function (e) {
                 logger.error(e);
                 this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
-                this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
-                this.session.replaceDialog('/flow', this.session.conversationData);
+                if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
+                else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
+                if (this.session.conversationData.index == -2) {
+                    this.session.endDialogWithResult({ response: this.session.conversationData.form });
+                    if (this.session.message.address.channelId == 'directline') {
+                        this.session.send('{ "action": "end_service" }');
+                    }
+                } else if (this.session.conversationData.index == -3) {
+                    this.session.replaceDialog('/transfer', this.session.conversationData);
+                } else {
+                    this.session.replaceDialog('/flow', this.session.conversationData);
+                }
             }.bind({ session: session, userDialog: userDialog }));
             if (dialog.webapi.method == 'post' || dialog.webapi.method == 'put') {
                 req.write(body);
@@ -2091,8 +2120,18 @@ bot.dialog('/flow', [
                     req.on('error', function (e) {
                         logger.error(e);
                         this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
-                        this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
-                        this.session.replaceDialog('/flow', this.session.conversationData);
+                        if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
+                        else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
+                        if (this.session.conversationData.index == -2) {
+                            this.session.endDialogWithResult({ response: this.session.conversationData.form });
+                            if (this.session.message.address.channelId == 'directline') {
+                                this.session.send('{ "action": "end_service" }');
+                            }
+                        } else if (this.session.conversationData.index == -3) {
+                            this.session.replaceDialog('/transfer', this.session.conversationData);
+                        } else {
+                            this.session.replaceDialog('/flow', this.session.conversationData);
+                        }
                     }.bind({ session: this.session, userDialog: this.userDialog }));
                     req.write(JSON.stringify(this.dialog.qna_maker.body));
                     req.end();
@@ -2104,8 +2143,18 @@ bot.dialog('/flow', [
             req.on('error', function (e) {
                 logger.error(e);
                 this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
-                this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
-                this.session.replaceDialog('/flow', this.session.conversationData);
+                if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
+                else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
+                if (this.session.conversationData.index == -2) {
+                    this.session.endDialogWithResult({ response: this.session.conversationData.form });
+                    if (this.session.message.address.channelId == 'directline') {
+                        this.session.send('{ "action": "end_service" }');
+                    }
+                } else if (this.session.conversationData.index == -3) {
+                    this.session.replaceDialog('/transfer', this.session.conversationData);
+                } else {
+                    this.session.replaceDialog('/flow', this.session.conversationData);
+                }
             }.bind({ session: session, userDialog: userDialog }));
             req.end();
         }
