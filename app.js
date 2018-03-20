@@ -1946,7 +1946,6 @@ bot.dialog('/flow', [
                     logger.info('REQUEST END');
                     try {
                         var result = res.body;
-                        console.log(this.userDialog);
                         this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = result;
                     } catch (e) {
                         logger.error(e);
@@ -1954,7 +1953,7 @@ bot.dialog('/flow', [
                     }
                     this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                     this.session.replaceDialog('/flow', this.session.conversationData);
-                }.bind({ session: this.session }));
+                }.bind({ session: this.session, userDialog: this.userDialog }));
             }.bind({ session: session, userDialog: userDialog }));
             req.on('error', function (e) {
                 logger.error(e);
