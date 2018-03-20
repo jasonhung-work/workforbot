@@ -1946,6 +1946,7 @@ bot.dialog('/flow', [
                     logger.info('REQUEST END');
                     try {
                         var result = res.body;
+                        console.log(this.userDialog);
                         this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = result;
                     } catch (e) {
                         logger.error(e);
