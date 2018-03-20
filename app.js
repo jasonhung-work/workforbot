@@ -21,10 +21,11 @@ var hashtable = require(__dirname + '/hashtable.js');
 var sessions = new hashtable.Hashtable;
 
 // Setup Express Server////////////////////////
-app.use(bodyParser.urlencoded({limit:'2mb',
+app.use(bodyParser.urlencoded({
+    limit: '2mb',
     extended: true
 }));
-app.use(bodyParser.json({limit: '2mb'}));
+app.use(bodyParser.json({ limit: '2mb' }));
 app.all('*', function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -378,7 +379,7 @@ app.delete('/dialog/:dialog_id/:flow_id', function (request, response) {
                 if (dialogs[delete_dialog_id].dialog_uuid == dialogs[idx].condition.success_dialog_id) dialogs[idx].condition.success_dialog_id = dialogs[idx].dialog_uuid;
                 else if (dialogs[delete_dialog_id].dialog_uuid == dialogs[idx].condition.fail_dialog_id) dialogs[idx].condition.fail_dialog_id = dialogs[idx].dialog_uuid;
             } else {
-                if(dialogs[delete_dialog_id].dialog_uuid == dialogs[idx].next) dialogs[idx].next = dialogs[idx].dialog_uuid;
+                if (dialogs[delete_dialog_id].dialog_uuid == dialogs[idx].next) dialogs[idx].next = dialogs[idx].dialog_uuid;
             }
         }
         dialogs.splice(delete_dialog_id, 1);
@@ -2073,7 +2074,8 @@ bot.dialog('/flow', [
                                 logger.error(e);
                                 this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
                             }
-                            this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
+                            if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
+                            else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
                             if (this.session.conversationData.index == -2) {
                                 this.session.endDialogWithResult({ response: this.session.conversationData.form });
                                 if (this.session.message.address.channelId == 'directline') {
