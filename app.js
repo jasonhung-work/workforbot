@@ -1647,6 +1647,7 @@ bot.dialog('/flow', [
         session.conversationData.form = args ? args.form : {};
         if (args.form['dialog_Id'] != session.conversationData.index) args.form['dialog_Id'] = session.conversationData.index;
 
+        logger.info('Dialog ID: ' + session.conversationData.index);
         logger.info('Dialog ID: ' + session.conversationData.index + ', Description: ' + userDialog[session.conversationData.index].description);
 
         if (sessions.containsKey(session.userData.userId)) {
