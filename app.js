@@ -1915,6 +1915,7 @@ bot.dialog('/flow', [
             // eval('session.conversationData.form["' + dialog.field + '"] = ' + dialog.operate);
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
+            logger.info(session.conversationData.index);
             if (session.conversationData.index == -2) {
                 preventDialog.delete(session.userData.userId);
                 preventMessage.delete(session.userData.userId);

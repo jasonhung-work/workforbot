@@ -1,1 +1,76 @@
-[{"dialog_id":"0","type":"card","field":"","prompt":{"attachments":[{"contentType":"application/vnd.microsoft.card.hero","content":{"title":"標題文字","subtitle":"顯示的文字","images":[{"url":"http://imga999.5054399.com/upload_pic/2016/9/13/4399_15544142031.jpg"}]}}]},"dialog_uuid":"22f047b7-b8e4-bddc-b8c8-962d59f51d91","description":"5","next":"9b48756b-2872-1e5a-0920-394dd9a3aa38","next_id":"1","used":"false"},{"dialog_id":"1","type":"qna_maker","field":"test QnA","qna_code":"","qna_key":"","dialog_uuid":"9b48756b-2872-1e5a-0920-394dd9a3aa38","description":"QnA Test","next":"46953482-c69c-8385-7a65-781f9940545f","skill":"DEFAULT","qna_maker":{"code":"a1108599-3627-43e3-a79b-bea09db879b8","key":"5b1cec58e3214bd2822e5f33075372b0","problem":"hi"},"used":"false","next_id":"2"},{"dialog_id":"2","type":"webapi","webapi":{"protocol":"https","host":"works.ioa.tw","port":"","path":"weather/api/all.json","method":"get","body":""},"field":"","prompt":"","next":"678c2783-7a63-5fd6-cd85-9d879a35b267","dialog_uuid":"46953482-c69c-8385-7a65-781f9940545f","description":"test 天氣API","skill":"DEFAULT","used":"false","next_id":3},{"dialog_id":"3","type":"text","prompt":"I need my %dialog_Id% ， %user_Id% and %conversation_Id% ","dialog_uuid":"678c2783-7a63-5fd6-cd85-9d879a35b267","field":"","description":"try index","next":"-2","next_id":"0","used":"false"}]
+[
+	{
+		"dialog_id": "0",
+		"type": "card",
+		"field": "",
+		"prompt": {
+			"attachments": [
+				{
+					"contentType": "application/vnd.microsoft.card.hero",
+					"content": {
+						"title": "標題文字",
+						"subtitle": "顯示的文字",
+						"images": [
+							{
+								"url": "http://imga999.5054399.com/upload_pic/2016/9/13/4399_15544142031.jpg"
+							}
+						]
+					}
+				}
+			]
+		},
+		"dialog_uuid": "22f047b7-b8e4-bddc-b8c8-962d59f51d91",
+		"description": "5",
+		"next": "9b48756b-2872-1e5a-0920-394dd9a3aa38",
+		"next_id": "1",
+		"used": "false"
+	},
+	{
+		"dialog_id": "1",
+		"type": "qna_maker",
+		"field": "",
+		"qna_code": "",
+		"qna_key": "",
+		"dialog_uuid": "9b48756b-2872-1e5a-0920-394dd9a3aa38",
+		"description": "QnA Test",
+		"next": "678c2783-7a63-5fd6-cd85-9d879a35b267",
+		"skill": "DEFAULT",
+		"qna_maker": {
+			"code": "a1108599-3627-43e3-a79b-bea09db879b8",
+			"key": "5b1cec58e3214bd2822e5f33075372b0",
+			"problem": "hi"
+		},
+		"used": "false",
+		"next_id": "2"
+	},
+	{
+		"dialog_id": "2",
+		"type": "text",
+		"prompt": "I need my %dialog_Id% ， %user_Id% and %conversation_Id% ",
+		"dialog_uuid": "678c2783-7a63-5fd6-cd85-9d879a35b267",
+		"field": "",
+		"description": "try index",
+		"next": "e927472d-0bc3-493e-2251-4b5c52fc44aa",
+		"next_id": "3",
+		"used": "false"
+	},
+	{
+		"dialog_id": "3",
+		"type": "condition",
+		"field": "",
+		"prompt": "",
+		"dialog_uuid": "e927472d-0bc3-493e-2251-4b5c52fc44aa",
+		"description": "ggg",
+		"next": "0",
+		"next_id": "0",
+		"condition": {
+			"type": "4",
+			"field": "dialog_id",
+			"target_type": "0",
+			"target_field": "5",
+			"success_dialog_id": "-3",
+			"fail_dialog_id": "-2"
+		},
+		"used": "false"
+	}
+]
