@@ -1086,15 +1086,15 @@
             $('#DivCondition').find('[name="TargetField"]').empty();
             $.getJSON('../../variables/' + FlowID, function (data) {
                 Variables = new $.Hashtable();
-                Variables.add('dialog_id', {'name': 'dialog_id', 'content': '', 'description': '流程編號'});
-                Variables.add('conversation_id', {'name': 'conversation_id', 'content': '', 'description': '對話編號'});
-                Variables.add('user_id', {'name': 'user_id', 'content': '', 'description': '用戶編號'});
-                $('#DivCondition').find('[name="Field"]').append($('<option value="' + 'dialog_id' + '">' + '流程編號' + '</option>'));
-                $('#DivCondition').find('select[name="TargetField"]').append($('<option value="' + 'dialog_id' + '">' + '流程編號' + '</option>'));
-                $('#DivCondition').find('[name="Field"]').append($('<option value="' + 'conversation_id' + '">' + '對話編號' + '</option>'));
-                $('#DivCondition').find('select[name="TargetField"]').append($('<option value="' + 'conversation_id' + '">' + '對話編號' + '</option>'));
-                $('#DivCondition').find('[name="Field"]').append($('<option value="' + 'user_id' + '">' + '用戶編號' + '</option>'));
-                $('#DivCondition').find('select[name="TargetField"]').append($('<option value="' + 'user_id' + '">' + '用戶編號' + '</option>'));
+                //Variables.add('dialog_Id', {'name': 'dialog_Id', 'content': '', 'description': '流程編號'});
+                //Variables.add('conversation_Id', {'name': 'conversation_Id', 'content': '', 'description': '對話編號'});
+                //Variables.add('user_Id', {'name': 'user_Id', 'content': '', 'description': '用戶編號'});
+                $('#DivCondition').find('[name="Field"]').append($('<option value="' + 'dialog_Id' + '">' + '流程編號' + '</option>'));
+                $('#DivCondition').find('select[name="TargetField"]').append($('<option value="' + 'dialog_Id' + '">' + '流程編號' + '</option>'));
+                $('#DivCondition').find('[name="Field"]').append($('<option value="' + 'conversation_Id' + '">' + '對話編號' + '</option>'));
+                $('#DivCondition').find('select[name="TargetField"]').append($('<option value="' + 'conversation_Id' + '">' + '對話編號' + '</option>'));
+                $('#DivCondition').find('[name="Field"]').append($('<option value="' + 'user_Id' + '">' + '用戶編號' + '</option>'));
+                $('#DivCondition').find('select[name="TargetField"]').append($('<option value="' + 'user_Id' + '">' + '用戶編號' + '</option>'));
                 for (var index = 0; index < data.length; index++) {
                     Variables.add(data[index].name, data[index]);
                     $('#TxtField').append($('<option value="' + data[index].name + '">' + data[index].description + '</option>'));
