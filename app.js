@@ -1487,8 +1487,8 @@ bot.dialog('/',
             session.userData.snapin_name = session.message.address.channelId;
         }
         logger.info('=========================================================');
-        //logger.info('localizer: ' + JSON.stringify(session.localizer));
-        //logger.info('sessionState: ' + JSON.stringify(session.sessionState));
+        logger.info('localizer: ' + JSON.stringify(session.localizer));
+        logger.info('sessionState: ' + JSON.stringify(session.sessionState));
         logger.info('conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('message: ' + JSON.stringify(session.message));
         logger.info('userData: ' + JSON.stringify(session.userData));
@@ -1568,6 +1568,7 @@ bot.dialog('/flow', [
         var userConversationMessage = preventMessage.get(session.userData.userId);
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
+        logger.info('session conversationData.Messahe' + JSON.stringify(userConversationMessage));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         session.conversationData.index = args ? args.index : 0;
 
@@ -1636,12 +1637,16 @@ bot.dialog('/flow', [
         if (args == undefined) {
             args = {},
                 args.form = {};
+            args.form['conversation_Id'] = session.message.address.conversation.id;
+            args.form['dialog_Id'] = session.conversationData.index;
+            args.form['user_Id'] = session.userData.userId;
             for (var idx = 0; idx < global.variables.length; idx++) {
                 args.form[global.variables[idx].name] = global.variables[idx].content;
             }
         }
         session.conversationData.form = args ? args.form : {};
-        logger.info('Dialog ID: ' + session.conversationData.index);
+        if(args.form['dialog_Id'] != session.conversationData.index) args.form['dialog_Id'] = session.conversationData.index;
+
         logger.info('Dialog ID: ' + session.conversationData.index + ', Description: ' + userDialog[session.conversationData.index].description);
 
         if (sessions.containsKey(session.userData.userId)) {
