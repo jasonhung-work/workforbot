@@ -2023,7 +2023,7 @@
                                 $('#TemplateButton').find('[name="DialogID"]').val(Button.dialog_id);
                                 TargetDialogItem = { Type: 'dialog.content.button', Index: this.Index };
                             } else {
-                                // 雖然是在 DIV 定義 Click 事件，但從 event 抓到的物件卻是 Button
+                                // 雖然是在 DIV 定義 Click 事件，但從 event 抓到的物件卻是 Button 
                                 location.href = '#' + $(event.srcElement).parent().attr('dialog_id');
                                 $('#TableDialogs tr')
                                     .eq(parseInt($(event.srcElement).parent().attr('dialog_id')) + 1)
