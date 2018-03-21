@@ -1086,6 +1086,9 @@
             $('#DivCondition').find('[name="TargetField"]').empty();
             $.getJSON('../../variables/' + FlowID, function (data) {
                 Variables = new $.Hashtable();
+                Variables.add('dialog_id', {'name': 'dialog_id', 'content': '', 'description': '流程編號'});
+                Variables.add('dialog_id', {'name': 'conversation_id', 'content': '', 'description': '對話編號'});
+                Variables.add('dialog_id', {'name': 'user_id', 'content': '', 'description': '用戶編號'});
                 $('#DivCondition').find('[name="Field"]').append($('<option value="' + 'dialog_id' + '">' + '流程編號' + '</option>'));
                 $('#DivCondition').find('select[name="TargetField"]').append($('<option value="' + 'dialog_id' + '">' + '流程編號' + '</option>'));
                 $('#DivCondition').find('[name="Field"]').append($('<option value="' + 'conversation_id' + '">' + '對話編號' + '</option>'));
