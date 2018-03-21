@@ -1870,8 +1870,8 @@ bot.dialog('/flow', [
             }
             if (success) {
                 var success_dialog_id;
-                if (dialog.condition.success_dialog_id == -2 || dialog.condition.success_dialog_id == -3) {
-                    dialog_id_choice = dialog.condition.success_dialog_id;
+                if (dialog.condition.success_dialog_id < 0) {
+                    success_dialog_id = dialog.condition.success_dialog_id;
                 } else {
                     for (var i = 0; i < dialogs_for_id.length; i++) {
                         if (dialogs_for_id[i].dialog_uuid == dialog.condition.success_dialog_id) {
@@ -1883,8 +1883,8 @@ bot.dialog('/flow', [
                 session.conversationData.index = success_dialog_id;
             } else {
                 var fail_dialog_id;
-                if (dialog.condition.fail_dialog_id == -2 || dialog.condition.fail_dialog_id == -3) {
-                    dialog_id_choice = dialog.condition.fail_dialog_id;
+                if (dialog.condition.fail_dialog_id < 0) {
+                    fail_dialog_id = dialog.condition.fail_dialog_id;
                 } else {
                     for (var i = 0; i < dialogs_for_id.length; i++) {
                         if (dialogs_for_id[i].dialog_uuid == dialog.condition.fail_dialog_id) {
@@ -1915,7 +1915,6 @@ bot.dialog('/flow', [
             // eval('session.conversationData.form["' + dialog.field + '"] = ' + dialog.operate);
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
-            logger.info(session.conversationData.index);
             if (session.conversationData.index == -2) {
                 preventDialog.delete(session.userData.userId);
                 preventMessage.delete(session.userData.userId);
