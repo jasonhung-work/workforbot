@@ -1645,7 +1645,7 @@ bot.dialog('/flow', [
             }
         }
         session.conversationData.form = args ? args.form : {};
-        if(args.form['dialog_Id'] != session.conversationData.index) args.form['dialog_Id'] = session.conversationData.index;
+        if (args.form['dialog_Id'] != session.conversationData.index) args.form['dialog_Id'] = session.conversationData.index;
 
         logger.info('Dialog ID: ' + session.conversationData.index + ', Description: ' + userDialog[session.conversationData.index].description);
 
@@ -1758,6 +1758,8 @@ bot.dialog('/flow', [
             else session.conversationData.index = dialog.next_id;
             logger.info('index: ' + session.conversationData.index);
             if (session.conversationData.index == -2) {
+                preventDialog.delete(session.userData.userId);
+                preventMessage.delete(session.userData.userId);
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
@@ -1777,6 +1779,8 @@ bot.dialog('/flow', [
             else session.conversationData.index = dialog.next_id;
             logger.info('index: ' + session.conversationData.index);
             if (session.conversationData.index == -2) {
+                preventDialog.delete(session.userData.userId);
+                preventMessage.delete(session.userData.userId);
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
@@ -1911,6 +1915,8 @@ bot.dialog('/flow', [
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
             if (session.conversationData.index == -2) {
+                preventDialog.delete(session.userData.userId);
+                preventMessage.delete(session.userData.userId);
                 this.session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
@@ -1968,6 +1974,8 @@ bot.dialog('/flow', [
                     if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                     else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
                     if (this.session.conversationData.index == -2) {
+                        preventDialog.delete(session.userData.userId);
+                        preventMessage.delete(session.userData.userId);
                         this.session.endDialogWithResult({ response: this.session.conversationData.form });
                         if (this.session.message.address.channelId == 'directline') {
                             this.session.send('{ "action": "end_service" }');
@@ -1985,6 +1993,8 @@ bot.dialog('/flow', [
                 if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                 else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
                 if (this.session.conversationData.index == -2) {
+                    preventDialog.delete(session.userData.userId);
+                    preventMessage.delete(session.userData.userId);
                     this.session.endDialogWithResult({ response: this.session.conversationData.form });
                     if (this.session.message.address.channelId == 'directline') {
                         this.session.send('{ "action": "end_service" }');
@@ -2111,6 +2121,8 @@ bot.dialog('/flow', [
                             if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                             else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
                             if (this.session.conversationData.index == -2) {
+                                preventDialog.delete(session.userData.userId);
+                                preventMessage.delete(session.userData.userId);
                                 this.session.endDialogWithResult({ response: this.session.conversationData.form });
                                 if (this.session.message.address.channelId == 'directline') {
                                     this.session.send('{ "action": "end_service" }');
@@ -2128,6 +2140,8 @@ bot.dialog('/flow', [
                         if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                         else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
                         if (this.session.conversationData.index == -2) {
+                            preventDialog.delete(session.userData.userId);
+                            preventMessage.delete(session.userData.userId);
                             this.session.endDialogWithResult({ response: this.session.conversationData.form });
                             if (this.session.message.address.channelId == 'directline') {
                                 this.session.send('{ "action": "end_service" }');
@@ -2151,6 +2165,8 @@ bot.dialog('/flow', [
                 if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                 else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
                 if (this.session.conversationData.index == -2) {
+                    preventDialog.delete(session.userData.userId);
+                    preventMessage.delete(session.userData.userId);
                     this.session.endDialogWithResult({ response: this.session.conversationData.form });
                     if (this.session.message.address.channelId == 'directline') {
                         this.session.send('{ "action": "end_service" }');
@@ -2250,6 +2266,8 @@ bot.dialog('/flow', [
                 }
             }
             if (session.conversationData.index == -2) {
+                preventDialog.delete(session.userData.userId);
+                preventMessage.delete(session.userData.userId);
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
