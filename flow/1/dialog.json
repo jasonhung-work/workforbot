@@ -65,7 +65,7 @@
 		"next_id": "0",
 		"condition": {
 			"type": "4",
-			"field": "dialog_id",
+			"field": "dialog_Id",
 			"target_type": "0",
 			"target_field": "5",
 			"success_dialog_id": "-3",

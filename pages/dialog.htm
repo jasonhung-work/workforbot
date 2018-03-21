@@ -1225,7 +1225,7 @@
             $('#TableVariables tbody').empty();
             for (var index = 0; index < Variables.getKeys().length; index++) {
                 var Variable = Variables.get(Variables.getKeys()[index]);
-                if (Variable.name != 'dialog_Id' && 'user_Id' && 'conversation_Id') {
+                if (Variable.name != 'dialog_Id' && Variable.name != 'user_Id' && Variable.name != 'conversation_Id') {
                     $('#TableVariables')
                         .append(
                             $(document.createElement('tr'))
