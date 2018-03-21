@@ -1647,7 +1647,6 @@ bot.dialog('/flow', [
         session.conversationData.form = args ? args.form : {};
         if (args.form['dialog_Id'] != session.conversationData.index) args.form['dialog_Id'] = session.conversationData.index;
 
-        logger.info('Dialog ID: ' + session.conversationData.index);
         logger.info('Dialog ID: ' + session.conversationData.index + ', Description: ' + userDialog[session.conversationData.index].description);
 
         if (sessions.containsKey(session.userData.userId)) {
@@ -1895,7 +1894,18 @@ bot.dialog('/flow', [
                 }
                 session.conversationData.index = fail_dialog_id;
             }
-            session.replaceDialog('/flow', session.conversationData);
+            if (session.conversationData.index == -2) {
+                preventDialog.delete(session.userData.userId);
+                preventMessage.delete(session.userData.userId);
+                session.endDialogWithResult({ response: session.conversationData.form });
+                if (session.message.address.channelId == 'directline') {
+                    session.send('{ "action": "end_service" }');
+                }
+            } else if (session.conversationData.index == -3) {
+                session.replaceDialog('/transfer', session.conversationData);
+            } else {
+                session.replaceDialog('/flow', session.conversationData);
+            }
         } else if (dialog.type == 'operate') {
             if (dialog.operate) {
                 if (dialog.operate.indexOf('{') > -1) {
