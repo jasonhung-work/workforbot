@@ -1568,7 +1568,7 @@ bot.dialog('/flow', [
         var userConversationMessage = preventMessage.get(session.userData.userId);
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
-        logger.info('session conversationData.Messahe' + JSON.stringify(userConversationMessage));
+        logger.info('session conversationData.Message: ' + JSON.stringify(userConversationMessage));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         session.conversationData.index = args ? args.index : 0;
 

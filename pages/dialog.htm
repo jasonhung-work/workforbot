@@ -1086,6 +1086,9 @@
             $('#DivCondition').find('[name="TargetField"]').empty();
             $.getJSON('../../variables/' + FlowID, function (data) {
                 Variables = new $.Hashtable();
+                Variables.add('dialog_id',{});
+                Variables.add('conversation_id',{});
+                Variables.add('user_id',{});
                 for (var index = 0; index < data.length; index++) {
                     Variables.add(data[index].name, data[index]);
                     $('#TxtField').append($('<option value="' + data[index].name + '">' + data[index].description + '</option>'));
