@@ -793,22 +793,51 @@
                  source: Variables
              }); */
 
-            $('#TxtDescription').autocomplete({
-                source: function (request, response) {
-                    var Variable = [];
-                    var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
-                    for (var index = 0; index < Variables.getKeys().length; index++) {
-                        var data = {};
-                        data.label = Variables.get(Variables.getKeys()[index]).name;
-                        Variable.push(data);
+            $('#TxtDescription')
+                .bind("keydown", function (event) {
+                    if (event.keyCode === $.ui.keyCode.TAB &&
+                        $(this).data("ui-autocomplete").menu.active) {
+                        event.preventDefault();
                     }
-                    response($.grep(Variable, function (value) {
-                        value = value.label || value.value || value;
-                        console.log(value);
-                        return matcher.test(value) || matcher.test(normalize(value));
-                    }));
-                }
-            });
+                })
+                .autocomplete({
+                    minLength: 0,
+                    source: function (request, response) {
+                        var Variable = [];
+                        var begin = split(request.term).length;
+                        var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
+                        for (var index = 0; index < Variables.getKeys().length; index++) {
+                            var data = {};
+                            data.label = Variables.get(Variables.getKeys()[index]).name;
+                            Variable.push(data);
+                        }
+                        if (begin % 2 == 0) {
+                            response($.grep(Variable, function (value) {
+                                value = value.label || value.value || value;
+                                console.log(value);
+                                return matcher.test(value) || matcher.test(normalize(value));
+                            }));
+                        }
+                        else {
+                            response(false);
+                        }
+                    },
+                    focus: function () {
+                        // 防止在获得焦点时插入值
+                        return false;
+                    },
+                    select: function (event, ui) {
+                        var terms = split(this.value);
+                        // 移除当前输入
+                        terms.pop();
+                        // 添加被选项
+                        terms.push(ui.item.value);
+                        // 添加占位符，在结尾添加逗号+空格
+                        terms.push("");
+                        this.value = terms.join("%");
+                        return false;
+                    }
+                });
 
             // $('#TemplateButton').find('input[name="Title"]' || 'input[name="Value"]').catcomplete({
             //     delay: 0,
@@ -2280,6 +2309,14 @@
                 return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
             }
             return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+        }
+
+        function split(val) {
+            return val.split(/%\s*/);
+        }
+
+        function extractLast(term) {
+            return split(term).pop();
         }
     </script>
 </head>
