@@ -96,8 +96,8 @@
         $.widget("custom.catcomplete", $.ui.autocomplete, {
             _renderMenu: function (ul, items) {
                 alert('autocomplete');
-                alert(ul);
-                alert(items);
+                alert(JSON.stringify(ul));
+                alert(JSON.stringify(items));
                 if (items == '/%/') {
                     var that = this;
                     $.each(items, function (index, item) {
