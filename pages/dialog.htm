@@ -793,7 +793,7 @@
                  source: Variables
              }); */
 
-            $('#TxtDescription')
+            $('.ui-widget')
                 .bind("keydown", function (event) {
                     if (event.keyCode === $.ui.keyCode.TAB &&
                         $(this).data("ui-autocomplete").menu.active) {
@@ -2424,11 +2424,9 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <div class="ui-widget">
-                                        <span class="fa fa-asterisk"></span>
-                                        <label>描述：</label>
-                                        <input class="form-control" id="TxtDescription" name="Description">
-                                    </div>
+                                    <span class="fa fa-asterisk"></span>
+                                    <label>描述：</label>
+                                    <input class="form-control" id="TxtDescription" name="Description">
                                 </div>
                             </div>
                             <div class="col-lg-6" id="DivNext">
@@ -2455,27 +2453,31 @@
                                                 <div id="TxtDialog" name="Dialog"></div>
                                             </div>
                                             <div class="col-lg-6">
-                                                <div id="TemplateText" class="hidden">
-                                                    <label>文字：</label>
-                                                    <input type="text" name="Prompt" class="form-control"></input>
-                                                    <br>
-                                                    <div class="pull-right">
-                                                        <button type="button" class="btn btn-success" onclick="ApplyText();">套用</button>
+                                                <div class="ui-widget">
+                                                    <div id="TemplateText" class="hidden">
+                                                        <label>文字：</label>
+                                                        <input type="text" name="Prompt" class="form-control"></input>
+                                                        <br>
+                                                        <div class="pull-right">
+                                                            <button type="button" class="btn btn-success" onclick="ApplyText();">套用</button>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div id="TemplateButton" class="hidden">
-                                                    <label>按鈕文字：</label>
-                                                    <input type="text" name="Title" class="form-control"></input>
-                                                    <label>轉跳對話框：</label>
-                                                    <!--<input type="text" name="DialogID" class="form-control"></input>-->
-                                                    <select name="DialogID" class="form-control">
-                                                    </select>
-                                                    <label>回傳值：</label>
-                                                    <input type="text" name="Value" class="form-control"></input>
-                                                    <br>
-                                                    <div class="pull-right">
-                                                        <button type="button" class="btn btn-danger" id="BtnRemoveButton" onclick="RemoveButton();">移除按鈕</button>
-                                                        <button type="button" class="btn btn-success" onclick="ApplyButton();">套用</button>
+                                                <div class="ui-widget">
+                                                    <div id="TemplateButton" class="hidden">
+                                                        <label>按鈕文字：</label>
+                                                        <input type="text" name="Title" class="form-control"></input>
+                                                        <label>轉跳對話框：</label>
+                                                        <!--<input type="text" name="DialogID" class="form-control"></input>-->
+                                                        <select name="DialogID" class="form-control">
+                                                        </select>
+                                                        <label>回傳值：</label>
+                                                        <input type="text" name="Value" class="form-control"></input>
+                                                        <br>
+                                                        <div class="pull-right">
+                                                            <button type="button" class="btn btn-danger" id="BtnRemoveButton" onclick="RemoveButton();">移除按鈕</button>
+                                                            <button type="button" class="btn btn-success" onclick="ApplyButton();">套用</button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div id="TemplateImage" class="hidden">
@@ -2513,18 +2515,20 @@
                                                         <option value="4">大於</option>
                                                     </select>
                                                 </div>
-                                                <div class="form-group col-lg-6">
-                                                    <label>比對標的類型</label>
-                                                    <select name="TargetType" class="form-control">
-                                                        <option value="Const">常式</option>
-                                                        <option value="Variable">變數</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group col-lg-6">
-                                                    <label>比對標的</label>
-                                                    <input name="TargetField" class="form-control"></input>
-                                                    <select name="TargetField" class="form-control hidden">
-                                                    </select>
+                                                <div class="ui-widget">
+                                                    <div class="form-group col-lg-6">
+                                                        <label>比對標的類型</label>
+                                                        <select name="TargetType" class="form-control">
+                                                            <option value="Const">常式</option>
+                                                            <option value="Variable">變數</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group col-lg-6">
+                                                        <label>比對標的</label>
+                                                        <input name="TargetField" class="form-control"></input>
+                                                        <select name="TargetField" class="form-control hidden">
+                                                        </select>
+                                                    </div>
                                                 </div>
                                                 <div class="form-group col-lg-6">
                                                     <label>判斷式成立時，轉跳對話框：</label>
