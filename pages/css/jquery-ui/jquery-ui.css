@@ -118,8 +118,8 @@
 	position: absolute;
 	top: 0;
 	left: 0;
-	cursor: default;
 	z-index: 999;
+	cursor: default;
 }
 .ui-button {
 	display: inline-block;
