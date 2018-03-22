@@ -95,6 +95,7 @@
         //自動完成的設定
         $.widget("custom.catcomplete", $.ui.autocomplete, {
             _renderMenu: function (ul, items) {
+                alert('autocomplete');
                 if (ul == '/%/') {
                     var that = this;
                     $.each(items, function (index, item) {
@@ -803,7 +804,7 @@
                 $('#DialogForm').data('bootstrapValidator').resetForm();
             });
 
-            $('#DivCondition').find('input[name="TargetField"]').catcomplete({
+           /*  $('#DivCondition').find('input[name="TargetField"]').catcomplete({
                 delay: 0,
                 source: Variables
             });
@@ -811,17 +812,17 @@
             $('#TemplateText').find('input[name="Prompt"]').catcomplete({
                 delay: 0,
                 source: Variables
-            });
+            }); */
 
             $('#TxtDescription').catcomplete({
                 delay: 0,
                 source: Variables
             });
 
-            $('#TemplateButton').find('input[name="Title"]' || 'input[name="Value"]').catcomplete({
-                delay: 0,
-                source: Variables
-            });
+            // $('#TemplateButton').find('input[name="Title"]' || 'input[name="Value"]').catcomplete({
+            //     delay: 0,
+            //     source: Variables
+            // });
         });
 
         var TargetDialog = {};
