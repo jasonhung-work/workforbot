@@ -98,13 +98,11 @@
                 alert('autocomplete');
                 alert(JSON.stringify(ul));
                 alert(JSON.stringify(items));
-                if (items == '/%/') {
-                    var that = this;
-                    $.each(items, function (index, item) {
-                        alert(JSON.string(item));
-                        that._renderItemData(item.description);
-                    });
-                }
+                var that = this;
+                $.each(items, function (index, item) {
+                    alert(JSON.string(item));
+                    that._renderItemData(item.description);
+                });
             }
         });
 
