@@ -804,19 +804,25 @@
                 $('#DialogForm').data('bootstrapValidator').resetForm();
             });
 
-           /*  $('#DivCondition').find('input[name="TargetField"]').catcomplete({
-                delay: 0,
-                source: Variables
-            });
-
-            $('#TemplateText').find('input[name="Prompt"]').catcomplete({
-                delay: 0,
-                source: Variables
-            }); */
+            /*  $('#DivCondition').find('input[name="TargetField"]').catcomplete({
+                 delay: 0,
+                 source: Variables
+             });
+ 
+             $('#TemplateText').find('input[name="Prompt"]').catcomplete({
+                 delay: 0,
+                 source: Variables
+             }); */
 
             $('#TxtDescription').catcomplete({
                 delay: 0,
-                source: Variables
+                source: function (request, response) {
+                    var Variable = [];
+                    for (var index = 0; index < Variables.getKeys().length; index++) {
+                        Variable.push(Variables.get(Variables.getKeys()[index]));
+                    }
+                    response(Variable);
+                }
             });
 
             // $('#TemplateButton').find('input[name="Title"]' || 'input[name="Value"]').catcomplete({
