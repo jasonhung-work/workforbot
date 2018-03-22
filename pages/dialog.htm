@@ -793,7 +793,7 @@
                  source: Variables
              }); */
 
-            $('.ui-widget')
+            $('.auto_complete')
                 .bind("keydown", function (event) {
                     console.log('ui-widget');
                     if (event.keyCode === $.ui.keyCode.TAB &&
@@ -2457,7 +2457,7 @@
                                                 <div id="TemplateText" class="hidden">
                                                     <label>文字：</label>
                                                     <div class="ui-widget">
-                                                        <input type="text" name="Prompt" class="form-control"></input>
+                                                        <input type="text" name="Prompt" class="form-control auto_complete"></input>
                                                     </div>
                                                     <br>
                                                     <div class="pull-right">
@@ -2467,7 +2467,7 @@
                                                 <div id="TemplateButton" class="hidden">
                                                     <label>按鈕文字：</label>
                                                     <div class="ui-widget">
-                                                        <input type="text" name="Title" class="form-control"></input>
+                                                        <input type="text" name="Title" class="form-control auto_complete"></input>
                                                     </div>
                                                     <label>轉跳對話框：</label>
                                                     <!--<input type="text" name="DialogID" class="form-control"></input>-->
@@ -2475,7 +2475,7 @@
                                                     </select>
                                                     <label>回傳值：</label>
                                                     <div class="ui-widget">
-                                                        <input type="text" name="Value" class="form-control"></input>
+                                                        <input type="text" name="Value" class="form-control auto_complete"></input>
                                                     </div>
                                                     <br>
                                                     <div class="pull-right">
@@ -2528,7 +2528,7 @@
                                                 <div class="form-group col-lg-6">
                                                     <label>比對標的</label>
                                                     <div class="ui-widget">
-                                                        <input name="TargetField" class="form-control"></input>
+                                                        <input name="TargetField" class="form-control auto_complete"></input>
                                                     </div>
                                                     <select name="TargetField" class="form-control hidden">
                                                     </select>
