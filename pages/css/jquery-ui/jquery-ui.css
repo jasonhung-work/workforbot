@@ -52,7 +52,7 @@
 }
 
 .ui-front {
-	z-index: 100;
+	z-index: 999;
 }
 
 
@@ -118,7 +118,6 @@
 	position: absolute;
 	top: 0;
 	left: 0;
-	z-index: 999;
 	cursor: default;
 }
 .ui-button {
