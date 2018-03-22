@@ -2391,210 +2391,211 @@
                                 </div>
                                 <div class="form-group">
                                     <span class="fa fa-asterisk"></span>
-                                    <div class="ui-widget"></div>
-                                    <label>描述：</label>
-                                    <input class="form-control" id="TxtDescription" name="Description">
+                                    <div class="ui-widget">
+                                        <label>描述：</label>
+                                        <input class="form-control" id="TxtDescription" name="Description">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6" id="DivNext">
-                            <div class="form-group">
-                                <label>轉跳對話框：</label>
-                                <select class="form-control" id="TxtNext" name="Next">
-                                </select>
+                            <div class="col-lg-6" id="DivNext">
+                                <div class="form-group">
+                                    <label>轉跳對話框：</label>
+                                    <select class="form-control" id="TxtNext" name="Next">
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6" id="DivTransfer">
-                            <div class="form-group">
-                                <label>轉接技能群組：</label>
-                                <select class="form-control" id="TxtSkill" name="Skill">
-                                    <option value="DEFAULT">預設群組</option>
-                                </select>
+                            <div class="col-lg-6" id="DivTransfer">
+                                <div class="form-group">
+                                    <label>轉接技能群組：</label>
+                                    <select class="form-control" id="TxtSkill" name="Skill">
+                                        <option value="DEFAULT">預設群組</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-12 hidden" id="DivDialog">
-                            <div class="form-group">
-                                <label>預覽：</label>
-                                <div class="panel panel-default">
-                                    <div class="panel-body">
-                                        <div class="col-lg-6">
-                                            <div id="TxtDialog" name="Dialog"></div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <div id="TemplateText" class="hidden">
-                                                <label>文字：</label>
-                                                <input type="text" name="Prompt" class="form-control"></input>
-                                                <br>
-                                                <div class="pull-right">
-                                                    <button type="button" class="btn btn-success" onclick="ApplyText();">套用</button>
-                                                </div>
+                            <div class="col-lg-12 hidden" id="DivDialog">
+                                <div class="form-group">
+                                    <label>預覽：</label>
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div class="col-lg-6">
+                                                <div id="TxtDialog" name="Dialog"></div>
                                             </div>
-                                            <div id="TemplateButton" class="hidden">
-                                                <label>按鈕文字：</label>
-                                                <input type="text" name="Title" class="form-control"></input>
-                                                <label>轉跳對話框：</label>
-                                                <!--<input type="text" name="DialogID" class="form-control"></input>-->
-                                                <select name="DialogID" class="form-control">
-                                                </select>
-                                                <label>回傳值：</label>
-                                                <input type="text" name="Value" class="form-control"></input>
-                                                <br>
-                                                <div class="pull-right">
-                                                    <button type="button" class="btn btn-danger" id="BtnRemoveButton" onclick="RemoveButton();">移除按鈕</button>
-                                                    <button type="button" class="btn btn-success" onclick="ApplyButton();">套用</button>
+                                            <div class="col-lg-6">
+                                                <div id="TemplateText" class="hidden">
+                                                    <label>文字：</label>
+                                                    <input type="text" name="Prompt" class="form-control"></input>
+                                                    <br>
+                                                    <div class="pull-right">
+                                                        <button type="button" class="btn btn-success" onclick="ApplyText();">套用</button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div id="TemplateImage" class="hidden">
-                                                <label>圖片網址：</label>
-                                                <input type="text" name="Url" class="form-control"></input>
-                                                <br>
-                                                <div class="pull-right">
-                                                    <button type="button" class="btn btn-danger" onclick="RemoveImage();">移除圖片</button>
-                                                    <button type="button" class="btn btn-success" onclick="ApplyImage();">套用</button>
+                                                <div id="TemplateButton" class="hidden">
+                                                    <label>按鈕文字：</label>
+                                                    <input type="text" name="Title" class="form-control"></input>
+                                                    <label>轉跳對話框：</label>
+                                                    <!--<input type="text" name="DialogID" class="form-control"></input>-->
+                                                    <select name="DialogID" class="form-control">
+                                                    </select>
+                                                    <label>回傳值：</label>
+                                                    <input type="text" name="Value" class="form-control"></input>
+                                                    <br>
+                                                    <div class="pull-right">
+                                                        <button type="button" class="btn btn-danger" id="BtnRemoveButton" onclick="RemoveButton();">移除按鈕</button>
+                                                        <button type="button" class="btn btn-success" onclick="ApplyButton();">套用</button>
+                                                    </div>
+                                                </div>
+                                                <div id="TemplateImage" class="hidden">
+                                                    <label>圖片網址：</label>
+                                                    <input type="text" name="Url" class="form-control"></input>
+                                                    <br>
+                                                    <div class="pull-right">
+                                                        <button type="button" class="btn btn-danger" onclick="RemoveImage();">移除圖片</button>
+                                                        <button type="button" class="btn btn-success" onclick="ApplyImage();">套用</button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-lg-12 hidden" id="DivCondition">
-                            <div class="form-group">
-                                <label>判斷式：</label>
-                                <div class="panel panel-default">
-                                    <div class="panel-body">
-                                        <div class="row">
-                                            <div class="form-group col-lg-6">
-                                                <label>目標變數</label>
-                                                <select name="Field" class="form-control">
-                                                </select>
-                                            </div>
-                                            <div class="form-group col-lg-6">
-                                                <label>判斷式：</label>
-                                                <select name="Type" class="form-control">
-                                                    <option value="0">小於</option>
-                                                    <option value="1">小於等於</option>
-                                                    <option value="2">等於</option>
-                                                    <option value="3">大於等於</option>
-                                                    <option value="4">大於</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group col-lg-6">
-                                                <label>比對標的類型</label>
-                                                <select name="TargetType" class="form-control">
-                                                    <option value="Const">常式</option>
-                                                    <option value="Variable">變數</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group col-lg-6">
-                                                <label>比對標的</label>
-                                                <input name="TargetField" class="form-control"></input>
-                                                <select name="TargetField" class="form-control hidden">
-                                                </select>
-                                            </div>
-                                            <div class="form-group col-lg-6">
-                                                <label>判斷式成立時，轉跳對話框：</label>
-                                                <select name="SuccessDialog" class="form-control"></select>
-                                            </div>
-                                            <div class="form-group col-lg-6">
-                                                <label>判斷式不成立時，轉跳對話框：</label>
-                                                <select name="FailDialog" class="form-control"></select>
+                            <div class="col-lg-12 hidden" id="DivCondition">
+                                <div class="form-group">
+                                    <label>判斷式：</label>
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="form-group col-lg-6">
+                                                    <label>目標變數</label>
+                                                    <select name="Field" class="form-control">
+                                                    </select>
+                                                </div>
+                                                <div class="form-group col-lg-6">
+                                                    <label>判斷式：</label>
+                                                    <select name="Type" class="form-control">
+                                                        <option value="0">小於</option>
+                                                        <option value="1">小於等於</option>
+                                                        <option value="2">等於</option>
+                                                        <option value="3">大於等於</option>
+                                                        <option value="4">大於</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group col-lg-6">
+                                                    <label>比對標的類型</label>
+                                                    <select name="TargetType" class="form-control">
+                                                        <option value="Const">常式</option>
+                                                        <option value="Variable">變數</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group col-lg-6">
+                                                    <label>比對標的</label>
+                                                    <input name="TargetField" class="form-control"></input>
+                                                    <select name="TargetField" class="form-control hidden">
+                                                    </select>
+                                                </div>
+                                                <div class="form-group col-lg-6">
+                                                    <label>判斷式成立時，轉跳對話框：</label>
+                                                    <select name="SuccessDialog" class="form-control"></select>
+                                                </div>
+                                                <div class="form-group col-lg-6">
+                                                    <label>判斷式不成立時，轉跳對話框：</label>
+                                                    <select name="FailDialog" class="form-control"></select>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-lg-12 hidden" id="DivOperate">
-                            <div class="form-group">
-                                <label>運算式：</label>
-                                <div class="panel panel-default">
-                                    <div class="panel-body">
-                                        <div class="row">
-                                            <div class="form-group col-lg-12">
-                                                <label>指定內容</label>
-                                                <textarea name="Operate" class="form-control" rows="5">
+                            <div class="col-lg-12 hidden" id="DivOperate">
+                                <div class="form-group">
+                                    <label>運算式：</label>
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="form-group col-lg-12">
+                                                    <label>指定內容</label>
+                                                    <textarea name="Operate" class="form-control" rows="5">
                                                         </textarea>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-lg-12 hidden" id="DivWebAPI">
-                            <div class="form-group">
-                                <label>Web API：</label>
-                                <div class="panel panel-default">
-                                    <div class="panel-body">
-                                        <div class="row">
-                                            <div class="form-group col-lg-12">
-                                                <table class="row">
-                                                    <tr>
-                                                        <td>
-                                                            <select name="Method" class="form-control">
-                                                                <option value="get">GET</option>
-                                                                <option value="post">POST</option>
-                                                                <option value="put">PUT</option>
-                                                                <option value="delete">DELETE</option>
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            <select name="Protocol" class="form-control">
-                                                                <option value="http">HTTP</option>
-                                                                <option value="https">HTTPS</option>
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            <label>&nbsp;://&nbsp;</label>
-                                                            </dtdiv>
+                            <div class="col-lg-12 hidden" id="DivWebAPI">
+                                <div class="form-group">
+                                    <label>Web API：</label>
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="form-group col-lg-12">
+                                                    <table class="row">
+                                                        <tr>
                                                             <td>
-                                                                <input name="Host" class="form-control"></input>
+                                                                <select name="Method" class="form-control">
+                                                                    <option value="get">GET</option>
+                                                                    <option value="post">POST</option>
+                                                                    <option value="put">PUT</option>
+                                                                    <option value="delete">DELETE</option>
+                                                                </select>
                                                             </td>
                                                             <td>
-                                                                <label>&nbsp;:&nbsp;</label>
+                                                                <select name="Protocol" class="form-control">
+                                                                    <option value="http">HTTP</option>
+                                                                    <option value="https">HTTPS</option>
+                                                                </select>
                                                             </td>
                                                             <td>
-                                                                <input name="Port" class="form-control"></input>
-                                                            </td>
+                                                                <label>&nbsp;://&nbsp;</label>
+                                                                </dtdiv>
+                                                                <td>
+                                                                    <input name="Host" class="form-control"></input>
+                                                                </td>
+                                                                <td>
+                                                                    <label>&nbsp;:&nbsp;</label>
+                                                                </td>
+                                                                <td>
+                                                                    <input name="Port" class="form-control"></input>
+                                                                </td>
+                                                                <td>
+                                                                    <label>&nbsp;/&nbsp;</label>
+                                                                </td>
+                                                                <td>
+                                                                    <input name="Path" class="form-control"></input>
+                                                                </td>
+                                                        </tr>
+                                                        <tr>
                                                             <td>
-                                                                <label>&nbsp;/&nbsp;</label>
+                                                                <br />
+                                                                <button type="button" class="btn btn-success hidden" id="BtnParams">參數設定</button>
                                                             </td>
-                                                            <td>
-                                                                <input name="Path" class="form-control"></input>
-                                                            </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <br />
-                                                            <button type="button" class="btn btn-success hidden" id="BtnParams">參數設定</button>
-                                                        </td>
-                                                    </tr>
-                                                </table>
+                                                        </tr>
+                                                    </table>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-lg-12 hidden" id="DivQnAMaker">
-                            <div class="form-group">
-                                <label>QnA Maker：</label>
-                                <div class="panel panel-default">
-                                    <div class="panel-body">
-                                        <div class="row">
-                                            <div class="form-group col-lg-6">
-                                                <label>Code：</label>
-                                                <input name="Code" class="form-control"></input>
+                            <div class="col-lg-12 hidden" id="DivQnAMaker">
+                                <div class="form-group">
+                                    <label>QnA Maker：</label>
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="form-group col-lg-6">
+                                                    <label>Code：</label>
+                                                    <input name="Code" class="form-control"></input>
+                                                </div>
+                                                <div class="form-group col-lg-6">
+                                                    <label>Key：</label>
+                                                    <input name="Key" class="form-control"></input>
+                                                </div>
                                             </div>
-                                            <div class="form-group col-lg-6">
-                                                <label>Key：</label>
-                                                <input name="Key" class="form-control"></input>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="form-group col-lg-6">
-                                                <label>問題：</label>
-                                                <input name="Problem" class="form-control"></input>
+                                            <div class="row">
+                                                <div class="form-group col-lg-6">
+                                                    <label>問題：</label>
+                                                    <input name="Problem" class="form-control"></input>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -2602,14 +2603,13 @@
                             </div>
                         </div>
                     </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="submit" id="BtnSave" class="btn btn-primary">儲存</button>
+                    </div>
+                </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="submit" id="BtnSave" class="btn btn-primary">儲存</button>
-            </div>
-            </form>
         </div>
-    </div>
     </div>
     <!-- Variable Modal -->
     <div class="modal modal-middle fade" id="VariableModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
