@@ -803,7 +803,22 @@
                 $('#DialogForm').data('bootstrapValidator').resetForm();
             });
 
-            $(".formgroup").catcomplete({
+            $('#DivCondition').find('input[name="TargetField"]').catcomplete({
+                delay: 0,
+                source: Variables
+            });
+
+            $('#TemplateText').find('input[name="Prompt"]').catcomplete({
+                delay: 0,
+                source: Variables
+            });
+
+            $('#TxtDescription').catcomplete({
+                delay: 0,
+                source: Variables
+            });
+
+            $('#TemplateButton').find('input[name="Title"]' || 'input[name="Value"]').catcomplete({
                 delay: 0,
                 source: Variables
             });
