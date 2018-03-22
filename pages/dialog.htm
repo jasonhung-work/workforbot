@@ -92,20 +92,6 @@
         var Socket;
         var DeleteMode = false;
 
-        //自動完成的設定
-        $.widget("custom.catcomplete", $.ui.autocomplete, {
-            _renderMenu: function (ul, items) {
-                alert('autocomplete');
-                alert(JSON.stringify(ul));
-                alert(JSON.stringify(items));
-                var that = this;
-                $.each(items, function (index, item) {
-                    alert(JSON.string(item));
-                    that._renderItemData(item.description);
-                });
-            }
-        });
-
         $(document).ready(function () {
             $('h1[name="title"]').text($('h1[name="title"]').text() + FlowDescription);
             RefreshVariable();
@@ -814,14 +800,20 @@
                  source: Variables
              }); */
 
-            $('#TxtDescription').catcomplete({
+            $('#TxtDescription').autocomplete({
                 delay: 0,
                 source: function (request, response) {
                     var Variable = [];
+                    var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
+                    alert(matcher);
                     for (var index = 0; index < Variables.getKeys().length; index++) {
                         Variable.push(Variables.get(Variables.getKeys()[index]));
                     }
-                    response(Variable);
+                    alert(JSON.stringify(Variable));
+                    response($.grep(Variable, function (value) {
+                        value = value.name || value;
+                        return matcher.test(value) || matcher.test(normalize(value));
+                    }));
                 }
             });
 
@@ -834,6 +826,15 @@
         var TargetDialog = {};
         var TempDialog = {};
         var TargetDialogItem;
+
+        var normalize = function (term) {
+            var ret = "";
+            for (var i = 0; i < term.length; i++) {
+                ret += term.charAt(i);
+            }
+            return ret;
+        };
+
         function updateEdit() {
             for (var index = 0; index < Dialogs.length; index++) {
                 var Dialog = Dialogs[index];
@@ -911,6 +912,7 @@
                 }
             }
         }
+
         function Refresh() {
             try {
                 $MainTable.fnDestroy();
