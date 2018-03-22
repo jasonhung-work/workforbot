@@ -606,7 +606,7 @@ button.ui-button::-moz-focus-inner {
 }
 .ui-selectable-helper {
 	position: absolute;
-	z-index: 100;
+	z-index: 1100;
 	border: 1px dotted black;
 }
 .ui-slider {
@@ -615,14 +615,14 @@ button.ui-button::-moz-focus-inner {
 }
 .ui-slider .ui-slider-handle {
 	position: absolute;
-	z-index: 2;
+	z-index: 1002;
 	width: 1.2em;
 	height: 1.2em;
 	cursor: default;
 }
 .ui-slider .ui-slider-range {
 	position: absolute;
-	z-index: 1;
+	z-index: 1001;
 	font-size: .7em;
 	display: block;
 	border: 0;
@@ -771,7 +771,7 @@ button.ui-button::-moz-focus-inner {
 .ui-tooltip {
 	padding: 8px;
 	position: absolute;
-	z-index: 9999;
+	z-index: 10999;
 	max-width: 300px;
 	-webkit-box-shadow: 0 0 5px #aaa;
 	box-shadow: 0 0 5px #aaa;
