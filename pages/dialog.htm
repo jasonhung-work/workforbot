@@ -794,15 +794,17 @@
              }); */
 
             $('#TxtDescription').autocomplete({
-                delay: 0,
                 source: function (request, response) {
                     var Variable = [];
                     var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
                     for (var index = 0; index < Variables.getKeys().length; index++) {
-                        Variable.push(Variables.get(Variables.getKeys()[index]));
+                        var data = {};
+                        data.label = Variables.get(Variables.getKeys()[index]).name;
+                        Variable.push(data);
                     }
                     response($.grep(Variable, function (value) {
-                        value = value.name || value;
+                        value = value.label || value.value || value;
+                        console.log(value);
                         return matcher.test(value) || matcher.test(normalize(value));
                     }));
                 }
