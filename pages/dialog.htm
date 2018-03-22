@@ -795,6 +795,7 @@
 
             $('.ui-widget')
                 .bind("keydown", function (event) {
+                    console.log('ui-widget');
                     if (event.keyCode === $.ui.keyCode.TAB &&
                         $(this).data("ui-autocomplete").menu.active) {
                         event.preventDefault();
