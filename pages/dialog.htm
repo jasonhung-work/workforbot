@@ -7,6 +7,7 @@
     <link href="/css/bootstrap/bootstrap.css" rel="stylesheet" />
     <link href="/css/font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet" />
     <link href="/css/bootstrap/dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="/css/jquery-ui/jquery-ui.css" rel="stylesheet">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>流程編輯器</title>
@@ -64,8 +65,16 @@
             border-color: orange;
             border-style: solid;
         }
+
+        .ui-autocomplete-category {
+            font-weight: bold;
+            padding: .2em .4em;
+            margin: .8em 0 .2em;
+            line-height: 1.5;
+        }
     </style>
     <script type="text/javascript" src="/scripts/jquery/jquery-1.9.0.min.js"></script>
+    <script type="text/javascript" src="/scripts/jquery-ui/jquery-ui.js"></script>
     <script type="text/javascript" src="/scripts/bootstrap/bootstrap.min.js"></script>
     <script type="text/javascript" src="/scripts/bootstrap/bootbox/bootbox.min.js"></script>
     <script type="text/javascript" src="/scripts/bootstrap/bootstrapValidator/bootstrapValidator.min.js"></script>
@@ -82,6 +91,19 @@
         var $MessageTable;
         var Socket;
         var DeleteMode = false;
+
+        //自動完成的設定
+        $.widget("custom.catcomplete", $.ui.autocomplete, {
+            _renderMenu: function (ul, items) {
+                if (ul == '/%/') {
+                    var that = this;
+                    $.each(items, function (index, item) {
+                        alert(JSON.string(item));
+                        that._renderItemData(item.description);
+                    });
+                }
+            }
+        });
 
         $(document).ready(function () {
             $('h1[name="title"]').text($('h1[name="title"]').text() + FlowDescription);
@@ -779,6 +801,11 @@
                     $('#DivQnaMaker').find('input[name="Key"]').val('');
                 }
                 $('#DialogForm').data('bootstrapValidator').resetForm();
+            });
+
+            $(".formgroup").catcomplete({
+                delay: 0,
+                source: variables
             });
         });
 
