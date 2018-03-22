@@ -812,11 +812,7 @@
                             Variable.push(data);
                         }
                         if (begin % 2 == 0) {
-                            response($.grep(Variable, function (value) {
-                                value = value.label || value.value || value;
-                                console.log(value);
-                                return matcher.test(value) || matcher.test(normalize(value));
-                            }));
+                            response($.ui.autocomplete.filter(Variable, extractLast(request.term)));
                         }
                         else {
                             response(false);
