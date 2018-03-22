@@ -811,7 +811,9 @@
                     }
                     alert(JSON.stringify(Variable));
                     response($.grep(Variable, function (value) {
+                        alert(value);
                         value = value.name || value;
+                        alert(value);
                         return matcher.test(value) || matcher.test(normalize(value));
                     }));
                 }
