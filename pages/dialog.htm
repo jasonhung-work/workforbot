@@ -814,6 +814,8 @@
                         alert(value);
                         value = value.name || value;
                         alert(value);
+                        alert(matcher.test(value));
+                        alert(matcher.test(normalize(value)));
                         return matcher.test(value) || matcher.test(normalize(value));
                     }));
                 }
