@@ -805,17 +805,12 @@
                 source: function (request, response) {
                     var Variable = [];
                     var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
-                    alert(matcher);
                     for (var index = 0; index < Variables.getKeys().length; index++) {
                         Variable.push(Variables.get(Variables.getKeys()[index]));
                     }
-                    alert(JSON.stringify(Variable));
                     response($.grep(Variable, function (value) {
                         alert(value);
                         value = value.name || value;
-                        alert(value);
-                        alert(matcher.test(value));
-                        alert(matcher.test(normalize(value)));
                         return matcher.test(value) || matcher.test(normalize(value));
                     }));
                 }
@@ -2401,10 +2396,12 @@
                                         <option value="qna_maker">QnA Maker</option>
                                     </select>
                                 </div>
-                                <div class="form-group ui-widget">
-                                    <span class="fa fa-asterisk"></span>
-                                    <label>描述：</label>
-                                    <input class="form-control" id="TxtDescription" name="Description">
+                                <div class="ui-widget">
+                                    <div class="form-group">
+                                        <span class="fa fa-asterisk"></span>
+                                        <label>描述：</label>
+                                        <input class="form-control" id="TxtDescription" name="Description">
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-lg-6" id="DivNext">
