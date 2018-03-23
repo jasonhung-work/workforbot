@@ -811,13 +811,15 @@
                                 response($.ui.autocomplete.filter(Variable, extractLast(request.term, /%\s*/)));
                             }
                             if (isMessage != auto_message) {
-                                console.log('sign isMessage');
                                 if (isMessage > auto_message) {
+                                    console.log('sign isMessage');
                                     for (var index = 0; index < Locales.length; index++) {
                                         var data = {};
+                                        console.log(JSON.stringify(Locales[index]));
                                         data.label = Locales[index].name;
                                         Locale_for_AC.push(data);
                                     }
+                                    console.log(Locale_for_AC);
                                     response($.ui.autocomplete.filter(Locale_for_AC, extractLast(request.term, /{\s*/)));
                                 }
                             }
