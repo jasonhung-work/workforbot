@@ -823,6 +823,10 @@
                                     console.log(Locale_for_AC);
                                     response($.ui.autocomplete.filter(Locale_for_AC, extractLast(request.term, /{\s*/)));
                                 }
+                                else {
+                                    auto_message = isMessage;
+                                    response(false);
+                                }
                             }
                         }
                         else {
@@ -836,7 +840,7 @@
                     select: function (event, ui) {
                         var isParameter = split(this.value, /%\s*/).length % 2;
                         var isMessage = split(this.value, /{\s*/).length;
-                            console.log('sign in select');
+                        console.log('sign in select');
                         if (isParameter == 0) {
                             var terms = split(this.value, /%\s*/);
                             // 移除当前输入
@@ -855,11 +859,9 @@
                                 terms.pop();
                                 // 添加被选项
                                 terms.push('{' + ui.item.value + '}');
+                                terms.push("");
+                                console.log(terms);
                                 this.value = terms;
-                            }
-                            else {
-                                auto_message = isMessage;
-                                return false;
                             }
                         }
                         return false;
