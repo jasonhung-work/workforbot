@@ -795,11 +795,13 @@
                     minLength: 0,
                     source: function (request, response) {
                         var Variable = [];
+                        var Locale_for_AC = [];
                         var isParameter = split(request.term, /%\s*/).length % 2;
                         var isMessage = split(request.term, /{\s*/).length;
                         if (auto_message == -1) auto_message = isMessage;
                         var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
                         if (isParameter == 0 || isMessage != auto_message) {
+                            console.log("sign");
                             if (isParameter == 0) {
                                 for (var index = 0; index < Variables.getKeys().length; index++) {
                                     var data = {};
@@ -809,8 +811,14 @@
                                 response($.ui.autocomplete.filter(Variable, extractLast(request.term, /%\s*/)));
                             }
                             if (isMessage != auto_message) {
+                                console.log('sign isMessage');
                                 if (isMessage > auto_message) {
-                                    response($.ui.autocomplete.filter(Locales, extractLast(request.term, /{\s*/)));
+                                    for (var index = 0; index < Locales.length; index++) {
+                                        var data = {};
+                                        data.label = Locales[index].name;
+                                        Locale_for_AC.push(data);
+                                    }
+                                    response($.ui.autocomplete.filter(Locale_for_AC, extractLast(request.term, /{\s*/)));
                                 }
                             }
                         }
