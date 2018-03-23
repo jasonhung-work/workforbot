@@ -814,10 +814,10 @@
                                 if (isMessage > auto_message) {
                                     console.log('sign isMessage');
                                     console.log(Locales);
-                                    for (var index = 0; index < Locales[locale].length; index++) {
+                                    for (var index = 0; index < Locales[Locale].length; index++) {
                                         var data = {};
-                                        console.log(JSON.stringify(Locales[locale][index]));
-                                        data.label = Locales[locale][index];
+                                        console.log(JSON.stringify(Locales[Locale][index]));
+                                        data.label = Locales[Locale][index];
                                         Locale_for_AC.push(data);
                                     }
                                     console.log(Locale_for_AC);
