@@ -822,15 +822,6 @@
                         terms.push("");
                         this.value = terms.join("%");
                         return false;
-                    },
-                    _renderMenu: function (ul, items) {
-                        var that = this;
-                        console.log(items);
-                        if (items.length > 0) {
-                            console.log('_render');
-                            ul.append("<li class='ui-autocomplete-category'>參數: </li>");
-                            that._renderItemData(ul, items);
-                        }
                     }
                 });
         });
