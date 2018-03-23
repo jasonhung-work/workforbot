@@ -859,9 +859,9 @@
                                 terms.pop();
                                 // 添加被选项
                                 terms.push('{' + ui.item.value + '}');
+                                //增加一個空白來join取消，
                                 terms.push("");
-                                console.log(terms);
-                                this.value = terms;
+                                this.value = terms.join("");
                             }
                         }
                         return false;
