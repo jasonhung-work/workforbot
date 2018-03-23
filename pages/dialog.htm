@@ -813,11 +813,11 @@
                             if (isMessage != auto_message) {
                                 if (isMessage > auto_message) {
                                     console.log('sign isMessage');
-                                    console.log(JSON.stringify(Locales));
-                                    for (var index = 0; index < Locales.length; index++) {
+                                    console.log(Locales);
+                                    for (var index = 0; index < Locales[locale].length; index++) {
                                         var data = {};
-                                        console.log(JSON.stringify(Locales[index]));
-                                        data.label = Locales[index].name;
+                                        console.log(JSON.stringify(Locales[locale][index]));
+                                        data.label = Locales[locale][index];
                                         Locale_for_AC.push(data);
                                     }
                                     console.log(Locale_for_AC);
