@@ -794,15 +794,26 @@
                     minLength: 0,
                     source: function (request, response) {
                         var Variable = [];
-                        var isParameter = split(request.term).length;
+                        var isParameter = split(request.term, /%\s*/).length % 2;
+                        var isMessage = split(request.term, /{\s*/).length % 2;
                         var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
-                        if (isParameter % 2 == 0) {
-                            for (var index = 0; index < Variables.getKeys().length; index++) {
-                                var data = {};
-                                data.label = Variables.get(Variables.getKeys()[index]).name;
-                                Variable.push(data);
+                        if (isParameter == 0 || isMessage == 0) {
+                            if (isParameter == 0) {
+                                for (var index = 0; index < Variables.getKeys().length; index++) {
+                                    var data = {};
+                                    data.label = Variables.get(Variables.getKeys()[index]).name;
+                                    Variable.push(data);
+                                }
+                                response($.ui.autocomplete.filter(Variable, extractLast(request.term, /%\s*/)));
                             }
-                            response($.ui.autocomplete.filter(Variable, extractLast(request.term)));
+                            if (isMessage == 0) {
+                                for (var index = 0; index < Variables.getKeys().length; index++) {
+                                    var data = {};
+                                    data.label = Variables.get(Variables.getKeys()[index]).name;
+                                    Variable.push(data);
+                                }
+                                response($.ui.autocomplete.filter(Variable, extractLast(request.term, /{\s*/)));
+                            }
                         }
                         else {
                             response(false);
@@ -813,14 +824,30 @@
                         return false;
                     },
                     select: function (event, ui) {
-                        var terms = split(this.value);
-                        // 移除当前输入
-                        terms.pop();
-                        // 添加被选项
-                        terms.push(ui.item.value);
-                        // 添加占位符，在结尾添加逗号+空格
-                        terms.push("");
-                        this.value = terms.join("%");
+                        var isParameter = split(this.value, /%\s*/).length % 2;
+                        var isMessage = split(this.value, /{\s*/).length % 2;
+                            console.log(isParameter);
+                            console.log(isMessage);
+                        if (isParameter == 0) {
+                            var terms = split(this.value, /%\s*/);
+                            // 移除当前输入
+                            terms.pop();
+                            // 添加被选项
+                            terms.push(ui.item.value);
+                            // 添加占位符，在结尾添加逗号+空格
+                            terms.push("");
+                            this.value = terms.join("%");
+                        }
+                        if (isMessage == 0) {
+                            var terms = split(this.value, /{\s*/);
+                            // 移除当前输入
+                            terms.pop();
+                            // 添加被选项
+                            terms.push(ui.item.value);
+                            // 添加占位符，在结尾添加逗号+空格
+                            terms.push("");
+                            this.value = terms.join("}");
+                        }
                         return false;
                     }
                 });
@@ -2292,12 +2319,12 @@
             return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
         }
 
-        function split(val) {
-            return val.split(/%\s*/);
+        function split(val, string) {
+            return val.split(string);
         }
 
-        function extractLast(term) {
-            return split(term).pop();
+        function extractLast(term, string) {
+            return split(term, string).pop();
         }
     </script>
 </head>
