@@ -798,7 +798,7 @@
                         var Locale_for_AC = [];
                         var isParameter = split(request.term, /%\s*/).length % 2;
                         var isMessage = split(request.term, /{\s*/).length;
-                        if (auto_message == -1) auto_message = isMessage;
+                        if (auto_message == -1) auto_message = 0;
                         var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
                         if (isParameter == 0 || isMessage != auto_message) {
                             console.log("sign");
@@ -813,7 +813,7 @@
                             if (isMessage != auto_message) {
                                 if (isMessage > auto_message) {
                                     console.log('sign isMessage');
-                                    console.log(Locales[Locale].keys().length);
+                                    console.log(Locales[Locale].選單);
                                     console.log(typeof(Locales[Locale]));
                                     console.log(Locales[Locale].length);
                                     for (var index = 0; index < Locales[Locale].length; index++) {
