@@ -813,9 +813,8 @@
                             if (isMessage != auto_message) {
                                 if (isMessage > auto_message) {
                                     console.log('sign isMessage');
-                                    console.log(Locales);
-                                    console.log(typeof(Locales));
-                                    console.log(Locales[Locale].size());
+                                    console.log(Locales.Locale);;
+                                    console.log(Locales.Locale.length);
                                     for (var index = 0; index < Locales[Locale].length; index++) {
                                         var data = {};
                                         console.log(JSON.stringify(Locales[Locale][index]));
