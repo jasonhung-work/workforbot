@@ -785,7 +785,6 @@
 
             $('.auto_complete')
                 .bind("keydown", function (event) {
-                    console.log('ui-widget');
                     if (event.keyCode === $.ui.keyCode.TAB &&
                         $(this).data("ui-autocomplete").menu.active) {
                         event.preventDefault();
@@ -826,7 +825,9 @@
                     },
                     _renderMenu: function (ul, items) {
                         var that = this;
+                        console.log(items);
                         if (items.length > 0) {
+                            console.log('_render');
                             ul.append("<li class='ui-autocomplete-category'>參數: </li>");
                             that._renderItemData(ul, items);
                         }
