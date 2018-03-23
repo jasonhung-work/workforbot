@@ -858,13 +858,9 @@
                                 // 移除当前输入
                                 terms.pop();
                                 // 添加被选项
-                                terms.push('{' + ui.item.value + '}');
-                                for(property in terms){
-                                    console.log(property);
-                                }
-                                //增加一個空白來join取消，
-                                terms.push("");
-                                this.value = terms.join("");
+                                terms.push(ui.item.value + '}');
+                                console.log(terms);
+                                this.value = terms.join("{");
                             }
                         }
                         return false;
