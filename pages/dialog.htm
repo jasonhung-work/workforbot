@@ -849,13 +849,14 @@
                         }
                         if (isMessage != auto_message) {
                             if (isMessage > auto_message) {
-                                console.log("FFFFFF");
                                 auto_message = isMessage;
+                                console.log(this.value);
                                 var terms = split(this.value, /{\s*/);
                                 // 移除当前输入
                                 terms.pop();
                                 // 添加被选项
                                 terms.push('{' + ui.item.value + '}');
+                                console.log(terms);
                             }
                             else {
                                 auto_message = isMessage;
