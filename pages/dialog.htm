@@ -84,6 +84,7 @@
         var $MessageTable;
         var Socket;
         var DeleteMode = false;
+        var auto_message = -1;
 
         $(document).ready(function () {
             $('h1[name="title"]').text($('h1[name="title"]').text() + FlowDescription);
@@ -795,9 +796,10 @@
                     source: function (request, response) {
                         var Variable = [];
                         var isParameter = split(request.term, /%\s*/).length % 2;
-                        var isMessage = split(request.term, /{\s*/).length % 2;
+                        var isMessage = split(request.term, /{\s*/).length;
+                        if (auto_message == -1) auto_message = isMessage;
                         var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
-                        if (isParameter == 0 || isMessage == 0) {
+                        if (isParameter == 0 || isMessage != auto_message) {
                             if (isParameter == 0) {
                                 for (var index = 0; index < Variables.getKeys().length; index++) {
                                     var data = {};
@@ -806,13 +808,10 @@
                                 }
                                 response($.ui.autocomplete.filter(Variable, extractLast(request.term, /%\s*/)));
                             }
-                            if (isMessage == 0) {
-                                for (var index = 0; index < Variables.getKeys().length; index++) {
-                                    var data = {};
-                                    data.label = Variables.get(Variables.getKeys()[index]).name;
-                                    Variable.push(data);
+                            if (isMessage != auto_message) {
+                                if (isMessage > auto_message) {
+                                    response($.ui.autocomplete.filter(Locales, extractLast(request.term, /{\s*/)));
                                 }
-                                response($.ui.autocomplete.filter(Variable, extractLast(request.term, /{\s*/)));
                             }
                         }
                         else {
@@ -826,8 +825,6 @@
                     select: function (event, ui) {
                         var isParameter = split(this.value, /%\s*/).length % 2;
                         var isMessage = split(this.value, /{\s*/).length % 2;
-                            console.log(isParameter);
-                            console.log(isMessage);
                         if (isParameter == 0) {
                             var terms = split(this.value, /%\s*/);
                             // 移除当前输入
@@ -838,14 +835,19 @@
                             terms.push("");
                             this.value = terms.join("%");
                         }
-                        if (isMessage == 0) {
-                            var terms = split(this.value, /{\s*/);
-                            // 移除当前输入
-                            terms.pop();
-                            // 添加被选项
-                            terms.push('{' + ui.item.value);
-                            // 添加占位符，在结尾添加逗号+空格
-                            this.value = terms.join("}");
+                        if (isMessage != auto_message) {
+                            if (isMessage > auto_message) {
+                                auto_message = isMessage;
+                                var terms = split(this.value, /{\s*/);
+                                // 移除当前输入
+                                terms.pop();
+                                // 添加被选项
+                                terms.push('{' + ui.item.value + '}');
+                            }
+                            else {
+                                auto_message = isMessage;
+                                return false;
+                            }
                         }
                         return false;
                     }
