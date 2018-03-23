@@ -783,16 +783,6 @@
                 $('#DialogForm').data('bootstrapValidator').resetForm();
             });
 
-            /*  $('#DivCondition').find('input[name="TargetField"]').catcomplete({
-                 delay: 0,
-                 source: Variables
-             });
- 
-             $('#TemplateText').find('input[name="Prompt"]').catcomplete({
-                 delay: 0,
-                 source: Variables
-             }); */
-
             $('.auto_complete')
                 .bind("keydown", function (event) {
                     console.log('ui-widget');
@@ -805,14 +795,15 @@
                     minLength: 0,
                     source: function (request, response) {
                         var Variable = [];
-                        var begin = split(request.term).length;
+                        var isParameter = split(request.term).length;
                         var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
-                        for (var index = 0; index < Variables.getKeys().length; index++) {
-                            var data = {};
-                            data.label = Variables.get(Variables.getKeys()[index]).name;
-                            Variable.push(data);
-                        }
-                        if (begin % 2 == 0) {
+                        if (isParameter % 2 == 0) {
+                            ul.append("<li class='ui-autocomplete-category'>參數: </li>");
+                            for (var index = 0; index < Variables.getKeys().length; index++) {
+                                var data = {};
+                                data.label = Variables.get(Variables.getKeys()[index]).name;
+                                Variable.push(data);
+                            }
                             response($.ui.autocomplete.filter(Variable, extractLast(request.term)));
                         }
                         else {
@@ -835,11 +826,6 @@
                         return false;
                     }
                 });
-
-            // $('#TemplateButton').find('input[name="Title"]' || 'input[name="Value"]').catcomplete({
-            //     delay: 0,
-            //     source: Variables
-            // });
         });
 
         var TargetDialog = {};
