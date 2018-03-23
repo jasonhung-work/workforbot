@@ -836,6 +836,7 @@
                     select: function (event, ui) {
                         var isParameter = split(this.value, /%\s*/).length % 2;
                         var isMessage = split(this.value, /{\s*/).length;
+                            console.log('sign in select');
                         if (isParameter == 0) {
                             var terms = split(this.value, /%\s*/);
                             // 移除当前输入
@@ -848,6 +849,7 @@
                         }
                         if (isMessage != auto_message) {
                             if (isMessage > auto_message) {
+                                console.log("FFFFFF");
                                 auto_message = isMessage;
                                 var terms = split(this.value, /{\s*/);
                                 // 移除当前输入
