@@ -859,6 +859,9 @@
                                 terms.pop();
                                 // 添加被选项
                                 terms.push('{' + ui.item.value + '}');
+                                for(property in terms){
+                                    console.log(property);
+                                }
                                 //增加一個空白來join取消，
                                 terms.push("");
                                 this.value = terms.join("");
