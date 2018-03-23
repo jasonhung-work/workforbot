@@ -812,12 +812,12 @@
                             }
                             if (isMessage != auto_message) {
                                 if (isMessage > auto_message) {
-                                    console.log('sign isMessage');
-                                    console.log(Object.keys(Locales[Locale]).length);
-                                    for (var index = 0; index < Object.keys(Locales[Locale]).length; index++) {
+                                    var Locale_AC = Locales[Locale];
+                                    for (var Property in Locale_AC) {
+                                        if (Property == '_used') continue;
+                                        var Content = Locale_AC[Property];
                                         var data = {};
-                                        data.label = Locales[Locale][index];
-                                        console.log(data);
+                                        data.label = Content;
                                         Locale_for_AC.push(data);
                                     }
                                     console.log(Locale_for_AC);
