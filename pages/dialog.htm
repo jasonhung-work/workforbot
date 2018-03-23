@@ -798,7 +798,6 @@
                         var isParameter = split(request.term).length;
                         var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
                         if (isParameter % 2 == 0) {
-                            ul.append("<li class='ui-autocomplete-category'>參數: </li>");
                             for (var index = 0; index < Variables.getKeys().length; index++) {
                                 var data = {};
                                 data.label = Variables.get(Variables.getKeys()[index]).name;
@@ -824,6 +823,13 @@
                         terms.push("");
                         this.value = terms.join("%");
                         return false;
+                    },
+                    _renderMenu: function (ul, items) {
+                        var that = this;
+                        if (items.length > 0) {
+                            ul.append("<li class='ui-autocomplete-category'>參數: </li>");
+                            that._renderItemData(ul, items);
+                        }
                     }
                 });
         });
