@@ -2483,6 +2483,7 @@ bot.dialog('/end', function (session) {
 
 function redirect_dialog(end_point) {
     var result;
+    console.log('end_point: ' + end_point);
     switch (end_point) {
         case -2:
             preventDialog.delete(session.userData.userId);
