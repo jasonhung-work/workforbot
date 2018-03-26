@@ -1669,7 +1669,7 @@ bot.dialog('/flow', [
             }
         }
 
-        if (args == undefined) {
+        if (args == undefined || args.form == undefined) {
             args = {},
                 args.form = {};
             args.form['conversation_Id'] = session.message.address.conversation.id;
