@@ -456,8 +456,7 @@ app.put('/variables/:flow_id', function (request, response) {
         }.bind({ res: response }));
     }
 });
-app.post('/variables/:acct/:conversation_id/:dialog_id', function (request, response) {
-    request.header('Content-Type', 'application/json');
+app.get('/variables/:acct/:conversation_id/:dialog_id', function (request, response) {
     var user_id = request.body.acct;
     var conversation_id = request.body.conversation_id;
     var dialog_id = request.body.dialog_id;
