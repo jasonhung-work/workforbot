@@ -2493,8 +2493,8 @@ function redirect_dialog(userId, end_point) {
     switch (end_point.toString()) {
         case '-2':
             console.log('-2');
-            preventDialog.delete(userId);
-            preventMessage.delete(userId);
+            //preventDialog.delete(userId);
+            //preventMessage.delete(userId);
             //preventAddress.delete(userId);
             result = 'endDialog';
             break;
