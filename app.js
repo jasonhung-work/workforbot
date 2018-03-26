@@ -464,10 +464,10 @@ app.get('/variables/:acct/:conversation_id/:dialog_id', function (request, respo
         'index': dialog_id,
         'messageTimestamp': new Date(),
     }
-    preventDialog.set(userid, JSON.stringify(global.dialogs));
-    if (!preventMessage.has(userid)) {
+    preventDialog.set(user_id, JSON.stringify(global.dialogs));
+    if (!preventMessage.has(user_id)) {
         var new_message = [];
-        preventMessage.set(userid, new_message);
+        preventMessage.set(user_id, new_message);
     }
     beginDialog('/flow', session);
 });
