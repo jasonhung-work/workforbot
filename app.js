@@ -1519,6 +1519,7 @@ bot.dialog('/',
             session.userData.userId = session.message.user.id;
         }
         preventDialog.set(session.userData.userId, JSON.stringify(global.dialogs));
+        console.log("__________________________s" +session.message.address);
         preventAddress.set(session.userData.userId, session.message.address);
         if (!preventMessage.has(session.userData.userId)) {
             var new_message = [];
