@@ -469,7 +469,7 @@ app.get('/variables/:acct/:conversation_id/:dialog_id', function (request, respo
         var new_message = [];
         preventMessage.set(user_id, new_message);
     }
-    bot.Dialog.beginDialog('/flow', session);
+    bot.dialog.session.beginDialog('/flow', session);
 });
 
 app.get('/sessions', function (request, response) {
