@@ -1774,13 +1774,13 @@ bot.dialog('/flow', [
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
             logger.info('index: ' + session.conversationData.index);
-            if (redirect_dialog(session.conversationData.index) == 'endDialog') {
+            if (redirect_dialog(session.userData.userId, session.conversationData.index) == 'endDialog') {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
                 }
             } else {
-                session.replaceDialog(redirect_dialog(session.conversationData.index), session.conversationData);
+                session.replaceDialog(redirect_dialog(session.userData.userId, session.conversationData.index), session.conversationData);
             }
         } else if (dialog.type == 'image') {
         } else if (dialog.type == 'card') {
@@ -1791,13 +1791,13 @@ bot.dialog('/flow', [
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
             logger.info('index: ' + session.conversationData.index);
-            if (redirect_dialog(session.conversationData.index) == 'endDialog') {
+            if (redirect_dialog(session.userData.userId, session.conversationData.index) == 'endDialog') {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
                 }
             } else {
-                session.replaceDialog(redirect_dialog(session.conversationData.index), session.conversationData);
+                session.replaceDialog(redirect_dialog(session.userData.userId, session.conversationData.index), session.conversationData);
             }
         } else if (dialog.type == 'input') {
             try {
@@ -1903,13 +1903,13 @@ bot.dialog('/flow', [
                 }
                 session.conversationData.index = fail_dialog_id;
             }
-            if (redirect_dialog(session.conversationData.index) == 'endDialog') {
+            if (redirect_dialog(session.userData.userId, session.conversationData.index) == 'endDialog') {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
                 }
             } else {
-                session.replaceDialog(redirect_dialog(session.conversationData.index), session.conversationData);
+                session.replaceDialog(redirect_dialog(session.userData.userId, session.conversationData.index), session.conversationData);
             }
         } else if (dialog.type == 'operate') {
             if (dialog.operate) {
@@ -1930,13 +1930,13 @@ bot.dialog('/flow', [
             // eval('session.conversationData.form["' + dialog.field + '"] = ' + dialog.operate);
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
-            if (redirect_dialog(session.conversationData.index) == 'endDialog') {
+            if (redirect_dialog(session.userData.userId, session.conversationData.index) == 'endDialog') {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
                 }
             } else {
-                session.replaceDialog(redirect_dialog(session.conversationData.index), session.conversationData);
+                session.replaceDialog(redirect_dialog(session.userData.userId, session.conversationData.index), session.conversationData);
             }
         } else if (dialog.type == 'webapi') {
             var http;
@@ -1985,13 +1985,13 @@ bot.dialog('/flow', [
                     }
                     if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                     else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
-                    if (redirect_dialog(this.session.conversationData.index) == 'endDialog') {
+                    if (redirect_dialog(this.session.userData.userId, this.session.conversationData.index) == 'endDialog') {
                         this.session.endDialogWithResult({ response: this.session.conversationData.form });
                         if (this.session.message.address.channelId == 'directline') {
                             this.session.send('{ "action": "end_service" }');
                         }
                     } else {
-                        this.session.replaceDialog(redirect_dialog(this.session.conversationData.index), this.session.conversationData);
+                        this.session.replaceDialog(redirect_dialog(this.session.userData.userId, this.session.conversationData.index), this.session.conversationData);
                     }
                 }.bind({ session: this.session, userDialog: this.userDialog }));
             }.bind({ session: session, userDialog: userDialog }));
@@ -2000,13 +2000,13 @@ bot.dialog('/flow', [
                 this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
                 if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                 else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
-                if (redirect_dialog(this.session.conversationData.index) == 'endDialog') {
+                if (redirect_dialog(this.session.userData.userId, this.session.conversationData.index) == 'endDialog') {
                     this.session.endDialogWithResult({ response: this.session.conversationData.form });
                     if (this.session.message.address.channelId == 'directline') {
                         this.session.send('{ "action": "end_service" }');
                     }
                 } else {
-                    this.session.replaceDialog(redirect_dialog(this.session.conversationData.index), this.session.conversationData);
+                    this.session.replaceDialog(redirect_dialog(this.session.userData.userId, this.session.conversationData.index), this.session.conversationData);
                 }
             }.bind({ session: session, userDialog: userDialog }));
             if (dialog.webapi.method == 'post' || dialog.webapi.method == 'put') {
@@ -2124,13 +2124,13 @@ bot.dialog('/flow', [
                             }
                             if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                             else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
-                            if (redirect_dialog(this.session.conversationData.index) == 'endDialog') {
+                            if (redirect_dialog(this.session.userData.userId, this.session.conversationData.index) == 'endDialog') {
                                 this.session.endDialogWithResult({ response: this.session.conversationData.form });
                                 if (this.session.message.address.channelId == 'directline') {
                                     this.session.send('{ "action": "end_service" }');
                                 }
                             } else {
-                                this.session.replaceDialog(redirect_dialog(this.session.conversationData.index), this.session.conversationData);
+                                this.session.replaceDialog(redirect_dialog(this.session.userData.userId, this.session.conversationData.index), this.session.conversationData);
                             }
                         }.bind({ session: this.session, dialog: this.dialog, userDialog: this.userDialog }));
                     }.bind({ session: this.session, dialog: this.dialog, userDialog: this.userDialog }));
@@ -2139,13 +2139,13 @@ bot.dialog('/flow', [
                         this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
                         if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                         else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
-                        if (redirect_dialog(this.session.conversationData.index) == 'endDialog') {
+                        if (redirect_dialog(this.session.userData.userId, this.session.conversationData.index) == 'endDialog') {
                             this.session.endDialogWithResult({ response: this.session.conversationData.form });
                             if (this.session.message.address.channelId == 'directline') {
                                 this.session.send('{ "action": "end_service" }');
                             }
                         } else {
-                            this.session.replaceDialog(redirect_dialog(this.session.conversationData.index), this.session.conversationData);
+                            this.session.replaceDialog(redirect_dialog(this.session.userData.userId, this.session.conversationData.index), this.session.conversationData);
                         }
                     }.bind({ session: this.session, userDialog: this.userDialog }));
                     req.write(JSON.stringify(this.dialog.qna_maker.body));
@@ -2160,13 +2160,13 @@ bot.dialog('/flow', [
                 this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
                 if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                 else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
-                if (redirect_dialog(this.session.conversationData.index) == 'endDialog') {
+                if (redirect_dialog(this.session.userData.userId, this.session.conversationData.index) == 'endDialog') {
                     this.session.endDialogWithResult({ response: this.session.conversationData.form });
                     if (this.session.message.address.channelId == 'directline') {
                         this.session.send('{ "action": "end_service" }');
                     }
                 } else {
-                    this.session.replaceDialog(redirect_dialog(this.session.conversationData.index), this.session.conversationData);
+                    this.session.replaceDialog(redirect_dialog(this.session.userData.userId, this.session.conversationData.index), this.session.conversationData);
                 }
             }.bind({ session: session, userDialog: userDialog }));
             req.end();
@@ -2257,13 +2257,13 @@ bot.dialog('/flow', [
                     session.conversationData.index = dialog_id_confirm;
                 }
             }
-            if (redirect_dialog(session.conversationData.index) == 'endDialog') {
+            if (redirect_dialog(session.userData.userId, session.conversationData.index) == 'endDialog') {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
                 }
             } else {
-                session.replaceDialog(redirect_dialog(session.conversationData.index), session.conversationData);
+                session.replaceDialog(redirect_dialog(session.userData.userId, session.conversationData.index), session.conversationData);
             }
         } else {
             session.endConversation();
@@ -2481,15 +2481,15 @@ bot.dialog('/end', function (session) {
     session.endConversation();
 });
 
-function redirect_dialog(end_point) {
+function redirect_dialog(userId,end_point) {
     var result;
     console.log('end_point: ' + end_point);
     switch (end_point.toString()) {
         case '-2':
             console.log('-2');
-            preventDialog.delete(session.userData.userId);
-            preventMessage.delete(session.userData.userId);
-            preventAddress.delete(session.userData.userId);
+            preventDialog.delete(userId);
+            preventMessage.delete(userId);
+            preventAddress.delete(userId);
             result = 'endDialog';
             break;
         case '-3':
