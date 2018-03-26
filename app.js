@@ -1598,6 +1598,7 @@ bot.dialog('/flow', [
         if (session.conversationData.messageTimestamp != session.message.timestamp) {
             session.conversationData.messageTimestamp = session.message.timestamp;
             if (session.message.type == 'message') {
+                if (session.message.attachments.length == undefined) break;
                 logger.info('session.message.text: ' + session.message.text);
                 var message = session.message.text;
                 try {
@@ -1605,31 +1606,29 @@ bot.dialog('/flow', [
                 } catch (e) {
                     logger.info('session.message.text is not JSON string');
                 }
-                if (session.message.attachments.length != undefined) {
-                    if (session.message.attachments.length > 0) {
-                        for (var index = 0; index < session.message.attachments.length; index++) {
-                            var resource = {};
-                            if (session.message.attachments[index].contentType.indexOf('image') >= 0) {
-                                resource.Type = 'Image';
-                                resource.Content = session.message.attachments[index].contentUrl;
-                                userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
-                            } else if (session.message.attachments[index].contentType.indexOf('video') >= 0) {
-                                resource.Type = 'Image';
-                                resource.Content = session.message.attachments[index].contentUrl;
-                                userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
-                            }
+                if (session.message.attachments.length > 0) {
+                    for (var index = 0; index < session.message.attachments.length; index++) {
+                        var resource = {};
+                        if (session.message.attachments[index].contentType.indexOf('image') >= 0) {
+                            resource.Type = 'Image';
+                            resource.Content = session.message.attachments[index].contentUrl;
+                            userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
+                        } else if (session.message.attachments[index].contentType.indexOf('video') >= 0) {
+                            resource.Type = 'Image';
+                            resource.Content = session.message.attachments[index].contentUrl;
+                            userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
                         }
                     }
-                    if (session.message.entities.length > 0) {
-                        for (var index = 0; index < session.message.entities.length; index++) {
-                            var location = {};
-                            if (session.message.entities[index].type == 'Place') {
-                                location.latitude = session.message.entities[index].geo.latitude;
-                                location.longitude = session.message.entities[index].geo.longitude;
-                                location.accuracy = 0;
-                                userConversationMessage.push({ type: 'location', acct: session.userData.userId, location: location });
-                            } else if (session.message.entities[index].type == 'clientInfo') {
-                            }
+                }
+                if (session.message.entities.length > 0) {
+                    for (var index = 0; index < session.message.entities.length; index++) {
+                        var location = {};
+                        if (session.message.entities[index].type == 'Place') {
+                            location.latitude = session.message.entities[index].geo.latitude;
+                            location.longitude = session.message.entities[index].geo.longitude;
+                            location.accuracy = 0;
+                            userConversationMessage.push({ type: 'location', acct: session.userData.userId, location: location });
+                        } else if (session.message.entities[index].type == 'clientInfo') {
                         }
                     }
                 }
