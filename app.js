@@ -1589,19 +1589,6 @@ bot.dialog('/flow', [
         var userDialog = JSON.parse(preventDialog.get(session.userData.userId));
         var userConversationMessage = preventMessage.get(session.userData.userId);
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-        var seen = [];
-
-        var replacer = function (key, value) {
-            if (value != null && typeof value == "object") {
-                if (seen.indexOf(value) >= 0) {
-                    return;
-                }
-                seen.push(value);
-            }
-            return value;
-        };
-        logger.info('session:' + JSON.stringify(session, replacer));
-        session.userData.dialogs = JSON.parse(JSON.stringify(global.dialogs));
         logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('session conversationData.Message: ' + JSON.stringify(userConversationMessage));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
