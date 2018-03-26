@@ -1126,7 +1126,7 @@
                                     )
                                     .append(
                                         $(document.createElement('td'))
-                                            .append((Dialogs[index].next_id == 0 && Dialogs[index].next > 0) ? '' : $(document.createElement('button'))
+                                            .append((Dialogs[index].next_id == 0 && Dialogs[index].next != -2 && Dialogs[index].next != -3 && Dialogs[index].next != -4) ? '' : $(document.createElement('button'))
                                                 .text(Dialogs[index].next == -2 ? '結束' : (Dialogs[index].next == -3 ? '客服' : (Dialogs[index].next == -4 ? '等待回復' : (Dialogs[index].next_id == 0 ? '0' : Dialogs[index].next_id))))
                                                 .addClass(Dialogs[index].next < 0 ? 'btn btn-success' : 'btn')
                                                 .click(function () {
