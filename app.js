@@ -460,6 +460,8 @@ app.post('/variables/:acct/:conversation_id/:dialog_id', function (request, resp
     var user_id = request.body.acct;
     var conversation_id = request.body.conversation_id;
     var dialog_id = request.body.dialog_id;
+    console.log(user_id + ',' + conversation_id + ',' + dialog_id);
+    console.log(preventAddress.has(user_id));
     if (preventAddress.has(user_id)) {
         console.log('yes is ok to see');
         var address = preventAddress.get(user_id);
