@@ -1598,7 +1598,7 @@ bot.dialog('/flow', [
         if (session.conversationData.messageTimestamp != session.message.timestamp) {
             session.conversationData.messageTimestamp = session.message.timestamp;
             if (session.message.type == 'message') {
-                if (session.message.attachments.length == undefined) {}
+                if (session.message.attachments == undefined) {}
                 logger.info('session.message.text: ' + session.message.text);
                 var message = session.message.text;
                 try {
