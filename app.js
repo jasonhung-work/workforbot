@@ -456,6 +456,13 @@ app.put('/variables/:flow_id', function (request, response) {
         }.bind({ res: response }));
     }
 });
+app.post('/variables/:acct/:flow_id/:dialog_id', function (request, response) {
+    request.header('Content-Type', 'application/json');
+    var user_id = request.body.acct;
+    var flow_id = request.body.flow_id;
+    var dialog_id = request.body.dialog_id;
+
+});
 
 app.get('/sessions', function (request, response) {
     var _sessions = [];
@@ -1461,7 +1468,7 @@ var preventMessage = new Map();
 
 bot.dialog('/',
     function (session) {
-        /*  這邊是用來查看
+        /*  這邊是用來查看session裡預設是什麼
         seen = [];
 
         var replacer = function (key, value) {
@@ -1767,6 +1774,7 @@ bot.dialog('/flow', [
             } else if (session.conversationData.index == -3) {
                 session.replaceDialog('/transfer', session.conversationData);
             } else {
+                console.log(session.conversationData);
                 session.replaceDialog('/flow', session.conversationData);
             }
         } else if (dialog.type == 'image') {
@@ -1789,6 +1797,7 @@ bot.dialog('/flow', [
                 session.replaceDialog('/transfer', session.conversationData);
             } else {
                 session.replaceDialog('/flow', session.conversationData);
+                console.log(session.conversationData);
             }
         } else if (dialog.type == 'input') {
             try {
