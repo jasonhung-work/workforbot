@@ -2486,12 +2486,14 @@ function redirect_dialog(end_point) {
     console.log('end_point: ' + end_point);
     switch (end_point) {
         case -2:
+            console.log('-2');
             preventDialog.delete(session.userData.userId);
             preventMessage.delete(session.userData.userId);
             preventAddress.delete(session.userData.userId);
             result = 'endDialog';
             break;
         case -3:
+            console.log('-3');
             result = '/transfer';
             break;
         default:
