@@ -1519,7 +1519,7 @@ bot.dialog('/',
             session.userData.userId = session.message.user.id;
         }
         preventDialog.set(session.userData.userId, JSON.stringify(global.dialogs));
-        console.log("__________________________s" + session.message.address);
+        console.log("__________________________s" + JSON.stringify(session.message.address));
         console.log("++++++++++++++++++" + session.userData.userId);
         preventAddress.set(session.userData.userId, session.message.address);
         if (!preventMessage.has(session.userData.userId)) {
@@ -2493,7 +2493,7 @@ function redirect_dialog(userId,end_point) {
             console.log('-2');
             preventDialog.delete(userId);
             preventMessage.delete(userId);
-            preventAddress.delete(userId);
+            //preventAddress.delete(userId);
             result = 'endDialog';
             break;
         case '-3':
