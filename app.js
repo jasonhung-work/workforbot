@@ -467,7 +467,9 @@ app.post('/variables/:acct/:conversation_id/:dialog_id', function (request, resp
             'messageTimestamp': new Date(),
         }
         bot.beginDialog(address, "/flow", session);
+        response.end('success');
     }
+    response.end();
 });
 
 app.get('/sessions', function (request, response) {
