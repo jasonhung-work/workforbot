@@ -2487,20 +2487,29 @@ bot.dialog('/end', function (session) {
     session.endConversation();
 });
 
+bot.dialog('/stay', function (session, args) {
+    var message = '此服務需一段時間，請稍等一下';
+    session.send(message);
+
+    session.endDialogWithResult({ response: session.conversationData.form });
+});
+
 function redirect_dialog(userId, end_point) {
     var result;
     console.log('end_point: ' + end_point);
     switch (end_point.toString()) {
         case '-2':
-            console.log('-2');
-            //preventDialog.delete(userId);
-            //preventMessage.delete(userId);
-            //preventAddress.delete(userId);
+            preventDialog.delete(userId);
+            preventMessage.delete(userId);
+            preventAddress.delete(userId);
             result = 'endDialog';
             break;
         case '-3':
-            console.log('-3');
             result = '/transfer';
+            break;
+        case '-4':
+            logger.info('-----------stay for result------------');
+            result = '/stay';
             break;
         default:
             result = '/flow';
