@@ -456,12 +456,16 @@ app.put('/variables/:flow_id', function (request, response) {
         }.bind({ res: response }));
     }
 });
-app.post('/variables/:acct/:flow_id/:dialog_id', function (request, response) {
+app.post('/variables/:acct/:conversation_id/:dialog_id', function (request, response) {
     request.header('Content-Type', 'application/json');
     var user_id = request.body.acct;
-    var flow_id = request.body.flow_id;
+    var conversation_id = request.body.conversation_id;
     var dialog_id = request.body.dialog_id;
-
+    var session = {
+        'index': dialog_id,
+        'messageTimestamp': new Date(),
+    }
+    beginDialog('/flow', session);
 });
 
 app.get('/sessions', function (request, response) {
@@ -1574,6 +1578,7 @@ bot.dialog('/flow', [
         var userDialog = JSON.parse(preventDialog.get(session.userData.userId));
         var userConversationMessage = preventMessage.get(session.userData.userId);
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+        logger.info('args' + JSON.stringify(args));
         logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('session conversationData.Message: ' + JSON.stringify(userConversationMessage));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
@@ -1774,7 +1779,6 @@ bot.dialog('/flow', [
             } else if (session.conversationData.index == -3) {
                 session.replaceDialog('/transfer', session.conversationData);
             } else {
-                console.log(session.conversationData);
                 session.replaceDialog('/flow', session.conversationData);
             }
         } else if (dialog.type == 'image') {
@@ -1797,7 +1801,6 @@ bot.dialog('/flow', [
                 session.replaceDialog('/transfer', session.conversationData);
             } else {
                 session.replaceDialog('/flow', session.conversationData);
-                console.log(session.conversationData);
             }
         } else if (dialog.type == 'input') {
             try {
