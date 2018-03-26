@@ -465,6 +465,11 @@ app.post('/variables/:acct/:conversation_id/:dialog_id', function (request, resp
         'index': dialog_id,
         'messageTimestamp': new Date(),
     }
+    preventDialog.set(userId, JSON.stringify(global.dialogs));
+    if (!preventMessage.has(userId)) {
+        var new_message = [];
+        preventMessage.set(userId, new_message);
+    }
     beginDialog('/flow', session);
 });
 
