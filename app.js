@@ -461,6 +461,7 @@ app.post('/variables/:acct/:conversation_id/:dialog_id', function (request, resp
     var conversation_id = request.body.conversation_id;
     var dialog_id = request.body.dialog_id;
     if (preventAddress.has(user_id)) {
+        console.log('yes is ok to see');
         var address = preventAddress.get(user_id);
         var session = {
             'index': dialog_id,
