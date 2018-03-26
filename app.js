@@ -457,9 +457,9 @@ app.put('/variables/:flow_id', function (request, response) {
     }
 });
 app.post('/variables/:acct/:conversation_id/:dialog_id', function (request, response) {
-    var user_id = request.body.acct;
-    var conversation_id = request.body.conversation_id;
-    var dialog_id = request.body.dialog_id;
+    var user_id = request.params.acct;
+    var conversation_id = request.params.conversation_id;
+    var dialog_id = request.params.dialog_id;
     console.log(user_id + ',' + conversation_id + ',' + dialog_id);
     console.log(preventAddress.has(user_id));
     if (preventAddress.has(user_id)) {
