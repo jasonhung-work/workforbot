@@ -2481,7 +2481,7 @@ bot.dialog('/end', function (session) {
     session.endConversation();
 });
 
-function redirectredirect_dialog(end_point) {
+function redirect_dialog(end_point) {
     var result;
     switch (end_point) {
         case -2:
