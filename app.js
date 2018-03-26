@@ -470,6 +470,7 @@ app.post('/variables/:acct/:conversation_id/:dialog_id', function (request, resp
         bot.beginDialog(address, "/flow", session);
         response.end('success');
     }
+    console.log('fail to see');
     response.end();
 });
 
