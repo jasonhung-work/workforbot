@@ -1588,6 +1588,7 @@ bot.dialog('/flow', [
     function (session, args) {
         var userDialog = JSON.parse(preventDialog.get(session.userData.userId));
         var userConversationMessage = preventMessage.get(session.userData.userId);
+        console.log(userConversationMessage);
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('session conversationData.Message: ' + JSON.stringify(userConversationMessage));
