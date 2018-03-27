@@ -1627,17 +1627,19 @@ bot.dialog('/flow', [
                                 connector.getAccessToken(function (err, accessToken) {
                                     if (err) throw err;
                                     else {
+                                        console.log("has check access_Token: " + accessToken);
                                         var https = require('https');
                                         options = {
                                             hostname: image_url.hostname,
                                             port: image_url.port,
                                             path: image_url.path,
                                             headers: {
-                                                'Authorization': 'Bearer ' + accesstoken,
+                                                'Authorization': 'Bearer ' + accessToken,
                                                 'Content-Type': 'application/octet-stream'
                                             },
                                             method: 'GET'
                                         };
+                                        console.log('has check option: ' + JSON.stringify(options));
                                         var req = https.request(options, function (res) {
                                             logger.info('GET_IMAGE_STATUS: ' + res.statusCode);
                                             logger.info('GET_IMAGE_HEADERS: ' + JSON.stringify(res.headers));
@@ -1671,13 +1673,14 @@ bot.dialog('/flow', [
                             }
                             else {
                                 var https = require('https');
-                                options = {
+                                var options = {
                                     hostname: image_url.hostname,
                                     port: image_url.port,
                                     path: image_url.path,
                                     headers: {},
                                     method: 'GET'
                                 };
+                                console.log("didnt have options: " + JSON.stringify(options));
                                 var req = https.request(options, function (res) {
                                     logger.info('STATUS: ' + res.statusCode);
                                     logger.info('HEADERS: ' + JSON.stringify(res.headers));
