@@ -1484,9 +1484,6 @@ var preventDialog = new Map();
 var preventMessage = new Map();
 var preventAddress = new Map();
 
-var Promise = require('bluebird');
-var request = require('request-promise').defaults({ encoding: null });
-
 bot.dialog('/',
     function (session) {
         /*  這邊是用來查看session裡預設是什麼
@@ -1603,31 +1600,6 @@ bot.dialog('/flow', [
         logger.info('session conversationData.Message: ' + JSON.stringify(userConversationMessage));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         session.conversationData.index = args ? args.index : 0;
-        var attachment = session.message.attachments[0];
-
-        var fileDownload = checkRequiresToken(session.message) ? requestWithToken(attachment.contentUrl) : request(attachment.contentUrl);
-
-        fileDownload.then(
-            function (response) {
-                console.log("fileDownload");
-                // Send reply with attachment type & size
-                var reply = new builder.Message(session)
-                    .text('Attachment of %s type and size of %s bytes received.', attachment.contentType, response.length);
-                session.send(reply);
-
-                // convert image to base64 string
-                var imageBase64Sting = new Buffer(response, 'binary').toString('base64');
-                // echo back uploaded image as base64 string
-                var echoImage = new builder.Message(session).text('You sent:').addAttachment({
-                    contentType: attachment.contentType,
-                    contentUrl: 'data:' + attachment.contentType + ';base64,' + imageBase64Sting,
-                    name: 'Uploaded image'
-                });
-                session.send(echoImage);
-            }).catch(function (err) {
-                console.log(JSON.stringify(err));
-                console.log('Error downloading attachment:', { statusCode: err.statusCode, message: err.response.statusMessage });
-            });
 
         if (session.conversationData.messageTimestamp != session.message.timestamp) {
             session.conversationData.messageTimestamp = session.message.timestamp;
@@ -1648,94 +1620,97 @@ bot.dialog('/flow', [
                             var https = require('https');
                             var url = require('url');
                             var image_url = url.parse(resource.Content);
-                            /*if (checkRequiresToken(session.message)) {
+                            var attachment = session.message.attachments[index];
+
+                            if (checkRequiresToken(session.message)) {
                                 var options;
                                 connector.getAccessToken(function (err, accessToken) {
                                     if (err) throw err;
                                     else {
-                                        console.log("has check access_Token: " + accessToken);
-                                        var https = require('https');
+                                        var http = require('http');
                                         options = {
                                             hostname: image_url.hostname,
-                                            port: 443,
+                                            port: image_url.port,
                                             path: image_url.path,
                                             headers: {
-                                                'Authorization': 'Bearer <' + accessToken +'>',
+                                                'Authorization': 'Bearer <' + accessToken + '>',
                                                 'Content-Type': 'application/octet-stream'
                                             },
                                             method: 'GET'
                                         };
-                                        console.log('has check option: ' + JSON.stringify(options));
-                                        var req = https.request(options, function (res) {
-                                            logger.info('GET_IMAGE_STATUS: ' + res.statusCode);
-                                            logger.info('GET_IMAGE_HEADERS: ' + JSON.stringify(res.headers));
-                                            res.setEncoding('utf8');
+
+                                        var req = http.request(options, function (res) {
+                                            console.log('STATUS: ' + res.statusCode);
+                                            console.log('HEADERS: ' + JSON.stringify(res.headers));
+                                            res.setEncoding('base64');
                                             res.body = '';
                                             res.on('data', function (chunk) {
-                                                logger.info('Image_BODY: ' + chunk);
+                                                console.log('Image_BODY: ' + chunk);
                                                 res.body = res.body + chunk;
                                             });
                                             res.on('end', function () {
-                                                logger.info('REQUEST END');
+                                                console.log('REQUEST END');
                                                 try {
-                                                    require('fs').writeFile(__dirname + '/test.jpg', res.body, function (err) {
+                                                    var decodeImg = new Buffer(res.body.toString(), 'base64');
+                                                    require('fs').writeFileSync(__dirname + '/test.jpg', decodeImg, function (err) {
                                                         if (err) throw err;
                                                         else console.log('success');
                                                     });
                                                     var reply = new builder.Message(this.session)
-                                                        .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, res.length);
+                                                        .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, decodeImg.length);
                                                     this.session.send(reply);
                                                 } catch (e) {
-                                                    logger.error(e);
+                                                    console.log(e);
                                                 }
                                             }.bind({ session: this.session, attachment: this.attachment }));
                                         }.bind({ session: session, attachment: attachment }));
-                                        req.on('error', function(e) {
-                                            logger.info("Get_Image_Error: " + e);
+                                        req.on('error', function (e) {
+                                            console.log("Get_Image_Error: " + e);
                                         });
                                         req.end();
                                     }
                                 });
                             }
                             else {
-                                var https = require('https');
+                                var http = require('http');
                                 var options = {
                                     hostname: image_url.hostname,
-                                    port: 443,
+                                    port: image_url.port,
                                     path: image_url.path,
                                     headers: {},
                                     method: 'GET'
                                 };
-                                console.log("didnt have options: " + JSON.stringify(options));
-                                var req = https.request(options, function (res) {
-                                    logger.info('STATUS: ' + res.statusCode);
-                                    logger.info('HEADERS: ' + JSON.stringify(res.headers));
-                                    res.setEncoding('utf8');
+
+                                var req = http.request(options, function (res) {
+                                    console.log('STATUS: ' + res.statusCode);
+                                    console.log('HEADERS: ' + JSON.stringify(res.headers));
+                                    res.setEncoding('base64');
                                     res.body = '';
                                     res.on('data', function (chunk) {
-                                        logger.info('Image_BODY: ' + chunk);
+                                        console.log('Image_BODY: ' + chunk);
                                         res.body = res.body + chunk;
                                     });
                                     res.on('end', function () {
-                                        logger.info('REQUEST END');
+                                        console.log('REQUEST END');
                                         try {
-                                            require('fs').writeFile(__dirname + '/test.jpg', res.body, function (err) {
+                                            var decodeImg = new Buffer(res.body.toString(), 'base64');
+                                            require('fs').writeFileSync(__dirname + '/test.jpg', decodeImg, function (err) {
                                                 if (err) throw err;
                                                 else console.log('success');
                                             });
                                             var reply = new builder.Message(this.session)
-                                                .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, res.length);
+                                                .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, decodeImg.length);
                                             this.session.send(reply);
                                         } catch (e) {
-                                            logger.error(e);
+                                            console.log(e);
                                         }
                                     }.bind({ session: this.session, attachment: this.attachment }));
                                 }.bind({ session: session, attachment: attachment }));
-                                req.on('error', function(e) {
-                                    logger.info("Get_Image_Error: " + e);
+                                req.on('error', function (e) {
+                                    console.log("Get_Image_Error: " + e);
                                 });
                                 req.end();
-                            }*/
+                            }
                             userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
                         } else if (session.message.attachments[index].contentType.indexOf('video') >= 0) {
                             resource.Type = 'Image';
@@ -2618,23 +2593,6 @@ bot.dialog('/stay', function (session, args) {
 
     session.endDialogWithResult({ response: session.conversationData.form });
 });
-
-// Request file with Authentication Header
-var requestWithToken = function (url) {
-    return obtainToken().then(function (token) {
-        console.log('requestWithToken');
-        return request({
-            url: url,
-            headers: {
-                'Authorization': 'Bearer ' + token,
-                'Content-Type': 'application/octet-stream'
-            }
-        });
-    });
-};
-
-// Promise for obtaining JWT Token (requested once)
-var obtainToken = Promise.promisify(connector.getAccessToken.bind(connector));
 
 var checkRequiresToken = function (message) {
     console.log("source: " + message.source);
