@@ -1617,10 +1617,11 @@ bot.dialog('/flow', [
                         if (session.message.attachments[index].contentType.indexOf('image') >= 0) {
                             resource.Type = 'Image';
                             resource.Content = session.message.attachments[index].contentUrl;
+                            var https = require('https');
                             var attachment = session.message.attachments[index];
                             var fileDownload = checkRequiresToken(session.message)
                                 ? requestWithToken(resource.Content)
-                                : request(resource.Content);
+                                : https.request(resource.Content);
 
                             fileDownload.then(
                                 function (response) {
@@ -1628,7 +1629,6 @@ bot.dialog('/flow', [
                                         if (err) throw err;
                                         else console.log('success');
                                     }.bind({ res: response }));
-                                    // Send reply with attachment type & size
                                     var reply = new builder.Message(session)
                                         .text('Attachment of %s type and size of %s bytes received.', attachment.contentType, response.length);
                                     session.send(reply);
@@ -2519,35 +2519,12 @@ bot.dialog('/stay', function (session, args) {
     session.endDialogWithResult({ response: session.conversationData.form });
 });
 
-bot.dialog('/download_file', function (session) {
-    var msg = session.message;
-    if (msg.attachments.length) {
-        var attachment = msg.attachments[0];
-        var fileDownload = checkRequiresToken(msg)
-            ? requestWithToken(attachment.contentUrl)
-            : request(attachment.contentUrl);
-
-        fileDownload.then(
-            function (response) {
-                require('fs').writeFile(__dirname + '/test.jpg', JSON.stringify(this.res), function (err) {
-                    if (err) throw err;
-                    else console.log('success');
-                }.bind({ res: response }));
-                // Send reply with attachment type & size
-                var reply = new builder.Message(session)
-                    .text('Attachment of %s type and size of %s bytes received.', attachment.contentType, response.length);
-                session.send(reply);
-
-            }).catch(function (err) {
-                console.log('Error downloading attachment:', { statusCode: err.statusCode, message: err.response.statusMessage });
-            });
-    }
-});
 var requestWithToken = function (url) {
     connector.getAccessToken(function(err,accessToken){
         if(err) throw err;
         else {
-            return request({
+            var https = require('https');
+            return https.request({
                 url: url,
                 headers: {
                     'Authorization': 'Bearer ' + accesstoken,
