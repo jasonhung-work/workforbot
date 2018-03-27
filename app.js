@@ -1652,10 +1652,7 @@ bot.dialog('/flow', [
                                                 console.log('REQUEST END');
                                                 try {
                                                     var decodeImg = new Buffer(res.body.toString(), 'base64');
-                                                    require('fs').writeFileSync(__dirname + '/test.jpg', decodeImg, function (err) {
-                                                        if (err) throw err;
-                                                        else console.log('success');
-                                                    });
+                                                    require('fs').writeFileSync(__dirname + '/test.jpg', decodeImg);
                                                     var reply = new builder.Message(this.session)
                                                         .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, decodeImg.length);
                                                     this.session.send(reply);
@@ -1694,10 +1691,7 @@ bot.dialog('/flow', [
                                         console.log('REQUEST END');
                                         try {
                                             var decodeImg = new Buffer(res.body.toString(), 'base64');
-                                            require('fs').writeFileSync(__dirname + '/test.jpg', decodeImg, function (err) {
-                                                if (err) throw err;
-                                                else console.log('success');
-                                            });
+                                            require('fs').writeFileSync(__dirname + '/test.jpg', decodeImg);
                                             var reply = new builder.Message(this.session)
                                                 .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, decodeImg.length);
                                             this.session.send(reply);
