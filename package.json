@@ -13,7 +13,8 @@
     "botbuilder": "^3.13.1",
     "botbuilder-azure": "^3.0.4",
     "lz-string": "^1.4.4",
-    "restify": "^5.0.0"
+    "restify": "^5.0.0",
+    "url": "latest"
   },
   "devDependencies": {
     "request": "^2.81.0",

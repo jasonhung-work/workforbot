@@ -1618,24 +1618,95 @@ bot.dialog('/flow', [
                             resource.Type = 'Image';
                             resource.Content = session.message.attachments[index].contentUrl;
                             var https = require('https');
+                            var URL = require('url');
+                            var image_url = new URL(resource.Content);
                             var attachment = session.message.attachments[index];
-                            var fileDownload = checkRequiresToken(session.message)
-                                ? requestWithToken(resource.Content)
-                                : https.request(resource.Content);
 
-                            fileDownload.then(
-                                function (response) {
-                                    require('fs').writeFile(__dirname + '/test.jpg', JSON.stringify(this.res), function (err) {
-                                        if (err) throw err;
-                                        else console.log('success');
-                                    }.bind({ res: response }));
-                                    var reply = new builder.Message(session)
-                                        .text('Attachment of %s type and size of %s bytes received.', attachment.contentType, response.length);
-                                    session.send(reply);
-
-                                }).catch(function (err) {
-                                    console.log('Error downloading attachment:', { statusCode: err.statusCode, message: err.response.statusMessage });
+                            if (checkRequiresToken(session.message)) {
+                                var options;
+                                connector.getAccessToken(function (err, accessToken) {
+                                    if (err) throw err;
+                                    else {
+                                        var https = require('https');
+                                        options = {
+                                            hostname: image_url.hostname,
+                                            port: image_url.port,
+                                            path: image_url.path,
+                                            headers: {
+                                                'Authorization': 'Bearer ' + accesstoken,
+                                                'Content-Type': 'application/octet-stream'
+                                            },
+                                            method: 'GET'
+                                        };
+                                        var req = https.request(options, function (res) {
+                                            logger.info('GET_IMAGE_STATUS: ' + res.statusCode);
+                                            logger.info('GET_IMAGE_HEADERS: ' + JSON.stringify(res.headers));
+                                            res.setEncoding('utf8');
+                                            res.body = '';
+                                            res.on('data', function (chunk) {
+                                                logger.info('Image_BODY: ' + chunk);
+                                                res.body = res.body + chunk;
+                                            });
+                                            res.on('end', function () {
+                                                logger.info('REQUEST END');
+                                                try {
+                                                    require('fs').writeFile(__dirname + '/test.jpg', res.body, function (err) {
+                                                        if (err) throw err;
+                                                        else console.log('success');
+                                                    });
+                                                    var reply = new builder.Message(this.session)
+                                                        .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, res.length);
+                                                    this.session.send(reply);
+                                                } catch (e) {
+                                                    logger.error(e);
+                                                }
+                                            }).bind({ session: this.session, attachment: this.attachment });
+                                        }).bind({ session: this.session, attachment: this.attachment });
+                                        req.on('error', function(e) {
+                                            logger.info("Get_Image_Error: " + e);
+                                        });
+                                        req.end();
+                                    }
+                                }).bind({ session: session, attachment: attachment });
+                            }
+                            else {
+                                var https = require('https');
+                                options = {
+                                    hostname: image_url.hostname,
+                                    port: image_url.port,
+                                    path: image_url.path,
+                                    headers: {},
+                                    method: 'GET'
+                                };
+                                var req = https.request(options, function (res) {
+                                    logger.info('STATUS: ' + res.statusCode);
+                                    logger.info('HEADERS: ' + JSON.stringify(res.headers));
+                                    res.setEncoding('utf8');
+                                    res.body = '';
+                                    res.on('data', function (chunk) {
+                                        logger.info('Image_BODY: ' + chunk);
+                                        res.body = res.body + chunk;
+                                    });
+                                    res.on('end', function () {
+                                        logger.info('REQUEST END');
+                                        try {
+                                            require('fs').writeFile(__dirname + '/test.jpg', res.body, function (err) {
+                                                if (err) throw err;
+                                                else console.log('success');
+                                            });
+                                            var reply = new builder.Message(this.session)
+                                                .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, res.length);
+                                            this.session.send(reply);
+                                        } catch (e) {
+                                            logger.error(e);
+                                        }
+                                    }).bind({ session: this.session, attachment: this.attachment });
+                                }).bind({ session: session, attachment: attachment });
+                                req.on('error', function(e) {
+                                    logger.info("Get_Image_Error: " + e);
                                 });
+                                req.end();
+                            }
                             userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
                         } else if (session.message.attachments[index].contentType.indexOf('video') >= 0) {
                             resource.Type = 'Image';
@@ -2518,22 +2589,6 @@ bot.dialog('/stay', function (session, args) {
 
     session.endDialogWithResult({ response: session.conversationData.form });
 });
-
-var requestWithToken = function (url) {
-    connector.getAccessToken(function(err,accessToken){
-        if(err) throw err;
-        else {
-            var https = require('https');
-            return https.request({
-                url: url,
-                headers: {
-                    'Authorization': 'Bearer ' + accesstoken,
-                    'Content-Type': 'application/octet-stream'
-                }
-            });
-        } 
-    });
-};
 
 var checkRequiresToken = function (message) {
     return message.source === 'skype' || message.source === 'msteams';
