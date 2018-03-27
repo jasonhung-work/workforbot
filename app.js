@@ -2544,19 +2544,19 @@ bot.dialog('/download_file', function (session) {
     }
 });
 var requestWithToken = function (url) {
-    return obtainToken().then(function (token) {
-        return request({
-            url: url,
-            headers: {
-                'Authorization': 'Bearer ' + token,
-                'Content-Type': 'application/octet-stream'
-            }
-        });
+    connector.getAccessToken(function(err,accessToken){
+        if(err) throw err;
+        else {
+            return request({
+                url: url,
+                headers: {
+                    'Authorization': 'Bearer ' + accesstoken,
+                    'Content-Type': 'application/octet-stream'
+                }
+            });
+        } 
     });
 };
-
-// Promise for obtaining JWT Token (requested once)
-var obtainToken = Promise.promisify(connector.getAccessToken.bind(connector));
 
 var checkRequiresToken = function (message) {
     return message.source === 'skype' || message.source === 'msteams';
