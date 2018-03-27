@@ -1661,13 +1661,13 @@ bot.dialog('/flow', [
                                                     logger.error(e);
                                                 }
                                             }).bind({ session: this.session, attachment: this.attachment });
-                                        }).bind({ session: this.session, attachment: this.attachment });
+                                        }).bind({ session: session, attachment: attachment });
                                         req.on('error', function(e) {
                                             logger.info("Get_Image_Error: " + e);
                                         });
                                         req.end();
                                     }
-                                }).bind({ session: session, attachment: attachment });
+                                });
                             }
                             else {
                                 var https = require('https');
