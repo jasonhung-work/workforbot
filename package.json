@@ -14,7 +14,11 @@
     "botbuilder-azure": "^3.0.4",
     "lz-string": "^1.4.4",
     "restify": "^5.0.0",
-    "url": "latest"
+    "url": "latest",
+    "bluebird": "^3.4.7",
+    "dotenv-extended": "^1.0.4",
+    "request": "^2.79.0",
+    "request-promise": "^4.1.1"
   },
   "devDependencies": {
     "request": "^2.81.0",

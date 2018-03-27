@@ -1484,6 +1484,9 @@ var preventDialog = new Map();
 var preventMessage = new Map();
 var preventAddress = new Map();
 
+var Promise = require('bluebird');
+var request = require('request-promise').defaults({ encoding: null });
+
 bot.dialog('/',
     function (session) {
         /*  這邊是用來查看session裡預設是什麼
@@ -1622,7 +1625,28 @@ bot.dialog('/flow', [
                             var image_url = url.parse(resource.Content);
                             var attachment = session.message.attachments[index];
 
-                            //if (checkRequiresToken(session.message)) {
+                            var fileDownload = checkRequiresToken(session.message) ? requestWithToken(attachment.contentUrl) : request(attachment.contentUrl);
+
+                            fileDownload.then(
+                                function (response) {
+                                    // Send reply with attachment type & size
+                                    var reply = new builder.Message(session)
+                                        .text('Attachment of %s type and size of %s bytes received.', attachment.contentType, response.length);
+                                    session.send(reply);
+
+                                    // convert image to base64 string
+                                    var imageBase64Sting = new Buffer(response, 'binary').toString('base64');
+                                    // echo back uploaded image as base64 string
+                                    var echoImage = new builder.Message(session).text('You sent:').addAttachment({
+                                        contentType: attachment.contentType,
+                                        contentUrl: 'data:' + attachment.contentType + ';base64,' + imageBase64Sting,
+                                        name: 'Uploaded image'
+                                    });
+                                    session.send(echoImage);
+                                }).catch(function (err) {
+                                    console.log('Error downloading attachment:', { statusCode: err.statusCode, message: err.response.statusMessage });
+                                });
+                            /*if (checkRequiresToken(session.message)) {
                                 var options;
                                 connector.getAccessToken(function (err, accessToken) {
                                     if (err) throw err;
@@ -1670,8 +1694,8 @@ bot.dialog('/flow', [
                                         req.end();
                                     }
                                 });
-                            //}
-                            /*else {
+                            }
+                            else {
                                 var https = require('https');
                                 var options = {
                                     hostname: image_url.hostname,
@@ -2593,8 +2617,24 @@ bot.dialog('/stay', function (session, args) {
     session.endDialogWithResult({ response: session.conversationData.form });
 });
 
+// Request file with Authentication Header
+var requestWithToken = function (url) {
+    return obtainToken().then(function (token) {
+        return request({
+            url: url,
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/octet-stream'
+            }
+        });
+    });
+};
+
+// Promise for obtaining JWT Token (requested once)
+var obtainToken = Promise.promisify(connector.getAccessToken.bind(connector));
+
 var checkRequiresToken = function (message) {
-    console.log("source: " +　message.source);
+    console.log("source: " + message.source);
     return message.source === 'skype' || message.source === 'msteams';
 };
 
