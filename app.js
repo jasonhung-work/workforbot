@@ -1603,6 +1603,31 @@ bot.dialog('/flow', [
         logger.info('session conversationData.Message: ' + JSON.stringify(userConversationMessage));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         session.conversationData.index = args ? args.index : 0;
+        var attachment = session.message.attachments[0];
+
+        var fileDownload = checkRequiresToken(session.message) ? requestWithToken(attachment.contentUrl) : request(attachment.contentUrl);
+
+        fileDownload.then(
+            function (response) {
+                console.log("fileDownload");
+                // Send reply with attachment type & size
+                var reply = new builder.Message(session)
+                    .text('Attachment of %s type and size of %s bytes received.', attachment.contentType, response.length);
+                session.send(reply);
+
+                // convert image to base64 string
+                var imageBase64Sting = new Buffer(response, 'binary').toString('base64');
+                // echo back uploaded image as base64 string
+                var echoImage = new builder.Message(session).text('You sent:').addAttachment({
+                    contentType: attachment.contentType,
+                    contentUrl: 'data:' + attachment.contentType + ';base64,' + imageBase64Sting,
+                    name: 'Uploaded image'
+                });
+                session.send(echoImage);
+            }).catch(function (err) {
+                console.log(JSON.stringify(err));
+                console.log('Error downloading attachment:', { statusCode: err.statusCode, message: err.response.statusMessage });
+            });
 
         if (session.conversationData.messageTimestamp != session.message.timestamp) {
             session.conversationData.messageTimestamp = session.message.timestamp;
@@ -1623,31 +1648,6 @@ bot.dialog('/flow', [
                             var https = require('https');
                             var url = require('url');
                             var image_url = url.parse(resource.Content);
-                            var attachment = session.message.attachments[index];
-
-                            var fileDownload = checkRequiresToken(session.message) ? requestWithToken(attachment.contentUrl) : request(attachment.contentUrl);
-
-                            fileDownload.then(
-                                function (response) {
-                                    console.log("fileDownload");
-                                    // Send reply with attachment type & size
-                                    var reply = new builder.Message(session)
-                                        .text('Attachment of %s type and size of %s bytes received.', attachment.contentType, response.length);
-                                    session.send(reply);
-
-                                    // convert image to base64 string
-                                    var imageBase64Sting = new Buffer(response, 'binary').toString('base64');
-                                    // echo back uploaded image as base64 string
-                                    var echoImage = new builder.Message(session).text('You sent:').addAttachment({
-                                        contentType: attachment.contentType,
-                                        contentUrl: 'data:' + attachment.contentType + ';base64,' + imageBase64Sting,
-                                        name: 'Uploaded image'
-                                    });
-                                    session.send(echoImage);
-                                }).catch(function (err) {
-                                    console.log(JSON.stringify(err));
-                                    console.log('Error downloading attachment:', { statusCode: err.statusCode, message: err.response.statusMessage });
-                                });
                             /*if (checkRequiresToken(session.message)) {
                                 var options;
                                 connector.getAccessToken(function (err, accessToken) {
