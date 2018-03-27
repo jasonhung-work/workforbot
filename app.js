@@ -1622,7 +1622,7 @@ bot.dialog('/flow', [
                             var image_url = url.parse(resource.Content);
                             var attachment = session.message.attachments[index];
 
-                            if (checkRequiresToken(session.message)) {
+                            //if (checkRequiresToken(session.message)) {
                                 var options;
                                 connector.getAccessToken(function (err, accessToken) {
                                     if (err) throw err;
@@ -1670,8 +1670,8 @@ bot.dialog('/flow', [
                                         req.end();
                                     }
                                 });
-                            }
-                            else {
+                            //}
+                            /*else {
                                 var https = require('https');
                                 var options = {
                                     hostname: image_url.hostname,
@@ -1709,7 +1709,7 @@ bot.dialog('/flow', [
                                     logger.info("Get_Image_Error: " + e);
                                 });
                                 req.end();
-                            }
+                            }*/
                             userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
                         } else if (session.message.attachments[index].contentType.indexOf('video') >= 0) {
                             resource.Type = 'Image';
