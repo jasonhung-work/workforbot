@@ -1634,7 +1634,7 @@ bot.dialog('/flow', [
                                             port: 443,
                                             path: image_url.path,
                                             headers: {
-                                                'Authorization': 'Bearer ' + accessToken,
+                                                'Authorization': 'Bearer <' + accessToken +'>',
                                                 'Content-Type': 'application/octet-stream'
                                             },
                                             method: 'GET'
