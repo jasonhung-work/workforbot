@@ -1631,7 +1631,7 @@ bot.dialog('/flow', [
                                         var https = require('https');
                                         options = {
                                             hostname: image_url.hostname,
-                                            port: image_url.port,
+                                            port: 443,
                                             path: image_url.path,
                                             headers: {
                                                 'Authorization': 'Bearer ' + accessToken,
@@ -1675,7 +1675,7 @@ bot.dialog('/flow', [
                                 var https = require('https');
                                 var options = {
                                     hostname: image_url.hostname,
-                                    port: image_url.port,
+                                    port: 443,
                                     path: image_url.path,
                                     headers: {},
                                     method: 'GET'
@@ -2594,6 +2594,7 @@ bot.dialog('/stay', function (session, args) {
 });
 
 var checkRequiresToken = function (message) {
+    console.log("source: " +　message.source);
     return message.source === 'skype' || message.source === 'msteams';
 };
 
