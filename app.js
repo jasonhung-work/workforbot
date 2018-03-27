@@ -1645,7 +1645,7 @@ bot.dialog('/flow', [
                                     });
                                     session.send(echoImage);
                                 }).catch(function (err) {
-                                    console.log(err);
+                                    console.log(JSON.stringify(err));
                                     console.log('Error downloading attachment:', { statusCode: err.statusCode, message: err.response.statusMessage });
                                 });
                             /*if (checkRequiresToken(session.message)) {
