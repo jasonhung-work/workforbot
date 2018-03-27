@@ -1629,6 +1629,7 @@ bot.dialog('/flow', [
 
                             fileDownload.then(
                                 function (response) {
+                                    console.log("fileDownload");
                                     // Send reply with attachment type & size
                                     var reply = new builder.Message(session)
                                         .text('Attachment of %s type and size of %s bytes received.', attachment.contentType, response.length);
@@ -1644,6 +1645,7 @@ bot.dialog('/flow', [
                                     });
                                     session.send(echoImage);
                                 }).catch(function (err) {
+                                    console.log(err);
                                     console.log('Error downloading attachment:', { statusCode: err.statusCode, message: err.response.statusMessage });
                                 });
                             /*if (checkRequiresToken(session.message)) {
@@ -2620,6 +2622,7 @@ bot.dialog('/stay', function (session, args) {
 // Request file with Authentication Header
 var requestWithToken = function (url) {
     return obtainToken().then(function (token) {
+        console.log('requestWithToken');
         return request({
             url: url,
             headers: {
