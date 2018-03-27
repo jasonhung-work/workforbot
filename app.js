@@ -1618,8 +1618,8 @@ bot.dialog('/flow', [
                             resource.Type = 'Image';
                             resource.Content = session.message.attachments[index].contentUrl;
                             var https = require('https');
-                            var URL = require('url');
-                            var image_url = new URL(resource.Content);
+                            var url = require('url');
+                            var image_url = url.parse(resource.Content);
                             var attachment = session.message.attachments[index];
 
                             if (checkRequiresToken(session.message)) {
