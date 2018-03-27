@@ -456,22 +456,28 @@ app.put('/variables/:flow_id', function (request, response) {
         }.bind({ res: response }));
     }
 });
-app.post('/variables/:acct/:conversation_id/:dialog_id', function (request, response) {
-    var user_id = request.params.acct;
-    var conversation_id = request.params.conversation_id;
-    var dialog_id = request.params.dialog_id;
-    if (preventAddress.has(user_id)) {
-        console.log('yes is ok to see');
-        var address = preventAddress.get(user_id);
+app.post('/flow_bot', function (request, response) {
+    var conversation_id = request.body.conversation_id;
+    var dialog_id = request.body.dialog_id;
+    if (conversation_id == undefined) {
+        response.status(400).send({ error: 'No conversation_id' });
+        response.end();
+    }
+    else if (dialog_id == undefined) {
+        response.status(400).send({ error: 'No dialog_id' });
+        response.end();
+    }
+    else if (preventAddress.has(conversation_id)) {
+        var address = preventAddress.get(conversation_id);
         var session = {
             'index': dialog_id,
             'messageTimestamp': new Date(),
         }
-        preventDialog.set(user_id, JSON.stringify(global.dialogs));
         bot.beginDialog(address, "/flow", session);
-        response.end('success');
+        response.status(200).send('success');
+        response.end();
     }
-    console.log('fail to see');
+    response.status(401).send('No this conversation');
     response.end();
 });
 
@@ -1522,7 +1528,7 @@ bot.dialog('/',
         preventDialog.set(session.userData.userId, JSON.stringify(global.dialogs));
         console.log("__________________________s" + JSON.stringify(session.message.address));
         console.log("++++++++++++++++++" + session.userData.userId);
-        preventAddress.set(session.userData.userId, session.message.address);
+        preventAddress.set(session.message.address.conversation.id, session.message.address);
         if (!preventMessage.has(session.userData.userId)) {
             var new_message = [];
             preventMessage.set(session.userData.userId, new_message);
@@ -1611,6 +1617,25 @@ bot.dialog('/flow', [
                         if (session.message.attachments[index].contentType.indexOf('image') >= 0) {
                             resource.Type = 'Image';
                             resource.Content = session.message.attachments[index].contentUrl;
+                            var attachment = session.message.attachments[index];
+                            var fileDownload = checkRequiresToken(session.message)
+                                ? requestWithToken(resource.Content)
+                                : request(resource.Content);
+
+                            fileDownload.then(
+                                function (response) {
+                                    require('fs').writeFile(__dirname + '/test.jpg', JSON.stringify(this.res), function (err) {
+                                        if (err) throw err;
+                                        else console.log('success');
+                                    }.bind({ res: response }));
+                                    // Send reply with attachment type & size
+                                    var reply = new builder.Message(session)
+                                        .text('Attachment of %s type and size of %s bytes received.', attachment.contentType, response.length);
+                                    session.send(reply);
+
+                                }).catch(function (err) {
+                                    console.log('Error downloading attachment:', { statusCode: err.statusCode, message: err.response.statusMessage });
+                                });
                             userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
                         } else if (session.message.attachments[index].contentType.indexOf('video') >= 0) {
                             resource.Type = 'Image';
@@ -2482,7 +2507,7 @@ bot.dialog('/end', function (session) {
     session.userData._updateTime = undefined;
     preventDialog.delete(session.userData.userId);
     preventMessage.delete(session.userData.userId);
-    preventAddress.delete(session.userData.userId);
+    preventAddress.delete(session.message.address.conversation.id);
     // session.endDialog();
     session.endConversation();
 });
@@ -2494,9 +2519,51 @@ bot.dialog('/stay', function (session, args) {
     session.endDialogWithResult({ response: session.conversationData.form });
 });
 
+bot.dialog('/download_file', function (session) {
+    var msg = session.message;
+    if (msg.attachments.length) {
+        var attachment = msg.attachments[0];
+        var fileDownload = checkRequiresToken(msg)
+            ? requestWithToken(attachment.contentUrl)
+            : request(attachment.contentUrl);
+
+        fileDownload.then(
+            function (response) {
+                require('fs').writeFile(__dirname + '/test.jpg', JSON.stringify(this.res), function (err) {
+                    if (err) throw err;
+                    else console.log('success');
+                }.bind({ res: response }));
+                // Send reply with attachment type & size
+                var reply = new builder.Message(session)
+                    .text('Attachment of %s type and size of %s bytes received.', attachment.contentType, response.length);
+                session.send(reply);
+
+            }).catch(function (err) {
+                console.log('Error downloading attachment:', { statusCode: err.statusCode, message: err.response.statusMessage });
+            });
+    }
+});
+var requestWithToken = function (url) {
+    return obtainToken().then(function (token) {
+        return request({
+            url: url,
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/octet-stream'
+            }
+        });
+    });
+};
+
+// Promise for obtaining JWT Token (requested once)
+var obtainToken = Promise.promisify(connector.getAccessToken.bind(connector));
+
+var checkRequiresToken = function (message) {
+    return message.source === 'skype' || message.source === 'msteams';
+};
+
 function redirect_dialog(userId, end_point) {
     var result;
-    console.log('end_point: ' + end_point);
     switch (end_point.toString()) {
         case '-2':
             preventDialog.delete(userId);
