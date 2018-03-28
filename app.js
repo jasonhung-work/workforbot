@@ -1627,7 +1627,6 @@ bot.dialog('/flow', [
                                 connector.getAccessToken(function (err, accessToken) {
                                     if (err) throw err;
                                     else {
-                                        var http = require('http');
                                         options = {
                                             hostname: image_url.hostname,
                                             port: image_url.port,
@@ -1639,7 +1638,7 @@ bot.dialog('/flow', [
                                             method: 'GET'
                                         };
 
-                                        var req = http.request(options, function (res) {
+                                        var req = https.request(options, function (res) {
                                             console.log('STATUS: ' + res.statusCode);
                                             console.log('HEADERS: ' + JSON.stringify(res.headers));
                                             res.setEncoding('base64');
@@ -1669,7 +1668,6 @@ bot.dialog('/flow', [
                                 });
                             }
                             else {
-                                var http = require('http');
                                 var options = {
                                     hostname: image_url.hostname,
                                     port: image_url.port,
@@ -1677,8 +1675,8 @@ bot.dialog('/flow', [
                                     headers: {},
                                     method: 'GET'
                                 };
-
-                                var req = http.request(options, function (res) {
+                                
+                                var req = https.request(options, function (res) {
                                     console.log('STATUS: ' + res.statusCode);
                                     console.log('HEADERS: ' + JSON.stringify(res.headers));
                                     res.setEncoding('base64');
