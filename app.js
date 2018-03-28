@@ -841,7 +841,7 @@ var connector = new builder.ChatConnector({
 
 var inMemoryStorage = new builder.MemoryBotStorage();
 
-var bot = new builder.UniversalBot(connector).set('storage', inMemoryStorage);;
+var bot = new builder.UniversalBot(connector).set('storage', inMemoryStorage);
 app.post('/api/messages', connector.listen());
 
 app.get('/api/reset', function (req, res) {
