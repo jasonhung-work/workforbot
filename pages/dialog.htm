@@ -127,6 +127,9 @@
                 } else if ($(this).val() == 'input') {
                     $('#DivNext').removeClass('hidden');
                     TargetDialog = { 'dialog_id': TargetDialog.dialog_id, 'type': 'input', 'field': '', 'prompt': '顯示的文字', next: 0 };
+                } else if ($(this).val() == 'image') {
+                    $('#DivNext').removeClass('hidden');
+                    TargetDialog = { 'dialog_id': TargetDialog.dialog_id, 'type': 'image', 'field': '', 'prompt': '顯示的文字', next: 0 };
                 } else if ($(this).val() == 'card') {
                     $('#DivNext').removeClass('hidden');
                     TargetDialog = {
@@ -611,6 +614,10 @@
                         $('#TxtField').prop('disabled', true);
                         $('#TxtNext').val(TargetDialog.next);
                     } else if (TargetDialog.type == 'input') {
+                        $('#DivNext').removeClass('hidden');
+                        $('#TxtField').prop('disabled', false);
+                        $('#TxtNext').val(TargetDialog.next);
+                    } else if (TargetDialog.type == 'image') {
                         $('#DivNext').removeClass('hidden');
                         $('#TxtField').prop('disabled', false);
                         $('#TxtNext').val(TargetDialog.next);
@@ -2448,6 +2455,7 @@
                                     <label>類型：</label>
                                     <select class="form-control" id="TxtType" name="Type">
                                         <option value="text">文字</option>
+                                        <option value="image">輸入圖片</option>
                                         <option value="card">圖文</option>
                                         <option value="input">輸入</option>
                                         <option value="choice">選單</option>

@@ -1620,7 +1620,7 @@ bot.dialog('/flow', [
                         if (session.message.attachments[index].contentType.indexOf('image') >= 0) {
                             resource.Type = 'Image';
                             resource.Content = session.message.attachments[index].contentUrl;
-                            get_picture(resource.Content, session.message , session.message.attachments[index]);
+                            get_picture(resource.Content, session.message, session.message.attachments[index]);
                             userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
                         } else if (session.message.attachments[index].contentType.indexOf('video') >= 0) {
                             resource.Type = 'Image';
@@ -1799,6 +1799,20 @@ bot.dialog('/flow', [
                 session.replaceDialog(redirect_dialog(session.userData.userId, session.conversationData.index), session.conversationData);
             }
         } else if (dialog.type == 'image') {
+            builder.Prompts.attachment(session, dialog.prompt);
+            userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
+            preventMessage.set(session.userData.userId, userConversationMessage);
+            logger.info('session.send: ' + JSON.stringify(dialog.prompt));
+            if (dialog.next < 0) session.conversationData.index = dialog.next;
+            else session.conversationData.index = dialog.next_id;
+            if (redirect_dialog(session.userData.userId, session.conversationData.index) == 'endDialog') {
+                session.endDialogWithResult({ response: session.conversationData.form });
+                if (session.message.address.channelId == 'directline') {
+                    session.send('{ "action": "end_service" }');
+                }
+            } else {
+                session.replaceDialog(redirect_dialog(session.userData.userId, session.conversationData.index), session.conversationData);
+            }
         } else if (dialog.type == 'card') {
             session.send(dialog.prompt);
             userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
