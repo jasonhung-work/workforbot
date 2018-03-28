@@ -1620,7 +1620,7 @@ bot.dialog('/flow', [
                         if (session.message.attachments[index].contentType.indexOf('image') >= 0) {
                             resource.Type = 'Image';
                             resource.Content = session.message.attachments[index].contentUrl;
-                            get_picture(resource.Content, session.message.attachments[index]);
+                            get_picture(resource.Content, session.message , session.message.attachments[index]);
                             userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
                         } else if (session.message.attachments[index].contentType.indexOf('video') >= 0) {
                             resource.Type = 'Image';
@@ -2532,12 +2532,12 @@ function redirect_dialog(userId, end_point) {
     return result;
 }
 
-function get_picture(url, attachment) {
+function get_picture(url, message, attachment) {
     var https = require('https');
     var URL = require('url');
     var image_url = URL.parse(url);
 
-    if (checkRequiresToken(session.message)) {
+    if (checkRequiresToken(message)) {
         var options;
         connector.getAccessToken(function (err, accessToken) {
             if (err) throw err;
