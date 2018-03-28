@@ -838,6 +838,9 @@ var connector = new builder.ChatConnector({
     appId: process.env.MicrosoftAppId,
     appPassword: process.env.MicrosoftAppPassword
 });
+
+var inMemoryStorage = new builder.MemoryBotStorage();
+
 var bot = new builder.UniversalBot(connector).set('storage', inMemoryStorage);;
 app.post('/api/messages', connector.listen());
 
