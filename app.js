@@ -838,7 +838,7 @@ var connector = new builder.ChatConnector({
     appId: process.env.MicrosoftAppId,
     appPassword: process.env.MicrosoftAppPassword
 });
-var bot = new builder.UniversalBot(connector);
+var bot = new builder.UniversalBot(connector).set('storage', inMemoryStorage);;
 app.post('/api/messages', connector.listen());
 
 app.get('/api/reset', function (req, res) {
@@ -1617,92 +1617,7 @@ bot.dialog('/flow', [
                         if (session.message.attachments[index].contentType.indexOf('image') >= 0) {
                             resource.Type = 'Image';
                             resource.Content = session.message.attachments[index].contentUrl;
-                            var https = require('https');
-                            var url = require('url');
-                            var image_url = url.parse(resource.Content);
-                            var attachment = session.message.attachments[index];
-
-                            if (checkRequiresToken(session.message)) {
-                                var options;
-                                connector.getAccessToken(function (err, accessToken) {
-                                    if (err) throw err;
-                                    else {
-                                        options = {
-                                            hostname: image_url.hostname,
-                                            port: image_url.port,
-                                            path: image_url.path,
-                                            headers: {
-                                                'Authorization': 'Bearer <' + accessToken + '>',
-                                                'Content-Type': 'application/octet-stream'
-                                            },
-                                            method: 'GET'
-                                        };
-
-                                        var req = https.request(options, function (res) {
-                                            console.log('STATUS: ' + res.statusCode);
-                                            console.log('HEADERS: ' + JSON.stringify(res.headers));
-                                            res.setEncoding('base64');
-                                            res.body = '';
-                                            res.on('data', function (chunk) {
-                                                console.log('Image_BODY: ' + chunk);
-                                                res.body = res.body + chunk;
-                                            });
-                                            res.on('end', function () {
-                                                console.log('REQUEST END');
-                                                try {
-                                                    var decodeImg = new Buffer(res.body.toString(), 'base64');
-                                                    require('fs').writeFileSync(__dirname + '/test.jpg', decodeImg);
-                                                    var reply = new builder.Message(this.session)
-                                                        .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, decodeImg.length);
-                                                    this.session.send(reply);
-                                                } catch (e) {
-                                                    console.log(e);
-                                                }
-                                            }.bind({ session: this.session, attachment: this.attachment }));
-                                        }.bind({ session: session, attachment: attachment }));
-                                        req.on('error', function (e) {
-                                            console.log("Get_Image_Error: " + e);
-                                        });
-                                        req.end();
-                                    }
-                                });
-                            }
-                            else {
-                                var options = {
-                                    hostname: image_url.hostname,
-                                    port: image_url.port,
-                                    path: image_url.path,
-                                    headers: {},
-                                    method: 'GET'
-                                };
-                                
-                                var req = https.request(options, function (res) {
-                                    console.log('STATUS: ' + res.statusCode);
-                                    console.log('HEADERS: ' + JSON.stringify(res.headers));
-                                    res.setEncoding('base64');
-                                    res.body = '';
-                                    res.on('data', function (chunk) {
-                                        console.log('Image_BODY: ' + chunk);
-                                        res.body = res.body + chunk;
-                                    });
-                                    res.on('end', function () {
-                                        console.log('REQUEST END');
-                                        try {
-                                            var decodeImg = new Buffer(res.body.toString(), 'base64');
-                                            require('fs').writeFileSync(__dirname + '/test.jpg', decodeImg);
-                                            var reply = new builder.Message(this.session)
-                                                .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, decodeImg.length);
-                                            this.session.send(reply);
-                                        } catch (e) {
-                                            console.log(e);
-                                        }
-                                    }.bind({ session: this.session, attachment: this.attachment }));
-                                }.bind({ session: session, attachment: attachment }));
-                                req.on('error', function (e) {
-                                    console.log("Get_Image_Error: " + e);
-                                });
-                                req.end();
-                            }
+                            get_picture(resource.Content, session.message.attachments[index]);
                             userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
                         } else if (session.message.attachments[index].contentType.indexOf('video') >= 0) {
                             resource.Type = 'Image';
@@ -2612,6 +2527,94 @@ function redirect_dialog(userId, end_point) {
             break;
     }
     return result;
+}
+
+function get_picture(url, attachment) {
+    var https = require('https');
+    var URL = require('url');
+    var image_url = URL.parse(url);
+
+    if (checkRequiresToken(session.message)) {
+        var options;
+        connector.getAccessToken(function (err, accessToken) {
+            if (err) throw err;
+            else {
+                options = {
+                    hostname: image_url.hostname,
+                    port: image_url.port,
+                    path: image_url.path,
+                    headers: {
+                        'Authorization': 'Bearer <' + accessToken + '>',
+                        'Content-Type': 'application/octet-stream'
+                    },
+                    method: 'GET'
+                };
+
+                var req = https.request(options, function (res) {
+                    console.log('STATUS: ' + res.statusCode);
+                    console.log('HEADERS: ' + JSON.stringify(res.headers));
+                    res.setEncoding('base64');
+                    res.body = '';
+                    res.on('data', function (chunk) {
+                        console.log('Image_BODY: ' + chunk);
+                        res.body = res.body + chunk;
+                    });
+                    res.on('end', function () {
+                        console.log('REQUEST END');
+                        try {
+                            var decodeImg = new Buffer(res.body.toString(), 'base64');
+                            require('fs').writeFileSync(__dirname + '/test.jpg', decodeImg);
+                            /* var reply = new builder.Message(this.session)
+                                .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, decodeImg.length);
+                            this.session.send(reply); */
+                        } catch (e) {
+                            console.log(e);
+                        }
+                    }.bind({ /*session: this.session,*/ attachment: this.attachment }));
+                }.bind({ /*session: session,*/ attachment: attachment }));
+                req.on('error', function (e) {
+                    console.log("Get_Image_Error: " + e);
+                });
+                req.end();
+            }
+        });
+    }
+    else {
+        var options = {
+            hostname: image_url.hostname,
+            port: image_url.port,
+            path: image_url.path,
+            headers: {},
+            method: 'GET'
+        };
+
+        var req = https.request(options, function (res) {
+            console.log('STATUS: ' + res.statusCode);
+            console.log('HEADERS: ' + JSON.stringify(res.headers));
+            res.setEncoding('base64');
+            res.body = '';
+            res.on('data', function (chunk) {
+                console.log('Image_BODY: ' + chunk);
+                res.body = res.body + chunk;
+            });
+            res.on('end', function () {
+                console.log('REQUEST END');
+                try {
+                    var decodeImg = new Buffer(res.body.toString(), 'base64');
+                    require('fs').writeFileSync(__dirname + '/test.jpg', decodeImg);
+                    /*var reply = new builder.Message(this.session)
+                        .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, decodeImg.length);
+                    this.session.send(reply);*/
+                } catch (e) {
+                    console.log(e);
+                }
+            }.bind({ /*session: this.session,*/ attachment: this.attachment }));
+        }.bind({ /*session: session,*/ attachment: attachment }));
+        req.on('error', function (e) {
+            console.log("Get_Image_Error: " + e);
+        });
+        req.end();
+    }
 }
 
 var listener = server.listen(process.env.port || process.env.PORT || config.port, function () {
