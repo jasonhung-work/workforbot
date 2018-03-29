@@ -2221,15 +2221,15 @@ bot.dialog('/flow', [
                 if (dialog.next < 0) session.conversationData.index = dialog.next;
                 else session.conversationData.index = dialog.next_id;
             } else if (dialog.type == 'image') {
-                console.log('results: ' + results.response);
-                console.log('session.conversationData' + session.conversationData);
+                console.log('results: ' + JSON.stringify(results.response));
+                console.log('session.conversationData' + JSON.stringify(session.conversationData));
                 if (session.conversationData.image_type == 'url')
-                    session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response.contenturl;
+                    session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response[0].contentUrl;
                 else {
                     for (var index = 0; index < session.message.attachments.length; index++) {
                         var resource = {};
                         if (session.message.attachments[index].contentType.indexOf('image') >= 0) {
-                            session.conversationData.form[userDialog[session.conversationData.index.field]] = get_picture(results.response.contenturl, session.message, session.message.attachments[index]);
+                            session.conversationData.form[userDialog[session.conversationData.index.field]] = get_picture(results.response[0].contentUrl, session.message, session.message.attachments[index]);
                         }
                     }
                 }
