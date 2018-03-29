@@ -1691,6 +1691,7 @@
                 return $Element;
             } else if (Dialog.type == 'image') {
                 var $Text;
+                console.log(Dialog.prompt);
                 if (Dialog.prompt.indexOf('{') > -1) {
                     $Text = ReplaceMessage(Dialog.prompt, Locale);
                 } else {
