@@ -820,7 +820,6 @@
                         if (auto_message == -1) auto_message = isMessage;
                         var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
                         if (isParameter == 0 || isMessage != auto_message) {
-                            console.log("sign");
                             if (isParameter == 0) {
                                 for (var index = 0; index < Variables.getKeys().length; index++) {
                                     var data = {};
@@ -839,7 +838,6 @@
                                         data.label = Content;
                                         Locale_for_AC.push(data);
                                     }
-                                    console.log(Locale_for_AC);
                                     response($.ui.autocomplete.filter(Locale_for_AC, extractLast(request.term, /{\s*/)));
                                 }
                                 else {
@@ -859,7 +857,6 @@
                     select: function (event, ui) {
                         var isParameter = split(this.value, /%\s*/).length % 2;
                         var isMessage = split(this.value, /{\s*/).length;
-                        console.log('sign in select');
                         if (isParameter == 0) {
                             var terms = split(this.value, /%\s*/);
                             // 移除当前输入
@@ -878,7 +875,6 @@
                                 terms.pop();
                                 // 添加被选项
                                 terms.push(ui.item.value + '}');
-                                console.log(terms);
                                 this.value = terms.join("{");
                             }
                         }
@@ -1691,7 +1687,6 @@
                 return $Element;
             } else if (Dialog.type == 'image') {
                 var $Text;
-                console.log(Dialog.prompt.attachments[0]);
                 if (Dialog.prompt.attachments[0].content.indexOf('{') > -1) {
                     $Text = ReplaceMessage(Dialog.prompt.attachments[0].content, Locale);
                 } else {
@@ -1724,6 +1719,7 @@
                             $('[id^="Template"').addClass('hidden');
                             $('#TxtDialog').find('.border-highlight').removeClass('border-highlight');
                             $(this).addClass('border-highlight');
+                            $('#TemplateOption').removeClass('hidden');
                             $('#TemplateText').removeClass('hidden');
                             $('#TemplateText').find('[name="Prompt"]').val($(this).text());
                             TargetDialogItem = { Type: 'dialog.prompt' };
@@ -2561,16 +2557,18 @@
                                                         <input type="text" name="Prompt" class="form-control auto_complete"></input>
                                                     </div>
                                                     <br>
-                                                    <label>請問圖片需要存成何種形式:</label>
-                                                    <div id="checkboxGroup">
-                                                        <ul>
-                                                            <li>
-                                                                <input type="checkbox" class="image_data" value="url" checked/>網址(url)</li>
-                                                            <li>
-                                                                <input type="checkbox" class="image_data" value="base64" />base64型態資料</li>
-                                                        </ul>
+                                                    <div id="TemplateOption" class="hidden">
+                                                        <label>請問圖片需要存成何種形式:</label>
+                                                        <div id="checkboxGroup">
+                                                            <ul>
+                                                                <li>
+                                                                    <input type="checkbox" class="image_data" value="url" checked/>網址(url)</li>
+                                                                <li>
+                                                                    <input type="checkbox" class="image_data" value="base64" />base64型態資料</li>
+                                                            </ul>
+                                                        </div>
+                                                        <br>
                                                     </div>
-                                                    <br>
                                                     <div class="pull-right">
                                                         <button type="button" class="btn btn-success" onclick="ApplyText();">套用</button>
                                                     </div>
