@@ -1693,9 +1693,9 @@
                 var $Text;
                 console.log(Dialog.prompt.attachments[0]);
                 if (Dialog.prompt.attachments[0].content.indexOf('{') > -1) {
-                    $Text = ReplaceMessage(Dialog.prompt, Locale);
+                    $Text = ReplaceMessage(Dialog.prompt.attachments[0].content, Locale);
                 } else {
-                    $Text = Dialog.prompt;
+                    $Text = Dialog.prompt.attachments[0].content;
                 }
                 if ($Text.indexOf('%') > -1) {
                     $Text = ReplaceVariable($Text);
