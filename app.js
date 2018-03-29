@@ -1798,7 +1798,7 @@ bot.dialog('/flow', [
                 session.replaceDialog(redirect_dialog(session.userData.userId, session.conversationData.index), session.conversationData);
             }
         } else if (dialog.type == 'image') {
-            builder.Prompts.attachment(session, dialog.prompt);
+            builder.Prompts.attachment(session, dialog.prompt.attachments[0].content);
             userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
             preventMessage.set(session.userData.userId, userConversationMessage);
         } else if (dialog.type == 'card') {
@@ -2220,7 +2220,8 @@ bot.dialog('/flow', [
                 if (dialog.next < 0) session.conversationData.index = dialog.next;
                 else session.conversationData.index = dialog.next_id;
             } else if (dialog.type == 'image') {
-                if (userConversationMessage.attachments[0].data == 'url')
+                console.log(JSON.stringify(userConversationMessage));
+                if (userConversationMessage.message.attachments[0].data == 'url')
                     session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response.contenturl;
                 else {
                     for (var index = 0; index < session.message.attachments.length; index++) {
