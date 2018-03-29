@@ -1002,6 +1002,8 @@
                         var Type;
                         if (Dialogs[index].type == 'text') {
                             Type = '文字';
+                        } else if (Dialogs[index].type == 'image') {
+                            Type = '輸入圖片';
                         } else if (Dialogs[index].type == 'card') {
                             Type = '圖文';
                         } else if (Dialogs[index].type == 'choice') {
@@ -1667,6 +1669,46 @@
                             $(this).addClass('border-highlight');
                             $('#TemplateText').removeClass('hidden');
                             $('#TemplateText').find('[name="Prompt"]').val($(this).attr('Original'));
+                            TargetDialogItem = { Type: 'dialog.prompt' };
+                        });
+                }
+                return $Element;
+            } else if (Dialog.type == 'image') {
+                var $Text;
+                if (Dialog.prompt.indexOf('{') > -1) {
+                    $Text = ReplaceMessage(Dialog.prompt, Locale);
+                } else {
+                    $Text = Dialog.prompt;
+                }
+                if ($Text.indexOf('%') > -1) {
+                    $Text = ReplaceVariable($Text);
+                }
+                var $Element = $('' +
+                    '<div class="wc-message wc-message-from-bot">' +
+                    '    <div class="wc-message-content">' +
+                    '        <svg class="wc-message-callout">' +
+                    '            <path class="point-left" d="m0,6 l6 6 v-12 z"></path>' +
+                    '            <path class="point-right" d="m6,6 l-6 6 v-12 z"></path>' +
+                    '        </svg>' +
+                    '        <div>' +
+                    '            <span class="format-markdown">' +
+                    '                <p>' +
+                    '                    <span><div name="Prompt">' + $Text + '</div></span>' +
+                    '                </p>' +
+                    '            </span>' +
+                    '        </div>' +
+                    '    </div>' +
+                    '</div>');
+                if (Mode == 'Edit') {
+                    $Element
+                        .find('div[name="Prompt"]')
+                        .attr('Original', Dialog.prompt)
+                        .click(function () {
+                            $('[id^="Template"').addClass('hidden');
+                            $('#TxtDialog').find('.border-highlight').removeClass('border-highlight');
+                            $(this).addClass('border-highlight');
+                            $('#TemplateText').removeClass('hidden');
+                            $('#TemplateText').find('[name="Prompt"]').val($(this).text());
                             TargetDialogItem = { Type: 'dialog.prompt' };
                         });
                 }
