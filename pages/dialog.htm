@@ -537,7 +537,8 @@
                         TempDialog.skill = $('#TxtSkill').val();
                     }
                     if (TempDialog.type == 'image') {
-                        TempDialog.prompt.attachments[0].Data = $('#checkboxGroup:checked').val();
+                        alert($('#TemplateOption').find('.image_data:checker').val());
+                        TempDialog.prompt.attachments[0].Data = $('#TemplateOption').find('.image_data:checker').val();
                     }
                     if (TempDialog.type == 'condition') {
                         var condition = {};
@@ -929,7 +930,8 @@
                         TempDialog.skill = $('#TxtSkill').val();
                     }
                     if (TempDialog.type == 'image') {
-                        TempDialog.prompt.attachments[0].Data = $('#checkboxGroup:checked').val();
+                        alert($('#TemplateOption').find('.image_data:checker').val());
+                        TempDialog.prompt.attachments[0].Data = $('#TemplateOption').find('.image_data:checker').val();
                     }
                     if (TempDialog.type == 'condition') {
                         var condition = {};

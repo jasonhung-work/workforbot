@@ -1798,6 +1798,7 @@ bot.dialog('/flow', [
                 session.replaceDialog(redirect_dialog(session.userData.userId, session.conversationData.index), session.conversationData);
             }
         } else if (dialog.type == 'image') {
+            session.conversationData.image_type = dialog.prompt.attachments[0].data;
             builder.Prompts.attachment(session, dialog.prompt.attachments[0].content);
             userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
             preventMessage.set(session.userData.userId, userConversationMessage);
@@ -2193,7 +2194,6 @@ bot.dialog('/flow', [
     function (session, results) {
         session.userData._updateTime = new Date();
         var userDialog = JSON.parse(preventDialog.get(session.userData.userId));
-        var userConversationMessage = preventMessage.get(session.userData.userId);
         var dialog = userDialog[session.conversationData.index];
         var dialogs_for_id = userDialog;
         var field = dialog.field;
@@ -2221,7 +2221,7 @@ bot.dialog('/flow', [
                 else session.conversationData.index = dialog.next_id;
             } else if (dialog.type == 'image') {
                 console.log(JSON.stringify(userConversationMessage));
-                if (userConversationMessage.message.attachments[0].data == 'url')
+                if (session.conversationData.image_type == 'url')
                     session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response.contenturl;
                 else {
                     for (var index = 0; index < session.message.attachments.length; index++) {
