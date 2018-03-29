@@ -536,6 +536,9 @@
                     if (TempDialog.next == -3) {
                         TempDialog.skill = $('#TxtSkill').val();
                     }
+                    if (TempDialog.type == 'image') {
+                        TempDialog.prompt.attachments[0].Data = $('#checkboxGroup li input:checkbox').prop('checked').val();
+                    }
                     if (TempDialog.type == 'condition') {
                         var condition = {};
                         condition.type = $('#DivCondition').find('[name="Type"]').val();
@@ -924,6 +927,9 @@
                     }
                     if (TempDialog.next == -3) {
                         TempDialog.skill = $('#TxtSkill').val();
+                    }
+                    if (TempDialog.type == 'image') {
+                        TempDialog.prompt.attachments[0].Data = $('#checkboxGroup li input:checkbox').prop('checked').val();
                     }
                     if (TempDialog.type == 'condition') {
                         var condition = {};
@@ -2297,8 +2303,6 @@
 
         function ApplyText() {
             var Prompt = $('#TemplateText').find('[name="Prompt"]').val();
-            console.log(TargetDialogItem.Type);
-            console.log(Prompt);
             if (TargetDialogItem.Type == 'dialog.prompt') {
                 TempDialog.prompt = Prompt;
             } else if (TargetDialogItem.Type == 'dialog.content.title') {
@@ -2309,7 +2313,7 @@
                 TempDialog.prompt.attachments[0].content.text = Prompt;
             } else if (TargetDialogItem.Type == 'dialog.content.image') {
                 TempDialog.prompt.attachments[0].content = Prompt;
-            }  
+            }
             $('#TxtDialog').html(CreateContent(TempDialog, 'Edit'));
             $('#TemplateText').addClass('hidden');
         }
