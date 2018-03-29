@@ -1799,6 +1799,7 @@ bot.dialog('/flow', [
             }
         } else if (dialog.type == 'image') {
             session.conversationData.image_type = dialog.prompt.attachments[0].data;
+            console.log(session.conversationData.image_type);
             builder.Prompts.attachment(session, dialog.prompt.attachments[0].content);
             userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
             preventMessage.set(session.userData.userId, userConversationMessage);
@@ -2220,6 +2221,8 @@ bot.dialog('/flow', [
                 if (dialog.next < 0) session.conversationData.index = dialog.next;
                 else session.conversationData.index = dialog.next_id;
             } else if (dialog.type == 'image') {
+                console.log('results: ' + results.response);
+                console.log('session.conversationData' + session.conversationData);
                 if (session.conversationData.image_type == 'url')
                     session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response.contenturl;
                 else {
