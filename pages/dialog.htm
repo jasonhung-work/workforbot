@@ -537,7 +537,7 @@
                         TempDialog.skill = $('#TxtSkill').val();
                     }
                     if (TempDialog.type == 'image') {
-                        TempDialog.prompt.attachments[0].Data = $('#checkboxGroup li input:checkbox').prop('checked').val();
+                        TempDialog.prompt.attachments[0].Data = $('#checkboxGroup').is(':checked').val();
                     }
                     if (TempDialog.type == 'condition') {
                         var condition = {};
@@ -929,7 +929,7 @@
                         TempDialog.skill = $('#TxtSkill').val();
                     }
                     if (TempDialog.type == 'image') {
-                        TempDialog.prompt.attachments[0].Data = $('#checkboxGroup li input:checkbox').prop('checked').val();
+                        TempDialog.prompt.attachments[0].Data = $('#checkboxGroup').is(':checked').val();
                     }
                     if (TempDialog.type == 'condition') {
                         var condition = {};
