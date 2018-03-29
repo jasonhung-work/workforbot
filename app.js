@@ -2225,11 +2225,13 @@ bot.dialog('/flow', [
                 console.log('session.conversationData' + JSON.stringify(session.conversationData));
                 if (session.conversationData.image_type == 'url')
                     session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response[0].contentUrl;
-                else {
+                else if(session.conversationData.image_type == 'base64') {
                     for (var index = 0; index < session.message.attachments.length; index++) {
                         var resource = {};
                         if (session.message.attachments[index].contentType.indexOf('image') >= 0) {
-                            session.conversationData.form[userDialog[session.conversationData.index.field]] = get_picture(results.response[0].contentUrl, session.message, session.message.attachments[index]);
+                            get_picture(results.response[0].contentUrl, session.message, session.message.attachments[index], function(image_file) {
+                                session.conversationData.form[userDialog[session.conversationData.index.field]] = image_file;
+                            });
                         }
                     }
                 }
@@ -2551,7 +2553,7 @@ function redirect_dialog(userId, end_point) {
     return result;
 }
 
-function get_picture(url, message, attachment) {
+function get_picture(url, message, attachment, callback) {
     var https = require('https');
     var URL = require('url');
     var image_url = URL.parse(url);
@@ -2585,15 +2587,15 @@ function get_picture(url, message, attachment) {
                         console.log('REQUEST END');
                         try {
                             var decodeImg = new Buffer(res.body.toString(), 'base64');
-                            require('fs').writeFileSync(__dirname + '/test.jpg', decodeImg);
+                            this.callback(decodeImg);
                             /* var reply = new builder.Message(this.session)
                                 .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, decodeImg.length);
                             this.session.send(reply); */
                         } catch (e) {
                             console.log(e);
                         }
-                    }.bind({ /*session: this.session,*/ attachment: this.attachment }));
-                }.bind({ /*session: session,*/ attachment: attachment }));
+                    }.bind({ /*session: this.session,*/ attachment: this.attachment, callback: this.callback }));
+                }.bind({ /*session: session,*/ attachment: attachment, callback: callback }));
                 req.on('error', function (e) {
                     console.log("Get_Image_Error: " + e);
                 });
@@ -2623,15 +2625,15 @@ function get_picture(url, message, attachment) {
                 console.log('REQUEST END');
                 try {
                     var decodeImg = new Buffer(res.body.toString(), 'base64');
-                    require('fs').writeFileSync(__dirname + '/test.jpg', decodeImg);
+                    callback(decodeImg);
                     /*var reply = new builder.Message(this.session)
                         .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, decodeImg.length);
                     this.session.send(reply);*/
                 } catch (e) {
                     console.log(e);
                 }
-            }.bind({ /*session: this.session,*/ attachment: this.attachment }));
-        }.bind({ /*session: session,*/ attachment: attachment }));
+            }.bind({ /*session: this.session,*/ attachment: this.attachment, callback: this.callback }));
+        }.bind({ /*session: session,*/ attachment: attachment, callback: callback }));
         req.on('error', function (e) {
             console.log("Get_Image_Error: " + e);
         });
