@@ -129,7 +129,16 @@
                     TargetDialog = { 'dialog_id': TargetDialog.dialog_id, 'type': 'input', 'field': '', 'prompt': '顯示的文字', next: 0 };
                 } else if ($(this).val() == 'image') {
                     $('#DivNext').removeClass('hidden');
-                    TargetDialog = { 'dialog_id': TargetDialog.dialog_id, 'type': 'image', 'field': '', 'prompt': '顯示的文字', next: 0 };
+                    TargetDialog = {
+                        'dialog_id': TargetDialog.dialog_id, 'type': 'image', 'field': '', 'prompt': {
+                            'attachments': [
+                                {
+                                    'content': '顯示的文字',
+                                    'data': ''
+                                }
+                            ]
+                        }, next: 0
+                    };
                 } else if ($(this).val() == 'card') {
                     $('#DivNext').removeClass('hidden');
                     TargetDialog = {
@@ -876,6 +885,13 @@
                         return false;
                     }
                 });
+
+            $('#checkboxGroup li input').click(function () {
+                if ($(this).prop('checked')) {
+                    $('#checkboxGroup li input:checkbox').prop('checked', false);
+                    $(this).prop('checked', true);
+                }
+            });
         });
 
         var TargetDialog = {};
@@ -2542,6 +2558,16 @@
                                                     <label>文字：</label>
                                                     <div class="ui-widget">
                                                         <input type="text" name="Prompt" class="form-control auto_complete"></input>
+                                                    </div>
+                                                    <br>
+                                                    <label>請問圖片需要存成何種形式:</label>
+                                                    <div id="checkboxGroup">
+                                                        <ul>
+                                                            <li>
+                                                                <input type="checkbox" class="image_data" value="url" checked/>網址(url)</li>
+                                                            <li>
+                                                                <input type="checkbox" class="image_data" value="base64" />base64型態資料</li>
+                                                        </ul>
                                                     </div>
                                                     <br>
                                                     <div class="pull-right">

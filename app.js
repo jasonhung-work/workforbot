@@ -1620,7 +1620,6 @@ bot.dialog('/flow', [
                         if (session.message.attachments[index].contentType.indexOf('image') >= 0) {
                             resource.Type = 'Image';
                             resource.Content = session.message.attachments[index].contentUrl;
-                            get_picture(resource.Content, session.message, session.message.attachments[index]);
                             userConversationMessage.push({ type: 'resource', acct: session.userData.userId, resource: resource });
                         } else if (session.message.attachments[index].contentType.indexOf('video') >= 0) {
                             resource.Type = 'Image';
@@ -2194,6 +2193,7 @@ bot.dialog('/flow', [
     function (session, results) {
         session.userData._updateTime = new Date();
         var userDialog = JSON.parse(preventDialog.get(session.userData.userId));
+        var userConversationMessage = preventMessage.get(session.userData.userId);
         var dialog = userDialog[session.conversationData.index];
         var dialogs_for_id = userDialog;
         var field = dialog.field;
@@ -2219,13 +2219,19 @@ bot.dialog('/flow', [
                 // session.conversationData.index++;
                 if (dialog.next < 0) session.conversationData.index = dialog.next;
                 else session.conversationData.index = dialog.next_id;
-            } else if(dialog.type == 'image') {
-                console.log('image: ' + JSON.stringify(results));
-                console.log(results.response);
-                session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response;
+            } else if (dialog.type == 'image') {
+                if (userConversationMessage.attachments[0].data == 'url')
+                    session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response.contenturl;
+                else {
+                    for (var index = 0; index < session.message.attachments.length; index++) {
+                        var resource = {};
+                        if (session.message.attachments[index].contentType.indexOf('image') >= 0) {
+                            session.conversationData.form[userDialog[session.conversationData.index.field]] = get_picture(results.response.contenturl, session.message, session.message.attachments[index]);
+                        }
+                    }
+                }
                 if (dialog.next < 0) session.conversationData.index = dialog.next;
                 else session.conversationData.index = dialog.next_id;
-
             } else if (dialog.type == 'choice') {
 				/**
 				var exist = false;
