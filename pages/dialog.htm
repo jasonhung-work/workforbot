@@ -537,7 +537,6 @@
                         TempDialog.skill = $('#TxtSkill').val();
                     }
                     if (TempDialog.type == 'image') {
-                        alert($('#TemplateOption').find('.image_data:checked').val());
                         TempDialog.prompt.attachments[0].Data = $('#TemplateOption').find('.image_data:checked').val();
                     }
                     if (TempDialog.type == 'condition') {
@@ -930,7 +929,6 @@
                         TempDialog.skill = $('#TxtSkill').val();
                     }
                     if (TempDialog.type == 'image') {
-                        alert($('#TemplateOption').find('.image_data:checked').val());
                         TempDialog.prompt.attachments[0].Data = $('#TemplateOption').find('.image_data:checked').val();
                     }
                     if (TempDialog.type == 'condition') {
@@ -1730,7 +1728,7 @@
                             $('#TemplateOption').removeClass('hidden');
                             $('#TemplateText').removeClass('hidden');
                             $('#TemplateText').find('[name="Prompt"]').val($(this).text());
-                            TargetDialogItem = { Type: 'dialog.contnet.image' };
+                            TargetDialogItem = { Type: 'dialog.content.image_file' };
                         });
                 }
                 return $Element;
@@ -2313,7 +2311,7 @@
                 TempDialog.prompt.attachments[0].content.subtitle = Prompt;
             } else if (TargetDialogItem.Type == 'dialog.content.text') {
                 TempDialog.prompt.attachments[0].content.text = Prompt;
-            } else if (TargetDialogItem.Type == 'dialog.content.image') {
+            } else if (TargetDialogItem.Type == 'dialog.content.image_file') {
                 TempDialog.prompt.attachments[0].content = Prompt;
             }
             $('#TxtDialog').html(CreateContent(TempDialog, 'Edit'));

@@ -2220,7 +2220,6 @@ bot.dialog('/flow', [
                 if (dialog.next < 0) session.conversationData.index = dialog.next;
                 else session.conversationData.index = dialog.next_id;
             } else if (dialog.type == 'image') {
-                console.log(JSON.stringify(userConversationMessage));
                 if (session.conversationData.image_type == 'url')
                     session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response.contenturl;
                 else {
