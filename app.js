@@ -2221,8 +2221,6 @@ bot.dialog('/flow', [
                 if (dialog.next < 0) session.conversationData.index = dialog.next;
                 else session.conversationData.index = dialog.next_id;
             } else if (dialog.type == 'image') {
-                console.log('results: ' + JSON.stringify(results.response));
-                console.log('session.conversationData' + JSON.stringify(session.conversationData));
                 if (session.conversationData.image_type == 'url')
                     session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response[0].contentUrl;
                 else if(session.conversationData.image_type == 'base64') {
@@ -2234,6 +2232,8 @@ bot.dialog('/flow', [
                             });
                         }
                     }
+                } else {
+                    session.send("不好意思，您沒有選擇要存入何種型態");
                 }
                 if (dialog.next < 0) session.conversationData.index = dialog.next;
                 else session.conversationData.index = dialog.next_id;
