@@ -1722,7 +1722,7 @@
                             $('#TemplateOption').removeClass('hidden');
                             $('#TemplateText').removeClass('hidden');
                             $('#TemplateText').find('[name="Prompt"]').val($(this).text());
-                            TargetDialogItem = { Type: 'dialog.prompt' };
+                            TargetDialogItem = { Type: 'dialog.contnet.image' };
                         });
                 }
                 return $Element;
@@ -2298,6 +2298,7 @@
         function ApplyText() {
             var Prompt = $('#TemplateText').find('[name="Prompt"]').val();
             console.log(TargetDialogItem.Type);
+            console.log(Prompt);
             if (TargetDialogItem.Type == 'dialog.prompt') {
                 TempDialog.prompt = Prompt;
             } else if (TargetDialogItem.Type == 'dialog.content.title') {
@@ -2306,7 +2307,9 @@
                 TempDialog.prompt.attachments[0].content.subtitle = Prompt;
             } else if (TargetDialogItem.Type == 'dialog.content.text') {
                 TempDialog.prompt.attachments[0].content.text = Prompt;
-            } 
+            } else if (TargetDialogItem.Type == 'dialog.content.image') {
+                TempDialog.prompt.attachments[0].content = Prompt;
+            }  
             $('#TxtDialog').html(CreateContent(TempDialog, 'Edit'));
             $('#TemplateText').addClass('hidden');
         }
