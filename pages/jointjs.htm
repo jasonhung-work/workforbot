@@ -141,6 +141,11 @@
                                         source: { id: node[i].id },
                                         target: { id: circle.id },
                                     });
+                                } else if (dialog[i].goto[j].next == -4) {
+                                    link = new joint.dia.Link({
+                                        source: { id: node[i].id },
+                                        target: { id: system_wait.id },
+                                    });
                                 } else {
                                     link = new joint.dia.Link({
                                         source: { id: node[i].id },
