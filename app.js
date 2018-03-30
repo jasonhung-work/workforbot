@@ -531,6 +531,16 @@ app.get("/getDialog/:flow_id", function (request, response) {
             'color': ''
         }
         switch (dialog[i].type) {
+            case 'image':
+                data.type = 'inputoutput';
+                data.color = 'lightgrey';
+                if (dialog[i].next < 0) {
+                    data.next = dialog[i].next;
+                } else {
+                    data.next = dialog[i].next_id;
+                }
+                postdata.push(data);
+                break;
             case 'choice':
                 GetProcess(dialog[i].prompt.attachments[0].content.buttons, flow_id, function (processi) {
                     data.type = 'condition';
@@ -542,7 +552,7 @@ app.get("/getDialog/:flow_id", function (request, response) {
             case 'text':
                 data.type = 'operation';
                 data.color = 'blanchedalmond';
-                if (dialog[i].next == -2 || dialog[i].next == -3) {
+                if (dialog[i].next < 0) {
                     data.next = dialog[i].next;
                 } else {
                     data.next = dialog[i].next_id;
@@ -560,7 +570,7 @@ app.get("/getDialog/:flow_id", function (request, response) {
             case 'card':
                 data.type = 'operation';
                 data.color = "pink";
-                if (dialog[i].next == -2 || dialog[i].next == -3) {
+                if (dialog[i].next < 0) {
                     data.next = dialog[i].next;
                 } else {
                     data.next = dialog[i].next_id;
@@ -570,7 +580,7 @@ app.get("/getDialog/:flow_id", function (request, response) {
             case 'input':
                 data.type = 'inputoutput';
                 data.color = "gray";
-                if (dialog[i].next == -2 || dialog[i].next == -3) {
+                if (dialog[i].next < 0) {
                     data.next = dialog[i].next;
                 } else {
                     data.next = dialog[i].next_id;
@@ -581,7 +591,7 @@ app.get("/getDialog/:flow_id", function (request, response) {
                 var processi = [];
                 var success_dialog_id;
                 var fail_dialog_id;
-                if (dialog[i].condition.success_dialog_id < 0) {
+                if (dialog[i].next < 0) {
                     success_dialog_id = dialog[i].condition.success_dialog_id;
                 } else {
                     for (var j = 0; j < dialog.length; j++) {
@@ -619,7 +629,7 @@ app.get("/getDialog/:flow_id", function (request, response) {
             case 'operate':
                 data.type = 'subroutine';
                 data.color = "mediumpurple";
-                if (dialog[i].next == -2 || dialog[i].next == -3) {
+                if (dialog[i].next < 0) {
                     data.next = dialog[i].next;
                 } else {
                     data.next = dialog[i].next_id;
@@ -629,7 +639,7 @@ app.get("/getDialog/:flow_id", function (request, response) {
             case 'webapi':
                 data.type = 'subroutine';
                 data.color = "yellow";
-                if (dialog[i].next == -2 || dialog[i].next == -3) {
+                if (dialog[i].next < 0) {
                     data.next = dialog[i].next;
                 } else {
                     data.next = dialog[i].next_id;
@@ -639,7 +649,7 @@ app.get("/getDialog/:flow_id", function (request, response) {
             case 'qna_maker':
                 data.type = 'subroutine';
                 data.color = '#f40';
-                if (dialog[i].next == -2 || dialog[i].next == -3) {
+                if (dialog[i].next < 0) {
                     data.next = dialog[i].next;
                 } else {
                     data.next = dialog[i].next_id;
@@ -2233,7 +2243,7 @@ bot.dialog('/flow', [
                         }
                     }
                 } else {
-                    session.send("不好意思，您沒有選擇要存入何種型態");
+                    logger.info("不好意思，您沒有選擇要存入何種型態");
                 }
                 if (dialog.next < 0) session.conversationData.index = dialog.next;
                 else session.conversationData.index = dialog.next_id;
