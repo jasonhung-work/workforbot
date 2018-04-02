@@ -469,11 +469,13 @@ app.post('/flow_bot', function (request, response) {
         response.end();
     }
     else if (preventAddress.has(conversation_id)) {
+        var address = preventAddress.get(conversation_id);
+        console.log(JSON.stringify(address));
         var session = {
             'index': dialog_id,
             'messageTimestamp': new Date(),
         }
-        bot.beginDialog(preventAddress.get(conversation_id), "/flow", session);
+        bot.beginDialog(address, "/flow", session);
         response.status(200).send('success');
         response.end();
     }
