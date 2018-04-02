@@ -470,7 +470,7 @@ app.post('/flow_bot', function (request, response) {
     }
     else if (preventAddress.has(conversation_id)) {
         var address = preventAddress.get(conversation_id);
-        console.log(JSON.stringify(address));
+        console.log("address: " + JSON.stringify(address));
         var session = {
             'index': dialog_id,
             'messageTimestamp': new Date(),
@@ -1542,8 +1542,6 @@ bot.dialog('/',
             session.userData.userId = session.message.user.id;
         }
         preventDialog.set(session.userData.userId, JSON.stringify(global.dialogs));
-        console.log("__________________________s" + JSON.stringify(session.message.address));
-        console.log("++++++++++++++++++" + session.userData.userId);
         preventAddress.set(session.message.address.conversation.id, session.message.address);
         if (!preventMessage.has(session.userData.userId)) {
             var new_message = [];
@@ -1610,7 +1608,6 @@ bot.dialog('/flow', [
     function (session, args) {
         var userDialog = JSON.parse(preventDialog.get(session.userData.userId));
         var userConversationMessage = preventMessage.get(session.userData.userId);
-        console.log(userConversationMessage);
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('session conversationData.Message: ' + JSON.stringify(userConversationMessage));
@@ -1812,7 +1809,6 @@ bot.dialog('/flow', [
             }
         } else if (dialog.type == 'image') {
             session.conversationData.image_type = dialog.prompt.attachments[0].data;
-            console.log(session.conversationData.image_type);
             builder.Prompts.attachment(session, dialog.prompt.attachments[0].content);
             userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
             preventMessage.set(session.userData.userId, userConversationMessage);
@@ -2542,7 +2538,6 @@ bot.dialog('/stay', [
 ]);
 
 var checkRequiresToken = function (message) {
-    console.log("source: " + message.source);
     return message.source === 'skype' || message.source === 'msteams';
 };
 
@@ -2591,16 +2586,16 @@ function get_picture(url, message, attachment, callback) {
                 };
 
                 var req = https.request(options, function (res) {
-                    console.log('STATUS: ' + res.statusCode);
-                    console.log('HEADERS: ' + JSON.stringify(res.headers));
+                    logger.info('STATUS: ' + res.statusCode);
+                    logger.info('HEADERS: ' + JSON.stringify(res.headers));
                     res.setEncoding('base64');
                     res.body = '';
                     res.on('data', function (chunk) {
-                        console.log('Image_BODY: ' + chunk);
+                        logger.info('Image_BODY: ' + chunk);
                         res.body = res.body + chunk;
                     });
                     res.on('end', function () {
-                        console.log('REQUEST END');
+                        logger.info('REQUEST END');
                         try {
                             var decodeImg = new Buffer(res.body.toString(), 'base64');
                             this.callback(decodeImg);
@@ -2608,12 +2603,12 @@ function get_picture(url, message, attachment, callback) {
                                 .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, decodeImg.length);
                             this.session.send(reply); */
                         } catch (e) {
-                            console.log(e);
+                            logger.info(e);
                         }
                     }.bind({ /*session: this.session,*/ attachment: this.attachment, callback: this.callback }));
                 }.bind({ /*session: session,*/ attachment: attachment, callback: callback }));
                 req.on('error', function (e) {
-                    console.log("Get_Image_Error: " + e);
+                    logger.info("Get_Image_Error: " + e);
                 });
                 req.end();
             }
@@ -2629,16 +2624,16 @@ function get_picture(url, message, attachment, callback) {
         };
 
         var req = https.request(options, function (res) {
-            console.log('STATUS: ' + res.statusCode);
-            console.log('HEADERS: ' + JSON.stringify(res.headers));
+            logger.info('STATUS: ' + res.statusCode);
+            logger.info('HEADERS: ' + JSON.stringify(res.headers));
             res.setEncoding('base64');
             res.body = '';
             res.on('data', function (chunk) {
-                console.log('Image_BODY: ' + chunk);
+                logger.info('Image_BODY: ' + chunk);
                 res.body = res.body + chunk;
             });
             res.on('end', function () {
-                console.log('REQUEST END');
+                logger.info('REQUEST END');
                 try {
                     var decodeImg = new Buffer(res.body.toString(), 'base64');
                     callback(decodeImg);
@@ -2646,12 +2641,12 @@ function get_picture(url, message, attachment, callback) {
                         .text('Attachment of %s type and size of %s bytes received.', this.attachment.contentType, decodeImg.length);
                     this.session.send(reply);*/
                 } catch (e) {
-                    console.log(e);
+                    logger.info(e);
                 }
             }.bind({ /*session: this.session,*/ attachment: this.attachment, callback: this.callback }));
         }.bind({ /*session: session,*/ attachment: attachment, callback: callback }));
         req.on('error', function (e) {
-            console.log("Get_Image_Error: " + e);
+            logger.info("Get_Image_Error: " + e);
         });
         req.end();
     }
