@@ -458,10 +458,10 @@ app.put('/variables/:flow_id', function (request, response) {
 });
 
 var stay_postback = {
-    'ispost' : 0,
-    'data' : {
-        'address' : -1,
-        'session' : {
+    'ispost': 0,
+    'data': {
+        'address': -1,
+        'session': {
             'index': -1,
             'messageTimestamp': new Date(),
         }
@@ -2241,11 +2241,11 @@ bot.dialog('/flow', [
             } else if (dialog.type == 'image') {
                 if (session.conversationData.image_type == 'url')
                     session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response[0].contentUrl;
-                else if(session.conversationData.image_type == 'base64') {
+                else if (session.conversationData.image_type == 'base64') {
                     for (var index = 0; index < session.message.attachments.length; index++) {
                         var resource = {};
                         if (session.message.attachments[index].contentType.indexOf('image') >= 0) {
-                            get_picture(results.response[0].contentUrl, session.message, session.message.attachments[index], function(image_file) {
+                            get_picture(results.response[0].contentUrl, session.message, session.message.attachments[index], function (image_file) {
                                 session.conversationData.form[userDialog[session.conversationData.index.field]] = image_file;
                             });
                         }
@@ -2536,21 +2536,25 @@ bot.dialog('/end', function (session) {
     session.endConversation();
 });
 
-bot.dialog('/stay', function (session, args) {
-    console.log("Dialog: " + '/stay');
-    if(stay_postback.ispost == 1){
-        console.log("Stay: " + "postback");
-        stay_postback.ispost = 0;
-        bot.beginDialog(stay_postback.data.address, "/flow", stay_postback.data.session);
+bot.dialog('/stay', [
+    function (session, args) {
+        console.log("Dialog: " + '/stay');
+        if (stay_postback.ispost == 1) {
+            console.log("Stay: " + "postback");
+            stay_postback.ispost = 0;
+            bot.beginDialog(stay_postback.data.address, "/flow", stay_postback.data.session);
+        }
+        else {
+            console.log("Stay: stay");
+            var message = '此服務需一段時間，請稍等一下';
+            session.send(message);
+        }
+        //session.endDialogWithResult({ response: session.conversationData.form });
+    },
+    function (session, args) {
+        session.replaceDialog("/stay", session.conversationData);
     }
-    else {
-        console.log("Stay: stay");
-        var message = '此服務需一段時間，請稍等一下';
-        session.send(message);
-        session.replaceDialog("/stay",session.conversationData);
-    }
-    //session.endDialogWithResult({ response: session.conversationData.form });
-});
+]);
 
 var checkRequiresToken = function (message) {
     console.log("source: " + message.source);
