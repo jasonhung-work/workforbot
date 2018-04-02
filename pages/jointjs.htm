@@ -97,6 +97,9 @@
                         attrs: { circle: { fill: 'black' }, text: { text: '結束', fill: 'white', 'font-size': '18px' } }
                     });
                     graph.addCell(circle);
+                    
+                    console.log(JSON.stringify(dialog));
+
                     for (var i = 0; i < dialog.length; i++) {
                         if (dialog[i].next != "") {
                             var link;

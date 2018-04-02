@@ -457,17 +457,6 @@ app.put('/variables/:flow_id', function (request, response) {
     }
 });
 
-/* var stay_postback = {
-    'ispost': 0,
-    'data': {
-        'address': -1,
-        'session': {
-            'index': -1,
-            'messageTimestamp': new Date(),
-        }
-    }
-}; */
-
 app.post('/flow_bot', function (request, response) {
     var conversation_id = request.body.conversation_id;
     var dialog_id = request.body.dialog_id;
@@ -2542,15 +2531,8 @@ bot.dialog('/end', function (session) {
 
 bot.dialog('/stay', [
     function (session, args) {
-        /* if (stay_postback.ispost == 1) {
-            stay_postback.ispost = 0;
-            bot.beginDialog(stay_postback.data.address, "/flow", stay_postback.data.session);
-        }
-        else { */
-            var message = '此服務需一段時間，請稍等一下';
-            session.send(message);
-        //}
-        //session.endDialogWithResult({ response: session.conversationData.form });
+        var message = '此服務需一段時間，請稍等一下';
+        session.send(message);
     },
     function (session, args) {
         session.replaceDialog("/stay", session.conversationData);
