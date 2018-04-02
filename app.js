@@ -459,9 +459,9 @@ app.put('/variables/:flow_id', function (request, response) {
 
 var postback = {
     'ispost' : 0,
-    data : {
-        address = -1,
-        session = {
+    'data' : {
+        'address' : -1,
+        'session' : {
             'index': -1,
             'messageTimestamp': new Date(),
         }
