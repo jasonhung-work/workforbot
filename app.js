@@ -486,8 +486,10 @@ app.post('/flow_bot', function (request, response) {
         response.status(200).send('success');
         response.end();
     }
-    response.status(401).send('No this conversation');
-    response.end();
+    else {
+        response.status(401).send('No this conversation');
+        response.end();
+    }
 });
 
 app.get('/sessions', function (request, response) {
@@ -2541,6 +2543,7 @@ bot.dialog('/stay', [
         console.log("Dialog: " + '/stay');
         if (stay_postback.ispost == 1) {
             console.log("Stay: " + "postback");
+            console.log(JSON.stringify(stay_postback));
             stay_postback.ispost = 0;
             bot.beginDialog(stay_postback.data.address, "/flow", stay_postback.data.session);
         }
