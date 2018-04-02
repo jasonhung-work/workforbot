@@ -469,15 +469,27 @@ app.post('/flow_bot', function (request, response) {
         response.end();
     }
     else if (preventAddress.has(conversation_id)) {
+        var userId, Dialog_length;
         var address = preventAddress.get(conversation_id);
-        console.log("address: " + JSON.stringify(address));
-        var session = {
-            'index': dialog_id,
-            'messageTimestamp': new Date(),
+        if (address.channelId == 'webchat') {   // 每一通 WebChat 的 User ID 都一樣，只能用 Conversation ID 區分
+            userId = address.conversation.id;
+        } else {
+            userId = address.user.id;
         }
-        bot.beginDialog(address, "/flow", session);
-        response.status(200).send('success');
-        response.end();
+        Dialog_length = JSON.parse(preventDialog.get(session.userData.userId)).length;
+        if (dialog_id < Dialog_length && dialog_id >= 0) {
+            var session = {
+                'index': dialog_id,
+                'messageTimestamp': new Date(),
+            }
+            bot.beginDialog(address, "/flow", session);
+            response.status(200).send('success');
+            response.end();
+        }
+        else {
+            response.status(401).send('No this dialog');
+            response.end();
+        }
     }
     else {
         response.status(401).send('No this conversation');
