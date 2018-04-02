@@ -467,6 +467,7 @@ app.put('/variables/:flow_id', function (request, response) {
         }
     }
 }; */
+
 app.post('/flow_bot', function (request, response) {
     var conversation_id = request.body.conversation_id;
     var dialog_id = request.body.dialog_id;
@@ -483,7 +484,7 @@ app.post('/flow_bot', function (request, response) {
             'index': dialog_id,
             'messageTimestamp': new Date(),
         }
-        bot.beginDialog(preventAddress.get(conversation_id), "/flow", stay_postback.data.session);
+        bot.beginDialog(preventAddress.get(conversation_id), "/flow", session);
         response.status(200).send('success');
         response.end();
     }
