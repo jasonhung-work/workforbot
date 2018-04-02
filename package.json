@@ -20,7 +20,13 @@
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
     "log4js": "latest",
-    "log4js-extend": "latest"
+    "log4js-extend": "latest",
+    "express": "latest",
+    "fs": "latest",
+    "crypto": "latest",
+    "http": "latest",
+    "https": "latest",
+    "socket.io": "latest"
   },
   "devDependencies": {
     "request": "^2.81.0",
