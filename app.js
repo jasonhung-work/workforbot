@@ -593,7 +593,7 @@ app.get("/getDialog/:flow_id", function (request, response) {
                 var processi = [];
                 var success_dialog_id;
                 var fail_dialog_id;
-                if (dialog[i].next < 0) {
+                if (dialog[i].condition.success_dialog_id < 0) {
                     success_dialog_id = dialog[i].condition.success_dialog_id;
                 } else {
                     for (var j = 0; j < dialog.length; j++) {
