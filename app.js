@@ -456,6 +456,17 @@ app.put('/variables/:flow_id', function (request, response) {
         }.bind({ res: response }));
     }
 });
+
+var postback = {
+    'ispost' : 0,
+    data : {
+        address = -1,
+        session = {
+            'index': -1,
+            'messageTimestamp': new Date(),
+        }
+    }
+};
 app.post('/flow_bot', function (request, response) {
     var conversation_id = request.body.conversation_id;
     var dialog_id = request.body.dialog_id;
@@ -468,12 +479,10 @@ app.post('/flow_bot', function (request, response) {
         response.end();
     }
     else if (preventAddress.has(conversation_id)) {
-        var address = preventAddress.get(conversation_id);
-        var session = {
-            'index': dialog_id,
-            'messageTimestamp': new Date(),
-        }
-        bot.beginDialog(address, "/flow", session);
+        postback.ispost = 1;
+        postback.data.address = preventAddress.get(conversation_id);
+        postback.data.session.index = dialog_id;
+        postback.data.session.messageTimestamp = new Date();
         response.status(200).send('success');
         response.end();
     }
@@ -1492,7 +1501,6 @@ function RegisterSnapinEvent(client) {
 //=========================================================
 // Bots Dialogs
 //=========================================================
-var lz_string = require('lz-string');
 var preventDialog = new Map();
 var preventMessage = new Map();
 var preventAddress = new Map();
@@ -2529,10 +2537,16 @@ bot.dialog('/end', function (session) {
 });
 
 bot.dialog('/stay', function (session, args) {
-    var message = '此服務需一段時間，請稍等一下';
-    session.send(message);
-
-    session.endDialogWithResult({ response: session.conversationData.form });
+    if(postback.ispost == 1){
+        postback.ispost = 0;
+        bot.beginDialog(postback.data.address, "/flow", postback.data.session);
+    }
+    else {
+        var message = '此服務需一段時間，請稍等一下';
+        session.send(message);
+        session.replaceDialog("/stay",session.conversationData);
+    }
+    //session.endDialogWithResult({ response: session.conversationData.form });
 });
 
 var checkRequiresToken = function (message) {
