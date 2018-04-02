@@ -19,7 +19,8 @@
     "dotenv-extended": "^1.0.4",
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
-    "log4js": "latest"
+    "log4js": "latest",
+    "log4js-extend": "latest"
   },
   "devDependencies": {
     "request": "^2.81.0",
