@@ -476,7 +476,7 @@ app.post('/flow_bot', function (request, response) {
         } else {
             userId = address.user.id;
         }
-        Dialog_length = JSON.parse(preventDialog.get(session.userData.userId)).length;
+        Dialog_length = JSON.parse(preventDialog.get(userId)).length;
         if (dialog_id < Dialog_length && dialog_id >= 0) {
             var session = {
                 'index': dialog_id,
