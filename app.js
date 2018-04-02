@@ -457,7 +457,7 @@ app.put('/variables/:flow_id', function (request, response) {
     }
 });
 
-var stay_postback = {
+/* var stay_postback = {
     'ispost': 0,
     'data': {
         'address': -1,
@@ -466,7 +466,7 @@ var stay_postback = {
             'messageTimestamp': new Date(),
         }
     }
-};
+}; */
 app.post('/flow_bot', function (request, response) {
     var conversation_id = request.body.conversation_id;
     var dialog_id = request.body.dialog_id;
@@ -479,10 +479,11 @@ app.post('/flow_bot', function (request, response) {
         response.end();
     }
     else if (preventAddress.has(conversation_id)) {
-        stay_postback.ispost = 1;
-        stay_postback.data.address = preventAddress.get(conversation_id);
-        stay_postback.data.session.index = dialog_id;
-        stay_postback.data.session.messageTimestamp = new Date();
+        var session = {
+            'index': dialog_id,
+            'messageTimestamp': new Date(),
+        }
+        bot.beginDialog(preventAddress.get(conversation_id), "/flow", stay_postback.data.session);
         response.status(200).send('success');
         response.end();
     }
@@ -2540,18 +2541,14 @@ bot.dialog('/end', function (session) {
 
 bot.dialog('/stay', [
     function (session, args) {
-        console.log("Dialog: " + '/stay');
-        if (stay_postback.ispost == 1) {
-            console.log("Stay: " + "postback");
-            console.log(JSON.stringify(stay_postback));
+        /* if (stay_postback.ispost == 1) {
             stay_postback.ispost = 0;
             bot.beginDialog(stay_postback.data.address, "/flow", stay_postback.data.session);
         }
-        else {
-            console.log("Stay: stay");
+        else { */
             var message = '此服務需一段時間，請稍等一下';
             session.send(message);
-        }
+        //}
         //session.endDialogWithResult({ response: session.conversationData.form });
     },
     function (session, args) {
