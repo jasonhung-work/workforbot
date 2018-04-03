@@ -895,13 +895,11 @@
             $('#checkboxGroup li .button_type').click(function () {
                 if ($(this).prop('checked')) {
                     if ($(this).val() == 'url') {
-                        $('#TemplateButton').find('[name="DialogID"]').addClass('hidden');
-                        $('#TemplateButton').find('[name="Value"]').addClass('hidden');
-                        $('#TemplateButton').find('[name="Url"]').removeClass('hidden');
+                        $('#TemplateButtonType').find('[name="Text"]').addClass('hidden');
+                        $('#TemplateButtonType').find('[name="Url"]').removeClass('hidden');
                     } else if ($(this).val() == 'text') {
-                        $('#TemplateButton').find('[name="DialogID"]').removeClass('hidden');
-                        $('#TemplateButton').find('[name="Value"]').removeClass('hidden');
-                        $('#TemplateButton').find('[name="Url"]').addClass('hidden');
+                        $('#TemplateButtonType').find('[name="Text"]').removeClass('hidden');
+                        $('#TemplateButtonType').find('[name="Url"]').addClass('hidden');
                     }
                     $('#checkboxGroup li .button_type').prop('checked', false);
                     $(this).prop('checked', true);
@@ -2039,6 +2037,7 @@
                                 $('#TxtDialog').find('.border-highlight').removeClass('border-highlight');
                                 $Button.addClass('border-highlight');
                                 $('#TemplateButton').removeClass('hidden');
+                                $('#TemplateOption').removeClass('hidden');
                                 $('#TemplateButton').attr('mode', 'edit');
                                 var Button = TargetDialog.prompt.attachments[0].content.buttons[this.Index];
                                 $('#TemplateButton').find('[name="Title"]').val(Button.title);
@@ -2602,17 +2601,21 @@
                                                     <div class="ui-widget">
                                                         <input type="text" name="Title" class="form-control auto_complete"></input>
                                                     </div>
-                                                    <label>轉跳對話框：</label>
-                                                    <!--<input type="text" name="DialogID" class="form-control"></input>-->
-                                                    <select name="DialogID" class="form-control">
-                                                    </select>
-                                                    <label>回傳值：</label>
-                                                    <div class="ui-widget">
-                                                        <input type="text" name="Value" class="form-control auto_complete"></input>
+                                                    <div id="TemplateButtonType" name="Text">
+                                                        <label>轉跳對話框：</label>
+                                                        <!--<input type="text" name="DialogID" class="form-control"></input>-->
+                                                        <select name="DialogID" class="form-control">
+                                                        </select>
+                                                        <label>回傳值：</label>
+                                                        <div class="ui-widget">
+                                                            <input type="text" name="Value" class="form-control auto_complete"></input>
+                                                        </div>
                                                     </div>
-                                                    <label>Url</label>
-                                                    <div class="ui-widget hidden">
-                                                        <input type="text" name="Url" class="form-control auto_complete"></input>
+                                                    <div id="TemplateButtonType" name="Url" class="hidden">
+                                                        <label>Url</label>
+                                                        <div class="ui-widget">
+                                                            <input type="text" name="Url" class="form-control auto_complete"></input>
+                                                        </div>
                                                     </div>
                                                     <div id="TemplateOption">
                                                         <label>請問需要何種回傳格式:</label>
