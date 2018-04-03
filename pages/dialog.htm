@@ -2336,9 +2336,16 @@
         function ApplyButton() {
             if (TargetDialogItem.Type == 'dialog.content.button') {
                 if ($('#TemplateButton').attr('mode') == 'edit') {
-                    TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].title = $('#TemplateButton').find('[name="Title"]').val();
-                    TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].dialog_id = $('#TemplateButton').find('[name="DialogID"]').val();
-                    TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].value = $('#TemplateButton').find('[name="Value"]').val();
+                    TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].type = $('#TextOption').find('.button_type:checked').val();
+                    if ($('#TextOption').find('.button_type:checked').val() == 'url') {
+                        TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].title = $('#TemplateButton').find('[name="Title"]').val();
+                        TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].dialog_id = $('#TemplateButton').find('[name="DialogID"]').val();
+                        TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].url = $('#TemplateButton').find('[name="Url"]').val();
+                    } else if ($('#TextOption').find('.button_type:checked').val() == 'postback'){
+                        TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].title = $('#TemplateButton').find('[name="Title"]').val();
+                        TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].dialog_id = $('#TemplateButton').find('[name="DialogID"]').val();
+                        TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].value = $('#TemplateButton').find('[name="Value"]').val();
+                    }
                 } else {
                     if (TempDialog.prompt.attachments[0].content.buttons == undefined) {
                         TempDialog.prompt.attachments[0].content.buttons = [];
@@ -2347,7 +2354,7 @@
                         title: $('#TemplateButton').find('[name="Title"]').val(),
                         dialog_id: $('#TemplateButton').find('[name="DialogID"]').val(),
                         value: $('#TemplateButton').find('[name="Value"]').val(),
-                        type: 'postBack'
+                        type: $('#TextOption').find('.button_type:checked').val()
                     });
                 }
             }
@@ -2622,7 +2629,7 @@
                                                         <div id="checkboxGroup">
                                                             <ul>
                                                                 <li>
-                                                                    <input type="checkbox" class="button_type" value="text" checked/>文字</li>
+                                                                    <input type="checkbox" class="button_type" value="postback" checked/>回傳(postback)</li>
                                                                 <li>
                                                                     <input type="checkbox" class="button_type" value="url" />網址(url)</li>
                                                             </ul>
