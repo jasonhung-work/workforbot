@@ -893,13 +893,14 @@
             });
 
             $('#checkboxGroup li .button_type').click(function () {
+                alert(1);
                 if ($(this).prop('checked')) {
                     if ($(this).val() == 'url') {
-                        $('#TemplateButtonType').find('[name="Text"]').addClass('hidden');
-                        $('#TemplateButtonType').find('[name="Url"]').removeClass('hidden');
+                        $('#ButtonTypeText').addClass('hidden');
+                        $('#ButtonTypeUrl').removeClass('hidden');
                     } else if ($(this).val() == 'text') {
-                        $('#TemplateButtonType').find('[name="Text"]').removeClass('hidden');
-                        $('#TemplateButtonType').find('[name="Url"]').addClass('hidden');
+                        $('#ButtonTypeText').removeClass('hidden');
+                        $('#ButtonTypeUrl').addClass('hidden');
                     }
                     $('#checkboxGroup li .button_type').prop('checked', false);
                     $(this).prop('checked', true);
@@ -2600,7 +2601,7 @@
                                                     <div class="ui-widget">
                                                         <input type="text" name="Title" class="form-control auto_complete"></input>
                                                     </div>
-                                                    <div id="TemplateButtonType" name="Text">
+                                                    <div id="ButtonTypeText">
                                                         <label>轉跳對話框：</label>
                                                         <!--<input type="text" name="DialogID" class="form-control"></input>-->
                                                         <select name="DialogID" class="form-control">
@@ -2610,20 +2611,20 @@
                                                             <input type="text" name="Value" class="form-control auto_complete"></input>
                                                         </div>
                                                     </div>
-                                                    <div id="TemplateButtonType" name="Url" class="hidden">
+                                                    <div id="ButtonTypeUrl" class="hidden">
                                                         <label>Url</label>
                                                         <div class="ui-widget">
                                                             <input type="text" name="Url" class="form-control auto_complete"></input>
                                                         </div>
                                                     </div>
-                                                    <div id="TemplateOption">
+                                                    <div id="TextOption">
                                                         <label>請問需要何種回傳格式:</label>
                                                         <div id="checkboxGroup">
                                                             <ul>
                                                                 <li>
-                                                                    <input type="checkbox" class="button_type" value="url" checked/>網址(url)</li>
+                                                                    <input type="checkbox" class="button_type" value="text" checked/>文字</li>
                                                                 <li>
-                                                                    <input type="checkbox" class="button_type" value="text" />文字</li>
+                                                                    <input type="checkbox" class="button_type" value="url" />網址(url)</li>
                                                             </ul>
                                                         </div>
                                                         <br>
