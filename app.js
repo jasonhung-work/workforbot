@@ -2562,7 +2562,7 @@ function createHeroCard(session, dialog) {
     var herocardbuttons = [];
     for (var index = 0; index < dialog.attachments[0].content.buttons.length; index++) {
         console.log("change herocard");
-        if (dialog.attachments[0].content.buttons[index].type == "postBack") {
+        if (dialog.attachments[0].content.buttons[index].type == "postback") {
             console.log("postback");
             herocardbuttons.push(builder.CardAction.imBack(session, dialog.attachments[0].content.buttons[index].title, session, dialog.attachments[0].content.buttons[index].value));
         }
