@@ -1875,7 +1875,7 @@ bot.dialog('/flow', [
             }
             logger.info('builder.Prompts.choice: ' + JSON.stringify(dialog.prompt));
             var card = createHeroCard(session, dialog.prompt);
-            var msg = new builder.Message(session).attachments(card).text("請選擇");
+            var msg = new builder.Message(session).addAttachment(card);
             //session.send(msg);
             builder.Prompts.choice(session, msg, IIsMessage.join('|'), { retryPrompt: msg });
             userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
