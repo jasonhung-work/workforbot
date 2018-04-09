@@ -2562,7 +2562,6 @@ function createHeroCard(session, dialog) {
     var herocard = new builder.HeroCard(session)
         .title(dialog.attachments[0].content.title)
         .subtitle(dialog.attachments[0].content.subtitle)
-        .text('Build and connect intelligent bots to interact with your users naturally wherever they are, from text/sms to Skype, Slack, Office 365 mail and other popular services.')
         .images([
             builder.CardImage.create(session, dialog.attachments[0].content.images[0].url)
         ])
@@ -2572,12 +2571,12 @@ function createHeroCard(session, dialog) {
         console.log("change herocard");
         if (dialog.attachments[0].content.buttons[index].type == "postBack") {
             console.log("postback");
-            herocard.buttons.push(builder.CardAction.imBack(session, dialog.attachments[0].content.buttons[index].title, session, dialog.attachments[0].content.buttons[index].value));
+            herocard.buttons.add(builder.CardAction.imBack(session, dialog.attachments[0].content.buttons[index].title, session, dialog.attachments[0].content.buttons[index].value));
         }
 
         else if (dialog.attachments[0].content.buttons[index].type == "url"){
             console.log("url");
-            herocard.buttons.push(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url));
+            herocard.buttons.add(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url));
         }
             
     }
