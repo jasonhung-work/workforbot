@@ -1874,7 +1874,9 @@ bot.dialog('/flow', [
                 IIsMessage.push(dialog.prompt.attachments[0].content.buttons[index].value);
             }
             logger.info('builder.Prompts.choice: ' + JSON.stringify(dialog.prompt));
-            createHeroCard(session, dialog.prompt);
+            var card = createHeroCard(session, dialog.prompt);
+            var msg = new builder.Message(session).addAttachment(card);
+            session.send(msg);
             ////builder.Prompts.choice(session, dialog.prompt, IIsMessage.join('|'), { maxRetries: 3, retryPrompt: '請重新輸入' });
             userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
             preventMessage.set(session.userData.userId, userConversationMessage);
@@ -2567,8 +2569,9 @@ function createHeroCard(session, dialog) {
         .buttons([
         ]);
     for (var index = 0; index < dialog.attachments[0].content.buttons.length; index++) {
+        console.log("change herocard");
         if(dialog.attachments[0].content.buttons.type == "postBack")
-        herocard.buttons.push(builder.CardAction.imBack(session, dialog.attachments[0].content.buttons[index].title, session, dialog.attachments[0].content.buttons[index].value));
+        console.log(herocard.buttons.push(builder.CardAction.imBack(session, dialog.attachments[0].content.buttons[index].title, session, dialog.attachments[0].content.buttons[index].value)));
         else if(dialog.attachments[0].content.buttons.type == "url")
         herocard.buttons.push(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url));
     }
