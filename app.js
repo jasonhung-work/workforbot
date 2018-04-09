@@ -1877,7 +1877,7 @@ bot.dialog('/flow', [
             var card = createHeroCard(session, dialog.prompt);
             var msg = new builder.Message(session).attachments(card).text("請選擇");
             //session.send(msg);
-            builder.Prompts.choice(session, msg, IIsMessage.join('|'), { maxRetries: 3, retryPrompt: '請重新輸入' });
+            builder.Prompts.choice(session, msg, IIsMessage.join('|'), { retryPrompt: msg });
             userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
             preventMessage.set(session.userData.userId, userConversationMessage);
         } else if (dialog.type == 'confirm') {
