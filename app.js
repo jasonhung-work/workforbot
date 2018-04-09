@@ -2277,9 +2277,8 @@ bot.dialog('/flow', [
 					session.conversationData.index++;
 				}
                 **/
-               console.log("choice postback\n" + JSON.stringify(dialog));
                 var dialog_id_choice;
-                if (dialog.prompt.attachments[0].content.buttons[results.response.index].dialog_id == -2 || dialog.prompt.attachments[0].content.buttons[results.response.index].dialog_id == -3) {
+                if (dialog.prompt.attachments[0].content.buttons[results.response.index].dialog_id < 0) {
                     dialog_id_choice = dialog.prompt.attachments[0].content.buttons[results.response.index].dialog_id;
                 } else {
                     for (var i = 0; i < dialogs_for_id.length; i++) {
@@ -2290,6 +2289,7 @@ bot.dialog('/flow', [
                     }
                 }
                 session.conversationData.index = dialog_id_choice;
+                console.log("dialog_id_choice: " + dialog_id_choice);
             } else if (dialog.type == 'confirm') {
 
                 // Confirm 的 Button 需固定第一個為 YES
