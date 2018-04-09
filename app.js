@@ -816,6 +816,27 @@ app.get("/pages/flow/flowchart/:flow_id", function (request, response) {
         }.bind({ req: request, res: response, flow: flow }));
     }
 });
+app.get('/pages/login', function (request, response) {
+    var conversation_id = request.query.conversation_id;
+    var dialog_id = request.query.dialog_id;
+    logger.info('GET /pages/profile request');
+    request.header('Content-Type', 'text/html');
+    var fs = require('fs');
+    fs.readFile(__dirname + '/pages/login.htm', 'utf8', function (err, data) {
+        if (err) {
+            res.send(err);
+        }
+        var protocol = 'http://';
+        var host = this.req.get('host');
+        logger.info('encrypted: ' + this.req.connection.encrypted);
+        if (this.req.connection.encrypted) {
+            protocol = 'https://';
+        }
+        data = data +
+            '<script type="text/javascript"> var conversation_id = "' + conversation_id + '"; var dialog_id = "'+ dialog_id +'" </script>';
+        this.res.send(data);
+    }.bind({ req: request, res: response }));
+});
 
 // =========================================================
 // Bot Setup
@@ -2289,7 +2310,6 @@ bot.dialog('/flow', [
                     }
                 }
                 session.conversationData.index = dialog_id_choice;
-                console.log("dialog_id_choice: " + dialog_id_choice);
             } else if (dialog.type == 'confirm') {
 
                 // Confirm 的 Button 需固定第一個為 YES

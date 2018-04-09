@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1" />
+    <title>Login Test</title>
+    <script type="text/javascript" src="/scripts/jquery/jquery-1.9.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#submit').click(function () {
+                if ($('#acct').value() == 1234 && $('#passward').value() == 1234) {
+                    var data = {
+                        "conversation_id": conversation_id,
+                        "dialog_id": dialog_id + 1
+                    }
+                    $.ajax({
+                        url: '../../flow_bot',
+                        type: 'POST',
+                        data: { variables: _Variables },
+                        success: function (ret) {
+                            window.close();
+                        }
+                    });
+                } else {
+                    var data = {
+                        "conversation_id": conversation_id,
+                        "dialog_id": dialog_id + 2
+                    }
+                    $.ajax({
+                        url: '../../flow_bot',
+                        type: 'POST',
+                        data: { variables: _Variables },
+                        success: function (ret) {
+                            window.close();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div>
+                <h1>Login Test</h1>
+                <label>帳號：</label>
+                <input id="acct">
+                <br>
+                <label>密碼：</label>
+                <input id="passward">
+                <br>
+                <button id="submit">提交</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
