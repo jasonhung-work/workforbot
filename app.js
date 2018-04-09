@@ -2564,7 +2564,7 @@ function createHeroCard(session, dialog) {
         console.log("change herocard");
         if (dialog.attachments[0].content.buttons[index].type == "postback") {
             console.log("postback");
-            herocardbuttons.push(builder.CardAction.imBack(session, dialog.attachments[0].content.buttons[index].value, dialog.attachments[0].content.buttons[index].title));
+            herocardbuttons.push(builder.CardAction.postBack(session, dialog.attachments[0].content.buttons[index].value, dialog.attachments[0].content.buttons[index].title));
         }
         else if (dialog.attachments[0].content.buttons[index].type == "url"){
             console.log("url");
