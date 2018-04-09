@@ -946,6 +946,18 @@
                     if (TempDialog.type == 'image') {
                         TempDialog.prompt.attachments[0].data = $('#TemplateOption').find('.image_data:checked').val();
                     }
+                    if (TempDialog.type == 'choice') {
+                        TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].type = $('#TextOption').find('.button_type:checked').val();
+                        if ($('#TextOption').find('.button_type:checked').val() == 'url') {
+                            TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].title = $('#TemplateButton').find('[name="Title"]').val();
+                            TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].dialog_id = $('#TemplateButton').find('[name="DialogID"]').val();
+                            TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].url = $('#TemplateButton').find('[name="Url"]').val() + '?conversation_id=' + Variables.get('conversation_Id').content + '&dialog_id=' + Variables.get('dialog_Id').content;
+                        } else if ($('#TextOption').find('.button_type:checked').val() == 'postback') {
+                            TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].title = $('#TemplateButton').find('[name="Title"]').val();
+                            TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].dialog_id = $('#TemplateButton').find('[name="DialogID"]').val();
+                            TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].value = $('#TemplateButton').find('[name="Value"]').val();
+                        }
+                    }
                     if (TempDialog.type == 'condition') {
                         var condition = {};
                         condition.type = $('#DivCondition').find('[name="Type"]').val();
@@ -2341,7 +2353,7 @@
                         TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].title = $('#TemplateButton').find('[name="Title"]').val();
                         TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].dialog_id = $('#TemplateButton').find('[name="DialogID"]').val();
                         TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].url = $('#TemplateButton').find('[name="Url"]').val() + '?conversation_id=' + Variables.get('conversation_Id').content + '&dialog_id=' + Variables.get('dialog_Id').content;
-                    } else if ($('#TextOption').find('.button_type:checked').val() == 'postback'){
+                    } else if ($('#TextOption').find('.button_type:checked').val() == 'postback') {
                         TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].title = $('#TemplateButton').find('[name="Title"]').val();
                         TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].dialog_id = $('#TemplateButton').find('[name="DialogID"]').val();
                         TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].value = $('#TemplateButton').find('[name="Value"]').val();
