@@ -461,6 +461,12 @@ app.post('/flow_bot', function (request, response) {
     console.log(request.body);
     var conversation_id = request.body.conversation_id;
     var dialog_id = request.body.dialog_id;
+    var _Variables = request.body.variables;
+    try {
+        _Variables = JSON.parse(request.body.variables);
+    } catch (e) {
+        logger.info('_Variables are not JSON string or undefined');
+    }
     if (conversation_id == undefined) {
         response.status(400).send({ error: 'No conversation_id' });
         response.end();
@@ -472,6 +478,17 @@ app.post('/flow_bot', function (request, response) {
     else if (preventAddress.has(conversation_id)) {
         var userId, Dialog_length;
         var address = preventAddress.get(conversation_id);
+        if (_Variables) {
+            for (var K in _Variables) {
+                console.log("k:" + K + ", value:" + _Variables[K]);
+                for (var N in global.variables) {
+                    if (global.variables[N].name == K) {
+                        global.variables[N].content = _Variables[K];
+                        break;
+                    }
+                }
+            }
+        }
         if (address.channelId == 'webchat') {   // 每一通 WebChat 的 User ID 都一樣，只能用 Conversation ID 區分
             userId = address.conversation.id;
         } else {
@@ -834,7 +851,7 @@ app.get('/pages/login', function (request, response) {
             protocol = 'https://';
         }
         data = data +
-            '<script type="text/javascript"> var conversation_id = "' + conversation_id + '"; var dialog_id = "'+ dialog_id +'" </script>';
+            '<script type="text/javascript"> var conversation_id = "' + conversation_id + '"; var dialog_id = "' + dialog_id + '" </script>';
         this.res.send(data);
     }.bind({ req: request, res: response }));
 });
@@ -2587,9 +2604,9 @@ function createHeroCard(session, dialog) {
         if (dialog.attachments[0].content.buttons[index].type == "postback") {
             herocardbuttons.push(builder.CardAction.postBack(session, dialog.attachments[0].content.buttons[index].value, dialog.attachments[0].content.buttons[index].title));
         }
-        else if (dialog.attachments[0].content.buttons[index].type == "url"){
-            herocardbuttons.push(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url+ '?conversation_id=' + session.message.address.conversation.id + '&dialog_id=' + session.conversationData.index, dialog.attachments[0].content.buttons[index].title));
-        }       
+        else if (dialog.attachments[0].content.buttons[index].type == "url") {
+            herocardbuttons.push(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url + '?conversation_id=' + session.message.address.conversation.id + '&dialog_id=' + session.conversationData.index, dialog.attachments[0].content.buttons[index].title));
+        }
     }
     var herocard = new builder.HeroCard(session)
         .title(dialog.attachments[0].content.title)

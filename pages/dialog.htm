@@ -893,7 +893,6 @@
             });
 
             $('#checkboxGroup li .button_type').click(function () {
-                alert(1);
                 if ($(this).prop('checked')) {
                     if ($(this).val() == 'url') {
                         $('#ButtonTypeText').addClass('hidden');
@@ -2637,13 +2636,13 @@
                                                         </div>
                                                     </div>
                                                     <div id="TextOption">
-                                                        <label>請問需要何種回傳格式:</label>
+                                                        <label>回傳格式:</label>
                                                         <div id="checkboxGroup">
                                                             <ul>
                                                                 <li>
-                                                                    <input type="checkbox" class="button_type" value="postback" checked/>回傳(postback)</li>
+                                                                    <input type="checkbox" class="button_type" value="postback" checked/>回傳指定值</li>
                                                                 <li>
-                                                                    <input type="checkbox" class="button_type" value="url" />網址(url)</li>
+                                                                    <input type="checkbox" class="button_type" value="url" />中斷並等待回復</li>
                                                             </ul>
                                                         </div>
                                                         <br>
