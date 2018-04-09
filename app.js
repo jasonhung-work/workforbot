@@ -2564,11 +2564,11 @@ function createHeroCard(session, dialog) {
         console.log("change herocard");
         if (dialog.attachments[0].content.buttons[index].type == "postback") {
             console.log("postback");
-            herocardbuttons.push(builder.CardAction.imBack(session, dialog.attachments[0].content.buttons[index].title, session, dialog.attachments[0].content.buttons[index].value));
+            herocardbuttons.push(builder.CardAction.imBack(session, dialog.attachments[0].content.buttons[index].value, dialog.attachments[0].content.buttons[index].title));
         }
         else if (dialog.attachments[0].content.buttons[index].type == "url"){
             console.log("url");
-            herocardbuttons.push(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url));
+            herocardbuttons.push(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url, dialog.attachments[0].content.buttons[index].title));
         }       
     }
 
