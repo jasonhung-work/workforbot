@@ -1874,7 +1874,8 @@ bot.dialog('/flow', [
                 IIsMessage.push(dialog.prompt.attachments[0].content.buttons[index].value);
             }
             logger.info('builder.Prompts.choice: ' + JSON.stringify(dialog.prompt));
-            builder.Prompts.choice(session, dialog.prompt, IIsMessage.join('|'), { maxRetries: 3, retryPrompt: '請重新輸入' });
+            createHeroCard(session, dialog.prompt);
+            ////builder.Prompts.choice(session, dialog.prompt, IIsMessage.join('|'), { maxRetries: 3, retryPrompt: '請重新輸入' });
             userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
             preventMessage.set(session.userData.userId, userConversationMessage);
         } else if (dialog.type == 'confirm') {
@@ -2559,7 +2560,7 @@ function createHeroCard(session, dialog) {
         .subtitle(dialog.attachments[0].content.subtitle)
         .text('Build and connect intelligent bots to interact with your users naturally wherever they are, from text/sms to Skype, Slack, Office 365 mail and other popular services.')
         .images([
-            builder.CardImage.create(session, 'https://sec.ch9.ms/ch9/7ff5/e07cfef0-aa3b-40bb-9baa-7c9ef8ff7ff5/buildreactionbotframework_960.jpg')
+            builder.CardImage.create(session, dialog.attachments[0].content.images[0].url)
         ])
         .buttons([
         ]);
