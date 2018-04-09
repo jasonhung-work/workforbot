@@ -1875,9 +1875,8 @@ bot.dialog('/flow', [
             }
             logger.info('builder.Prompts.choice: ' + JSON.stringify(dialog.prompt));
             var card = createHeroCard(session, dialog.prompt);
-            //var msg = new builder.Message(session).addAttachment(card);
-            //session.send(msg);
             builder.Prompts.choice(session, card, { maxRetries: 3, retryPrompt: '請重新輸入' });
+            console.log("choice");
             userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
             preventMessage.set(session.userData.userId, userConversationMessage);
         } else if (dialog.type == 'confirm') {
@@ -2557,18 +2556,15 @@ var checkRequiresToken = function (message) {
 };
 
 function createHeroCard(session, dialog) {
-    console.log("create hero card\n");
-    console.log(JSON.stringify(dialog));
     var herocardbuttons = [];
     for (var index = 0; index < dialog.attachments[0].content.buttons.length; index++) {
         if (dialog.attachments[0].content.buttons[index].type == "postback") {
             herocardbuttons.push(builder.CardAction.postBack(session, dialog.attachments[0].content.buttons[index].value, dialog.attachments[0].content.buttons[index].title));
         }
-        else if (dialog.attachments[0].content.buttons[index].type == "url"){
+        else if (dialog.attachments[0].content.buttons[index].type == "url") {
             herocardbuttons.push(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url, dialog.attachments[0].content.buttons[index].title));
-        }       
+        }
     }
-
     var herocard = new builder.HeroCard(session)
         .title(dialog.attachments[0].content.title)
         .subtitle(dialog.attachments[0].content.subtitle)
@@ -2576,8 +2572,6 @@ function createHeroCard(session, dialog) {
             builder.CardImage.create(session, dialog.attachments[0].content.images[0].url)
         ])
         .buttons(herocardbuttons);
-    
-    console.log(herocard);
     return herocard;
 }
 
