@@ -2217,6 +2217,7 @@ bot.dialog('/flow', [
         }
     },
     function (session, results) {
+        console.log("second flow dialog\n");
         session.userData._updateTime = new Date();
         var userDialog = JSON.parse(preventDialog.get(session.userData.userId));
         var dialog = userDialog[session.conversationData.index];
