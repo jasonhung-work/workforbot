@@ -2559,27 +2559,27 @@ var checkRequiresToken = function (message) {
 function createHeroCard(session, dialog) {
     console.log("create hero card\n");
     console.log(JSON.stringify(dialog));
+    var herocardbuttons = [];
+    for (var index = 0; index < dialog.attachments[0].content.buttons.length; index++) {
+        console.log("change herocard");
+        if (dialog.attachments[0].content.buttons[index].type == "postBack") {
+            console.log("postback");
+            herocardbuttons.push(builder.CardAction.imBack(session, dialog.attachments[0].content.buttons[index].title, session, dialog.attachments[0].content.buttons[index].value));
+        }
+        else if (dialog.attachments[0].content.buttons[index].type == "url"){
+            console.log("url");
+            herocardbuttons.push(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url));
+        }       
+    }
+
     var herocard = new builder.HeroCard(session)
         .title(dialog.attachments[0].content.title)
         .subtitle(dialog.attachments[0].content.subtitle)
         .images([
             builder.CardImage.create(session, dialog.attachments[0].content.images[0].url)
         ])
-        .buttons([
-        ]);
-    for (var index = 0; index < dialog.attachments[0].content.buttons.length; index++) {
-        console.log("change herocard");
-        if (dialog.attachments[0].content.buttons[index].type == "postBack") {
-            console.log("postback");
-            herocard.buttons.add(builder.CardAction.imBack(session, dialog.attachments[0].content.buttons[index].title, session, dialog.attachments[0].content.buttons[index].value));
-        }
-
-        else if (dialog.attachments[0].content.buttons[index].type == "url"){
-            console.log("url");
-            herocard.buttons.add(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url));
-        }
-            
-    }
+        .buttons(herocardbuttons);
+    
     console.log(herocard);
     return herocard;
 }
