@@ -1875,8 +1875,8 @@ bot.dialog('/flow', [
             }
             logger.info('builder.Prompts.choice: ' + JSON.stringify(dialog.prompt));
             var card = createHeroCard(session, dialog.prompt);
+            console.log(JSON.stringify(card));
             builder.Prompts.choice(session, card, { maxRetries: 3, retryPrompt: '請重新輸入' });
-            console.log("choice");
             userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
             preventMessage.set(session.userData.userId, userConversationMessage);
         } else if (dialog.type == 'confirm') {
