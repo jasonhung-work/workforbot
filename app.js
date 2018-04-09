@@ -458,6 +458,7 @@ app.put('/variables/:flow_id', function (request, response) {
 });
 
 app.post('/flow_bot', function (request, response) {
+    console.log(request.body);
     var conversation_id = request.body.conversation_id;
     var dialog_id = request.body.dialog_id;
     if (conversation_id == undefined) {

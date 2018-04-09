@@ -12,29 +12,33 @@
         $(document).ready(function () {
             $('#submit').click(function () {
                 if ($('#acct').val() == 1234 && $('#passward').val() == 1234) {
-                    var data = {
-                        "conversation_id": conversation_id,
-                        "dialog_id": dialog_id + 1
-                    }
                     $.ajax({
                         url: '../../flow_bot',
                         type: 'POST',
-                        data: { variables: _Variables },
+                        data: {
+                            "conversation_id": conversation_id,
+                            "dialog_id": parseInt(dialog_id) + 1
+                        },
                         success: function (ret) {
                             window.close();
+                        },
+                        fail: function (ret) {
+                            alert(ret);
                         }
                     });
                 } else {
-                    var data = {
-                        "conversation_id": conversation_id,
-                        "dialog_id": dialog_id + 2
-                    }
                     $.ajax({
                         url: '../../flow_bot',
                         type: 'POST',
-                        data: { variables: _Variables },
+                        data: {
+                            "conversation_id": conversation_id,
+                            "dialog_id": parseInt(dialog_id) + 2
+                        },
                         success: function (ret) {
                             window.close();
+                        },
+                        fail: function (ret) {
+                            alert(ret);
                         }
                     });
                 }
