@@ -2555,6 +2555,8 @@ var checkRequiresToken = function (message) {
 };
 
 function createHeroCard(session, dialog) {
+    console.log("create hero card\n");
+    console.log(JSON.stringify(dialog));
     var herocard = new builder.HeroCard(session)
         .title(dialog.attachments[0].content.title)
         .subtitle(dialog.attachments[0].content.subtitle)
@@ -2570,6 +2572,7 @@ function createHeroCard(session, dialog) {
         else if(dialog.attachments[0].content.buttons.type == "url")
         herocard.buttons.push(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url));
     }
+    console.log(herocard);
     return herocard;
 }
 
