@@ -2226,6 +2226,7 @@ bot.dialog('/flow', [
         logger.info('dialog type: ' + dialog.type);
         logger.info('index: ' + session.conversationData.index + ', field: ' + field + ', value: ' + results.response);
         if (results.response != undefined) {
+            console.log("results.response\n" + JSON.stringify(results.response));
             if (results.response == true || results.response == false) {
                 session.conversationData.form[field] = results.response;
                 logger.info('field value: ' + results.response);
