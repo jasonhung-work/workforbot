@@ -2570,7 +2570,7 @@ function createHeroCard(session, dialog) {
         else if(dialog.attachments[0].content.buttons.type == "url")
         herocard.buttons.push(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url));
     }
-    return 
+    return herocard;
 }
 
 function redirect_dialog(userId, end_point) {
