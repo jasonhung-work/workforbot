@@ -2587,7 +2587,7 @@ function createHeroCard(session, dialog) {
             herocardbuttons.push(builder.CardAction.postBack(session, dialog.attachments[0].content.buttons[index].value, dialog.attachments[0].content.buttons[index].title));
         }
         else if (dialog.attachments[0].content.buttons[index].type == "url"){
-            herocardbuttons.push(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url, dialog.attachments[0].content.buttons[index].title));
+            herocardbuttons.push(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url+ '?conversation_id=' + session.message.address.conversation.id + '&dialog_id=' + session.conversationData.index, dialog.attachments[0].content.buttons[index].title));
         }       
     }
     var herocard = new builder.HeroCard(session)
