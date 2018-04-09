@@ -2275,6 +2275,7 @@ bot.dialog('/flow', [
 					session.conversationData.index++;
 				}
                 **/
+               console.log("choice postback\n" + JSON.stringify(dialog));
                 var dialog_id_choice;
                 if (dialog.prompt.attachments[0].content.buttons[results.response.index].dialog_id == -2 || dialog.prompt.attachments[0].content.buttons[results.response.index].dialog_id == -3) {
                     dialog_id_choice = dialog.prompt.attachments[0].content.buttons[results.response.index].dialog_id;
