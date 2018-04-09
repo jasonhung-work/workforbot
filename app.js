@@ -2570,10 +2570,16 @@ function createHeroCard(session, dialog) {
         ]);
     for (var index = 0; index < dialog.attachments[0].content.buttons.length; index++) {
         console.log("change herocard");
-        if(dialog.attachments[0].content.buttons.type == "postBack")
-        console.log(herocard.buttons.push(builder.CardAction.imBack(session, dialog.attachments[0].content.buttons[index].title, session, dialog.attachments[0].content.buttons[index].value)));
-        else if(dialog.attachments[0].content.buttons.type == "url")
-        herocard.buttons.push(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url));
+        if (dialog.attachments[0].content.buttons[index].type == "postBack") {
+            console.log("postback");
+            herocard.buttons.push(builder.CardAction.imBack(session, dialog.attachments[0].content.buttons[index].title, session, dialog.attachments[0].content.buttons[index].value));
+        }
+
+        else if (dialog.attachments[0].content.buttons[index].type == "url"){
+            console.log("url");
+            herocard.buttons.push(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url));
+        }
+            
     }
     console.log(herocard);
     return herocard;
