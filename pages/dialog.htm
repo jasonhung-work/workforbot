@@ -895,9 +895,11 @@
             $('#checkboxGroup li .button_type').click(function () {
                 if ($(this).prop('checked')) {
                     if ($(this).val() == 'url') {
+                        $('#TextOptionPs').removeClass('hidden');
                         $('#ButtonTypeText').addClass('hidden');
                         $('#ButtonTypeUrl').removeClass('hidden');
                     } else if ($(this).val() == 'postback') {
+                        $('#TextOptionPs').addClass('hidden');
                         $('#ButtonTypeText').removeClass('hidden');
                         $('#ButtonTypeUrl').addClass('hidden');
                     }
@@ -2646,6 +2648,9 @@
                                                             </ul>
                                                         </div>
                                                         <br>
+                                                    </div>
+                                                    <div id="TextOptionPs" class="hidden">
+                                                        <label>PS: 於跳轉網址傳回之參數可事先在參數設定，只要再傳回時放置在JSON檔案的variables內就會將數值自動填入相同名稱的參數</label>
                                                     </div>
                                                     <br>
                                                     <div class="pull-right">
