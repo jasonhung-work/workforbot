@@ -17,7 +17,11 @@
                         type: 'POST',
                         data: {
                             "conversation_id": conversation_id,
-                            "dialog_id": parseInt(dialog_id) + 1
+                            "dialog_id": parseInt(dialog_id) + 1,
+                            "variables": {
+                                "school": '台北科技大學',
+                                "name": '洪國竣'
+                            }
                         },
                         success: function (ret) {
                             window.close();
