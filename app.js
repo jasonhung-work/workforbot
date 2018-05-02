@@ -233,7 +233,7 @@ app.put('/locale/:locale/:flow_id', function (request, response) {
     }
     if (flow) {
         if (flow.active == 'true') {
-            global.locales = locales;
+            global.locales[flow.flow_id] = locales;
         }
         require('fs').writeFile(__dirname + '/flow/' + flow.flow_id + '/locale/' + locale + '/index.json', JSON.stringify(message), function (err) {
             this.res.write(JSON.stringify({ success: true }));
@@ -310,7 +310,7 @@ app.post('/dialog/:flow_id', function (request, response) {
         dialogs = JSON.parse(dialogs);
         dialogs.push(dialog);
         if (flow.active == 'true') {
-            global.dialogs = dialogs;
+            global.dialogs[flow.flow_id] = dialogs;
         }
         require('fs').writeFile(__dirname + '/flow/' + flow.flow_id + '/dialog.json', JSON.stringify(dialogs), function (err) {
             this.res.write(JSON.stringify({ success: true }));
@@ -340,7 +340,8 @@ app.put('/dialog/:dialog_id/:flow_id', function (request, response) {
             dialogs[request.params.dialog_id] = dialog;
         }
         if (flow.active == 'true') {
-            global.dialogs = dialogs;
+            global.dialogs[flow.flow_id] = dialogs;
+            global.flow_id = flow.flow_id;
         }
         require('fs').writeFile(__dirname + '/flow/' + flow.flow_id + '/dialog.json', JSON.stringify(dialogs), function (err) {
             this.res.write(JSON.stringify({ success: true }));
@@ -397,7 +398,8 @@ app.delete('/dialog/:dialog_id/:flow_id', function (request, response) {
             }
         }
         if (flow.active == 'true') {
-            global.dialogs = dialogs;
+            global.dialogs[flow.flow_id] = dialogs;
+            global.flow_id = flow.flow_id;
         }
         require('fs').writeFile(__dirname + '/flow/' + flow.flow_id + '/dialog.json', JSON.stringify(dialogs), function (err) {
             this.res.write(JSON.stringify({ success: true }));
@@ -448,7 +450,8 @@ app.put('/variables/:flow_id', function (request, response) {
     }
     if (flow) {
         if (flow.active == 'true') {
-            global.variables = variables;
+            global.variables[flow.flow_id] = variables;
+            global.flow_id = flow.flow_id;
         }
         require('fs').writeFile(__dirname + '/flow/' + flow.flow_id + '/variable.json', JSON.stringify(variables), function (err) {
             this.res.write(JSON.stringify({ success: true }));
@@ -860,7 +863,7 @@ app.get('/pages/login', function (request, response) {
 // Bot Setup
 // =========================================================
 
-global.dialogs = {}, global.variables = [], global.locales = [];
+global.dialogs = [], global.variables = [], global.locales = [], global.flow_id = -1;
 for (var index = 0; index < flows.length; index++) {
     if (flows[index].active == 'true') {
         LoadFlow(flows[index]);
@@ -869,14 +872,72 @@ for (var index = 0; index < flows.length; index++) {
 }
 
 function LoadFlow(flow) {
-    global.dialogs = require('fs').readFileSync(__dirname + '/flow/' + flow.flow_id + '/dialog.json');
-    global.dialogs = JSON.parse(global.dialogs);
+    if (global.dialog == []) {
+        var files = fs.readdirSync(__dirname + '/flow');//读取该文件夹
+        files.forEach(function (file) {
+            var stats = fs.statSync(fileUrl + '/' + file);
+            if (stats.isDirectory()) {
+                require('fs').readFile(__dirname + '/flow/' + file + '/dialog.json', 'utf8', function (err, text) {
+                    try {
+                        global.dialogs[this.file] = {};
+                        global.dialogs[this.file] = text;
+                        global.dialogs[this.file] = JSON.parse(global.dialogs[this.file]);
+                    } catch (e) { return logger.error(err); }
+                });
+            }
+        });
+    }
+    if (global.variables == []) {
+        var files = fs.readdirSync(__dirname + '/flow');//读取该文件夹
+        files.forEach(function (file) {
+            var stats = fs.statSync(fileUrl + '/' + file);
+            if (stats.isDirectory()) {
+                require('fs').readFile(__dirname + '/flow/' + file + '/variable.json', 'utf8', function (err, text) {
+                    try {
+                        global.variables[this.file] = {};
+                        global.variables[this.file] = text;
+                        global.variables[this.file] = JSON.parse(global.variables[this.file]);
+                    } catch (e) { return logger.error(err); }
+                });
+            }
+        });
+    }
+    if (global.locales == []) {
+        var files = fs.readdirSync(__dirname + '/flow');//读取该文件夹
+        files.forEach(function (file) {
+            var stats = fs.statSync(fileUrl + '/' + file);
+            if (stats.isDirectory()) {
+                require('fs').readdir(__dirname + '/flow/' + file + '/locale', function (err, locales) {
+                    if (err) {
+                        return logger.error(err);
+                    }
+                    locales.forEach(function (locale, index) {
+                        require('fs').stat(__dirname + '/flow/' + this.flow_id + '/locale/' + locale, function (error, stat) {
+                            if (error) {
+                                return logger.error(error);
+                            }
+                            if (stat.isDirectory()) {
+                                require('fs').readFile(__dirname + '/flow/' + this.flow_id + '/locale/' + locale + '/index.json', 'utf8', function (err, text) {
+                                    try {
+                                        global.locales[this.flow_id][this.locale] = JSON.parse(text);
+                                    } catch (e) { return logger.error(err); }
+                                }.bind({ locale: locale, flow_id: this.flow_id }));
+                            }
+                        }.bind({ flow_id: this.flow_id }));
+                    }.bind({ flow_id: this.flow_id }));
+                }.bind({ flow_id: file }));
+            }
+        });
+    }
+    global.dialogs[flow.flow_id] = {};
+    global.dialogs[flow.flow_id] = require('fs').readFileSync(__dirname + '/flow/' + flow.flow_id + '/dialog.json');
+    global.dialogs[flow.flow_id] = JSON.parse(global.dialogs[flow.flow_id]);
 
-    global.variables = {};
-    global.variables = require('fs').readFileSync(__dirname + '/flow/' + flow.flow_id + '/variable.json');
-    global.variables = JSON.parse(global.variables);
+    global.variables[flow.flow_id] = {};
+    global.variables[flow.flow_id] = require('fs').readFileSync(__dirname + '/flow/' + flow.flow_id + '/variable.json');
+    global.variables[flow.flow_id] = JSON.parse(global.variables[flow.flow_id]);
 
-    global.locales = [];
+    global.locales[flow.flow_id] = [];
     require('fs').readdir(__dirname + '/flow/' + flow.flow_id + '/locale', function (err, files) {
         if (err) {
             return logger.error(err);
@@ -889,9 +950,9 @@ function LoadFlow(flow) {
                 if (stat.isDirectory()) {
                     require('fs').readFile(__dirname + '/flow/' + this.flow_id + '/locale/' + file + '/index.json', 'utf8', function (err, text) {
                         try {
-                            global.locales[this.file] = JSON.parse(text);
+                            global.locales[this.flow_id][this.file] = JSON.parse(text);
                         } catch (e) { return logger.error(err); }
-                    }.bind({ file: file }));
+                    }.bind({ file: file, flow_id: this.flow_id }));
                 }
             }.bind({ flow_id: this.flow_id }));
         }.bind({ flow_id: this.flow_id }));
@@ -919,10 +980,10 @@ app.get('/api/reset', function (req, res) {
         session.userData._updateTime = undefined;
         // session.beginDialog('/end');
         /**
-		if (session.conversationData) {
-			session.endDialogWithResult({ response: session.conversationData.form });
-		} else {
-			session.endDialogWithResult({});
+        if (session.conversationData) {
+            session.endDialogWithResult({ response: session.conversationData.form });
+        } else {
+            session.endDialogWithResult({});
         }
         */
         session.endConversation();
@@ -1555,7 +1616,7 @@ bot.dialog('/',
     function (session) {
         /*  這邊是用來查看session裡預設是什麼
         seen = [];
-
+ 
         var replacer = function (key, value) {
             if (value != null && typeof value == "object") {
                 if (seen.indexOf(value) >= 0) {
@@ -1592,7 +1653,7 @@ bot.dialog('/',
         } else {
             session.userData.userId = session.message.user.id;
         }
-        preventDialog.set(session.userData.userId, JSON.stringify(global.dialogs));
+        preventDialog.set(session.userData.userId, JSON.stringify(global.dialogs[global.flow_id]));
         preventAddress.set(session.message.address.conversation.id, session.message.address);
         if (!preventMessage.has(session.userData.userId)) {
             var new_message = [];
@@ -1643,9 +1704,9 @@ function ReplaceMessage(target, locale) {
         } else if (target.substr(index, 1) == '}') {
             end = index;
             var message_id = target.substr(start + 1, end - start - 1);
-            if (global.locales[locale][message_id]) {
-                logger.debug('Replace {' + message_id + '} to ' + global.locales[locale][message_id]);
-                target = target.replace('{' + message_id + '}', global.locales[locale][message_id]);
+            if (global.locales[global.flow_id][locale][message_id]) {
+                logger.debug('Replace {' + message_id + '} to ' + global.locales[global.flow_id][locale][message_id]);
+                target = target.replace('{' + message_id + '}', global.locales[global.flow_id][locale][message_id]);
                 start = -1;
                 end = -1;
                 index = 0;  // 因為 Replace 後 target 的長度會改變，所以重頭再掃一遍
@@ -1733,8 +1794,8 @@ bot.dialog('/flow', [
             args.form['conversation_Id'] = session.message.address.conversation.id;
             args.form['dialog_Id'] = session.conversationData.index;
             args.form['user_Id'] = session.userData.userId;
-            for (var idx = 0; idx < global.variables.length; idx++) {
-                args.form[global.variables[idx].name] = global.variables[idx].content;
+            for (var idx = 0; idx < global.variables[global.flow_id].length; idx++) {
+                args.form[global.variables[global.flow_id][idx].name] = global.variables[global.flow_id][idx].content;
             }
         }
         session.conversationData.form = args ? args.form : {};
@@ -2303,18 +2364,18 @@ bot.dialog('/flow', [
                 if (dialog.next < 0) session.conversationData.index = dialog.next;
                 else session.conversationData.index = dialog.next_id;
             } else if (dialog.type == 'choice') {
-				/**
-				var exist = false;
-				for (var choice = 0; choice < dialog.prompt.attachments[0].content.buttons.length; choice++) {
-					if (dialog.prompt.attachments[0].content.buttons[choice].value == results.response.entity) {
-						session.conversationData.index = dialog.prompt.attachments[0].content.buttons[choice].dialog_id;
-						exist = true;
-						break;
-					}
-				}
-				if (!exist) {
-					session.conversationData.index++;
-				}
+                /**
+                var exist = false;
+                for (var choice = 0; choice < dialog.prompt.attachments[0].content.buttons.length; choice++) {
+                    if (dialog.prompt.attachments[0].content.buttons[choice].value == results.response.entity) {
+                        session.conversationData.index = dialog.prompt.attachments[0].content.buttons[choice].dialog_id;
+                        exist = true;
+                        break;
+                    }
+                }
+                if (!exist) {
+                    session.conversationData.index++;
+                }
                 **/
                 var dialog_id_choice;
                 if (dialog.prompt.attachments[0].content.buttons[results.response.index].dialog_id < 0) {

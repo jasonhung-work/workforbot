@@ -1,1 +1,69 @@
-[{"dialog_id":"0","type":"choice","field":"","prompt":{"attachments":[{"contentType":"application/vnd.microsoft.card.hero","content":{"title":"中國信託 line 個人化服務","subtitle":"請點擊以下按鈕","buttons":[{"type":"url","title":"首次設定","value":"Button","dialog_id":"-4","url":"https://workforbot.azurewebsites.net/pages/login"},{"title":"帳務查詢","dialog_id":"-4","value":"price search","type":"postback"},{"title":"點數查詢","dialog_id":"-4","value":"point search","type":"postback"}],"images":[{"url":"http://www.elidot.com.tw/wp-content/uploads/1-1.jpg"}]}}]},"dialog_uuid":"3a290f32-0bff-d578-099b-9f08cc2696b1","description":"個人化服務","next":"0","next_id":"0","used":"false"},{"dialog_id":"1","type":"text","prompt":"登入成功，幫您轉接學校:%school%,姓名:%name%","dialog_uuid":"8e7446dd-78dc-1217-60d7-068ff5d7e200","field":"","description":"登入成功","next":"-3","skill":"DEFAULT","used":"false"},{"dialog_id":"2","type":"text","prompt":"登入失敗，系統即將結束","dialog_uuid":"d8ccc1d2-87b2-6a2d-1ce6-2309a6e361f7","field":"","description":"登入失敗","next":"-2"}]
+[
+    {
+        "dialog_id": "0",
+        "type": "choice",
+        "field": "",
+        "prompt": {
+            "attachments": [
+                {
+                    "contentType": "application/vnd.microsoft.card.hero",
+                    "content": {
+                        "title": "中國信託 line 個人化服務",
+                        "subtitle": "請點擊以下按鈕",
+                        "buttons": [
+                            {
+                                "type": "url",
+                                "title": "首次設定",
+                                "value": "Button",
+                                "dialog_id": "-4",
+                                "url": "https://workforbot.azurewebsites.net/pages/login"
+                            },
+                            {
+                                "title": "帳務查詢",
+                                "dialog_id": "-4",
+                                "value": "price search",
+                                "type": "postback"
+                            },
+                            {
+                                "title": "點數查詢",
+                                "dialog_id": "-4",
+                                "value": "point search",
+                                "type": "postback"
+                            }
+                        ],
+                        "images": [
+                            {
+                                "url": "http://www.elidot.com.tw/wp-content/uploads/1-1.jpg"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "dialog_uuid": "3a290f32-0bff-d578-099b-9f08cc2696b1",
+        "description": "個人化服務",
+        "next": "0",
+        "next_id": "0",
+        "used": "false"
+    },
+    {
+        "dialog_id": "1",
+        "type": "text",
+        "prompt": "登入成功，幫您轉接學校:%school%,姓名:%name%",
+        "dialog_uuid": "8e7446dd-78dc-1217-60d7-068ff5d7e200",
+        "field": "",
+        "description": "登入成功",
+        "next": "-3",
+        "skill": "DEFAULT",
+        "used": "false"
+    },
+    {
+        "dialog_id": "2",
+        "type": "text",
+        "prompt": "登入失敗，系統即將結束",
+        "dialog_uuid": "d8ccc1d2-87b2-6a2d-1ce6-2309a6e361f7",
+        "field": "",
+        "description": "登入失敗",
+        "next": "-2"
+    }
+]
