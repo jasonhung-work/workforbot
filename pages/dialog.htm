@@ -597,10 +597,12 @@
                 $('#TxtNext option[value="-2"]').remove();
                 $('#TxtNext option[value="-3"]').remove();
                 $('#TxtNext option[value="-4"]').remove();
+                $('#TxtNext option[value="-5"]').remove();
                 if ($(this).attr('Mode') == 'EDIT') {
                     $('#TxtNext').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
                     $('#TxtNext').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
                     $('#TxtNext').prepend('<option value="-4" class="text-primary">#系統 等待回復</option>');
+                    $('#TxtNext').prepend('<option value="-5" class="text-primary">#系統 返回上一個對話流程</option>');
                     $('#ModalTitle').text('對話框修改');
                     $('#TxtDialogID').prop('disabled', false);
                     $('#TxtDialogID').val($(this).attr('DialogID'));
@@ -738,6 +740,7 @@
                     $('#TxtNext').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
                     $('#TxtNext').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
                     $('#TxtNext').prepend('<option value="-4" class="text-primary">#系統 等待回復</option>');
+                    $('#TxtNext').prepend('<option value="-5" class="text-primary">#系統 返回上一個對話流程</option>');
                     var TxtNextIndex = $("#TxtNext").children("option").length;
                     if (TxtNextIndex < 3) {
                         $("#TxtNext")[0].selectedIndex = 0;
@@ -1033,12 +1036,15 @@
                     $('#TemplateButton').find('[name="DialogID"]').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
                     $('#TemplateButton').find('[name="DialogID"]').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
                     $('#TemplateButton').find('[name="DialogID"]').prepend('<option value="-4" class="text-primary">#系統 等待回復</option>');
+                    $('#TemplateButton').find('[name="DialogID"]').prepend('<option value="-5" class="text-primary">#系統 返回上一個對話流程</option>');
                     $('#DivCondition').find('[name="SuccessDialog"]').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
                     $('#DivCondition').find('[name="SuccessDialog"]').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
                     $('#DivCondition').find('[name="SuccessDialog"]').prepend('<option value="-4" class="text-primary">#系統 等待回復</option>');
+                    $('#DivCondition').find('[name="SuccessDialog"]').prepend('<option value="-5" class="text-primary">#系統 返回上一個對話流程</option>');
                     $('#DivCondition').find('[name="FailDialog"]').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
                     $('#DivCondition').find('[name="FailDialog"]').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
                     $('#DivCondition').find('[name="FailDialog"]').prepend('<option value="-4" class="text-primary">#系統 等待回復</option>');
+                    $('#DivCondition').find('[name="FailDialog"]').prepend('<option value="-5" class="text-primary">#系統 返回上一個對話流程</option>');
                     $('#TxtNext').empty();
                     for (var index = 0; index < Dialogs.length; index++) {
                         $('#TemplateButton').find('[name="DialogID"]').append('<option value="' + Dialogs[index].dialog_uuid + '">#' + Dialogs[index].dialog_id + ' ' + Dialogs[index].description + '</option>');
@@ -1181,8 +1187,8 @@
                                     )
                                     .append(
                                         $(document.createElement('td'))
-                                            .append((Dialogs[index].next_id == 0 && Dialogs[index].next != -2 && Dialogs[index].next != -3 && Dialogs[index].next != -4) ? '' : $(document.createElement('button'))
-                                                .text(Dialogs[index].next == -2 ? '結束' : (Dialogs[index].next == -3 ? '客服' : (Dialogs[index].next == -4 ? '等待回復' : (Dialogs[index].next_id == 0 ? '0' : Dialogs[index].next_id))))
+                                            .append((Dialogs[index].next_id == 0 && Dialogs[index].next > 0) ? '' : $(document.createElement('button'))
+                                                .text(Dialogs[index].next == -2 ? '結束' : (Dialogs[index].next == -3 ? '客服' : (Dialogs[index].next == -4 ? '等待回復' : (Dialogs[index].next == -5 ? '返回上一個對話流程' : (Dialogs[index].next_id == 0 ? '0' : Dialogs[index].next_id)))))
                                                 .addClass(Dialogs[index].next < 0 ? 'btn btn-success' : 'btn')
                                                 .click(function () {
                                                     location.href = '#' + $(this).text();
@@ -2319,6 +2325,8 @@
                 return "客服專線";
             } else if (DialogID == -4) {
                 return "等待回復";
+            } else if (DialogID == -5) {
+                return "返回上一個對話流程";
             } else {
                 for (var idx = 0; idx < Dialogs.length; idx++) {
                     if (Dialogs[idx].dialog_uuid == DialogID) {

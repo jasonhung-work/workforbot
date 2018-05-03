@@ -83,6 +83,7 @@ app.post('/flow', function (request, response) {
     request.header('Content-Type', 'application/json');
     var flow = request.body.flow;
     if (flow.active == 'true') {
+        global.flow_id = flow.flow_id;
         for (var index = 0; index < flows.length; index++) {
             flows[index].active = 'false';
         }
@@ -104,6 +105,7 @@ app.put('/flow/:flow_id', function (request, response) {
     var flow_id = request.params.flow_id;
     var flow = request.body.flow;
     if (flow.active == 'true') {
+        global.flow_id = flow.flow_id;
         for (var index = 0; index < flows.length; index++) {
             flows[index].active = 'false';
         }
@@ -311,6 +313,7 @@ app.post('/dialog/:flow_id', function (request, response) {
         dialogs.push(dialog);
         if (flow.active == 'true') {
             global.dialogs[flow.flow_id] = dialogs;
+            global.flow_id = flow.flow_id;
         }
         require('fs').writeFile(__dirname + '/flow/' + flow.flow_id + '/dialog.json', JSON.stringify(dialogs), function (err) {
             this.res.write(JSON.stringify({ success: true }));
@@ -451,7 +454,6 @@ app.put('/variables/:flow_id', function (request, response) {
     if (flow) {
         if (flow.active == 'true') {
             global.variables[flow.flow_id] = variables;
-            global.flow_id = flow.flow_id;
         }
         require('fs').writeFile(__dirname + '/flow/' + flow.flow_id + '/variable.json', JSON.stringify(variables), function (err) {
             this.res.write(JSON.stringify({ success: true }));
@@ -866,6 +868,7 @@ app.get('/pages/login', function (request, response) {
 global.dialogs = [], global.variables = [], global.locales = [], global.flow_id = -1;
 for (var index = 0; index < flows.length; index++) {
     if (flows[index].active == 'true') {
+        global.flow_id = flows[index].flow_id;
         LoadFlow(flows[index]);
         break;
     }
@@ -1633,6 +1636,8 @@ bot.dialog('/',
         session.userData.locale = 'tw';
         session.userData.status = undefined;
         session.userData._updateTime = undefined;
+        session.userData.flow_id = [];
+        session.userData.push(global.flow_id);
         session.userData.channelId = session.message.address.channelId;
         if (session.message.address.channelId == 'directline') {
             session.userData.snapin_name = session.message.user.snapin_name;
@@ -1718,6 +1723,7 @@ function ReplaceMessage(target, locale) {
 
 bot.dialog('/flow', [
     function (session, args) {
+        session.userData.pre_flow_id = session.userData.flow_id[session.userData.flow_id.length - 1];
         var userDialog = JSON.parse(preventDialog.get(session.userData.userId));
         var userConversationMessage = preventMessage.get(session.userData.userId);
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
@@ -2122,6 +2128,11 @@ bot.dialog('/flow', [
                     logger.info('REQUEST END');
                     try {
                         var result = res.body;
+                        var msg = getAPIResult(result, session);
+                        if(msg) session.send(msg);
+                        /**
+                         * 在此放讀json格式的function
+                         */
                         this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = result;
                     } catch (e) {
                         logger.error(e);
@@ -2453,8 +2464,8 @@ bot.dialog('/transfer', function (session) {
     session.userData._updateTime = new Date();
     if (session.userData.status == undefined) {
         session.userData.status = 'register';
-        session.send(locales[session.userData.locale]['menu_transfer']);
-        userConversationMessage.push({ type: 'message', acct: 'flowbot', message: locales[session.userData.locale]['menu_transfer'] });
+        session.send(locales[session.userData.pre_flow_id][session.userData.locale]['menu_transfer']);
+        userConversationMessage.push({ type: 'message', acct: 'flowbot', message: locales[session.userData.pre_flow_id][session.userData.locale]['menu_transfer'] });
         preventMessage.set(session.userData.userId, userConversationMessage);
         var snapin = snapins.get(session.userData.snapin_name);
         var queue = snapin_queue.get(session.userData.snapin_name);
@@ -2628,8 +2639,8 @@ bot.dialog('/transfer', function (session) {
 
 bot.dialog('/end', function (session) {
     var userConversationMessage = preventMessage.get(session.userData.userId);
-    session.send(locales[session.userData.locale]['finished']);
-    userConversationMessage.push({ type: 'message', acct: 'flowbot', message: locales[session.userData.locale]['finished'] });
+    session.send(locales[session.userData.pre_flow_id][session.userData.locale]['finished']);
+    userConversationMessage.push({ type: 'message', acct: 'flowbot', message: locales[session.userData.pre_flow_id][session.userData.locale]['finished'] });
     preventMessage.set(session.userData.userId, userConversationMessage);
     // 20170321 告知 Social Gateway
     if (session.message.address.channelId == 'directline') {
@@ -2787,6 +2798,60 @@ function get_picture(url, message, attachment, callback) {
             logger.info("Get_Image_Error: " + e);
         });
         req.end();
+    }
+}
+
+function getAPIResult(result, session) {
+    try {
+        result = JSON.parse(result);
+    } catch (e) {
+        logger.info("API result is not JSON type.");
+        return false;
+    }
+    if (result["type"] != undefined && result["content"] != undefined) {
+        switch (result["type"]) {
+            case "text":
+                return result["content"][text];
+                break;
+            case "image":
+                var msg = new builder.Message(session)
+                    .addAttachment({
+                        content: result["content"]["description"],
+                        contentUrl: result["content"]["url"],
+                        contentType: 'image/png',
+                    });
+                return msg;
+                break;
+            case "page":
+                var card = new builder.HeroCard(session)
+                    .text('請問您要前往' + result["content"]["title"] + "嗎?")
+                    .buttons([
+                        builder.CardAction.openUrl(session, result["content"]["url"], result["content"]["title"]),
+                    ]);
+                return card;
+                break;
+            case "webapi":
+                /**
+                 * 待討論
+                 */
+                break;
+            case "flow":
+                session.userData.locale = 'tw';
+                session.userData.status = undefined;
+                session.userData._updateTime = undefined;
+                session.userData.flow_id.push(result["content"]["flowID"]);
+                preventDialog.set(session.userData.userId, JSON.stringify(global.dialogs[result["content"]["flowID"]]));
+                session.beginDialog('/flow');
+                return false;
+                break;
+            default:
+                logger.info("API result's attribute 'type' is not defined or API result is not our JSON type");
+                return false;
+                break;
+        }
+    } else {
+        logger.info("API result is not our JSON type.");
+        return false;
     }
 }
 
