@@ -442,7 +442,7 @@ app.get('/variables/:flow_id', function (request, response) {
 });
 app.put('/variables/:flow_id', function (request, response) {
     request.header('Content-Type', 'application/json');
-    variables = request.body.variables;
+    var variables = request.body.variables;
     var flow_id = request.params.flow_id;
     var flow;
     for (var index = 0; index < flows.length; index++) {
