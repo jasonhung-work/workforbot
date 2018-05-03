@@ -189,7 +189,7 @@
                                                 $(document.createElement('button'))
                                                     .attr('title', '刪除')
                                                     .attr('FlowID', Flows[index].flow_id)
-                                                    .addClass('btn btn-warning btn-circle')
+                                                    .addClass('btn btn-danger btn-circle')
                                                     .addClass(Flows[index].active == 'true' ? 'hidden' : '')
                                                     .append(
                                                         $(document.createElement('i'))
@@ -276,7 +276,7 @@
                                             .append(
                                                 $(document.createElement('button'))
                                                     .attr('title', '下載')
-                                                    .addClass('btn btn-danger btn-circle')
+                                                    .addClass('btn btn-warning btn-circle')
                                                     .attr({
                                                         FlowID: Flows[index].flow_id
                                                     })
