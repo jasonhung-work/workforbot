@@ -222,9 +222,9 @@ app.get('/locales/:flow_id', function (request, response) {
 app.put('/locale/:locale/:flow_id', function (request, response) {
     request.header('Content-Type', 'application/json');
     var locale = request.params.locale;
-    var message = request.body.message;
+    var message = JSON.parse(request.body.message);
+    if (message == undefined) message = {};
     locales[locale] = message;
-
     var flow_id = request.params.flow_id;
     var flow;
     for (var index = 0; index < flows.length; index++) {
@@ -234,9 +234,7 @@ app.put('/locale/:locale/:flow_id', function (request, response) {
         }
     }
     if (flow) {
-        if (flow.active == 'true') {
-            global.locales[flow.flow_id] = locales;
-        }
+        global.locales[flow.flow_id] = locales;
         require('fs').writeFile(__dirname + '/flow/' + flow.flow_id + '/locale/' + locale + '/index.json', JSON.stringify(message), function (err) {
             this.res.write(JSON.stringify({ success: true }));
             this.res.end();
@@ -311,8 +309,8 @@ app.post('/dialog/:flow_id', function (request, response) {
         dialogs = require('fs').readFileSync(__dirname + '/flow/' + flow.flow_id + '/dialog.json');
         dialogs = JSON.parse(dialogs);
         dialogs.push(dialog);
+        global.dialogs[flow.flow_id] = dialogs;
         if (flow.active == 'true') {
-            global.dialogs[flow.flow_id] = dialogs;
             global.flow_id = flow.flow_id;
         }
         require('fs').writeFile(__dirname + '/flow/' + flow.flow_id + '/dialog.json', JSON.stringify(dialogs), function (err) {
@@ -342,8 +340,10 @@ app.put('/dialog/:dialog_id/:flow_id', function (request, response) {
         } else {
             dialogs[request.params.dialog_id] = dialog;
         }
+        console.log(global.dialogs[flow.flow_id]);
+        console.log(flow.active);
+        global.dialogs[flow.flow_id] = dialogs;
         if (flow.active == 'true') {
-            global.dialogs[flow.flow_id] = dialogs;
             global.flow_id = flow.flow_id;
         }
         require('fs').writeFile(__dirname + '/flow/' + flow.flow_id + '/dialog.json', JSON.stringify(dialogs), function (err) {
@@ -400,8 +400,8 @@ app.delete('/dialog/:dialog_id/:flow_id', function (request, response) {
                 }
             }
         }
+        global.dialogs[flow.flow_id] = dialogs;
         if (flow.active == 'true') {
-            global.dialogs[flow.flow_id] = dialogs;
             global.flow_id = flow.flow_id;
         }
         require('fs').writeFile(__dirname + '/flow/' + flow.flow_id + '/dialog.json', JSON.stringify(dialogs), function (err) {
@@ -452,9 +452,7 @@ app.put('/variables/:flow_id', function (request, response) {
         }
     }
     if (flow) {
-        if (flow.active == 'true') {
-            global.variables[flow.flow_id] = variables;
-        }
+        global.variables[flow.flow_id] = variables;
         require('fs').writeFile(__dirname + '/flow/' + flow.flow_id + '/variable.json', JSON.stringify(variables), function (err) {
             this.res.write(JSON.stringify({ success: true }));
             this.res.end();
@@ -466,6 +464,7 @@ app.post('/flow_bot', function (request, response) {
     console.log(request.body);
     var conversation_id = request.body.conversation_id;
     var dialog_id = request.body.dialog_id;
+    var flow_id = request.body.flow_id;
     var _Variables = request.body.variables;
     try {
         _Variables = JSON.parse(request.body.variables);
@@ -480,6 +479,10 @@ app.post('/flow_bot', function (request, response) {
         response.status(400).send({ error: 'No dialog_id' });
         response.end();
     }
+    else if (flow_id == undefined) {
+        response.status(400).send({ error: 'No flow_id' });
+        response.end();
+    }
     else if (preventAddress.has(conversation_id)) {
         var userId, Dialog_length;
         var address = preventAddress.get(conversation_id);
@@ -487,8 +490,8 @@ app.post('/flow_bot', function (request, response) {
             for (var K in _Variables) {
                 console.log("k:" + K + ", value:" + _Variables[K]);
                 for (var N in global.variables) {
-                    if (global.variables[N].name == K) {
-                        global.variables[N].content = _Variables[K];
+                    if (global.variables[flow_id][N].name == K) {
+                        global.variables[flow_id][N].content = _Variables[K];
                         break;
                     }
                 }
@@ -739,7 +742,7 @@ app.get('/pages/flows', function (request, response) {
             protocol = 'https://';
         }
         data = data +
-            '<script type="text/javascript"> var ServiceUrl = "' + protocol + host + '"; </script>';
+        '<script type="text/javascript"> var ServiceUrl = "' + protocol + host + '"; </script>';
         this.res.send(data);
     }.bind({ req: request, res: response }));
 });
@@ -767,11 +770,11 @@ app.get('/pages/flow/:flow_id', function (request, response) {
                 protocol = 'https://';
             }
             data = data +
-                '<script type="text/javascript"> var ServiceUrl = "' + protocol + host + '"; </script>';
+            '<script type="text/javascript"> var ServiceUrl = "' + protocol + host + '"; </script>';
             data = data +
-                '<script type="text/javascript"> var FlowID = "' + this.flow.flow_id + '"; </script>';
+            '<script type="text/javascript"> var FlowID = "' + this.flow.flow_id + '"; </script>';
             data = data +
-                '<script type="text/javascript"> var FlowDescription = "' + this.flow.flow_id + '"; </script>';
+            '<script type="text/javascript"> var FlowDescription = "' + this.flow.flow_id + '"; </script>';
             this.res.send(data);
         }.bind({ req: request, res: response, flow: flow }));
     }
@@ -802,7 +805,7 @@ app.get('/pages/sessions', function (request, response) {
             protocol = 'https://';
         }
         data = data +
-            '<script type="text/javascript"> var ServiceUrl = "' + protocol + host + '"; </script>';
+        '<script type="text/javascript"> var ServiceUrl = "' + protocol + host + '"; </script>';
         this.res.send(data);
     }.bind({ req: request, res: response }));
 });
@@ -830,11 +833,11 @@ app.get("/pages/flow/flowchart/:flow_id", function (request, response) {
                 protocol = 'https://';
             }
             data = data +
-                '<script type="text/javascript"> var ServiceUrl = "' + protocol + host + '"; </script>';
+            '<script type="text/javascript"> var ServiceUrl = "' + protocol + host + '"; </script>';
             data = data +
-                '<script type="text/javascript"> var FlowID = "' + this.flow.flow_id + '"; </script>';
+            '<script type="text/javascript"> var FlowID = "' + this.flow.flow_id + '"; </script>';
             data = data +
-                '<script type="text/javascript"> var FlowDescription = "' + this.flow.flow_id + '"; </script>';
+            '<script type="text/javascript"> var FlowDescription = "' + this.flow.flow_id + '"; </script>';
             this.res.send(data);
         }.bind({ req: request, res: response, flow: flow }));
     }
@@ -856,7 +859,7 @@ app.get('/pages/login', function (request, response) {
             protocol = 'https://';
         }
         data = data +
-            '<script type="text/javascript"> var conversation_id = "' + conversation_id + '"; var dialog_id = "' + dialog_id + '" </script>';
+        '<script type="text/javascript"> var conversation_id = "' + conversation_id + '"; var dialog_id = "' + dialog_id + '" </script>';
         this.res.send(data);
     }.bind({ req: request, res: response }));
 });
@@ -875,40 +878,40 @@ for (var index = 0; index < flows.length; index++) {
 }
 
 function LoadFlow(flow) {
-    if (global.dialog == []) {
-        var files = fs.readdirSync(__dirname + '/flow');//读取该文件夹
+    if (global.dialogs == "") {
+        var files = require('fs').readdirSync(__dirname + '/flow');//读取该文件夹
         files.forEach(function (file) {
-            var stats = fs.statSync(fileUrl + '/' + file);
+            var stats = require('fs').statSync(__dirname + '/flow/' + file);
             if (stats.isDirectory()) {
                 require('fs').readFile(__dirname + '/flow/' + file + '/dialog.json', 'utf8', function (err, text) {
                     try {
-                        global.dialogs[this.file] = {};
-                        global.dialogs[this.file] = text;
-                        global.dialogs[this.file] = JSON.parse(global.dialogs[this.file]);
-                    } catch (e) { return logger.error(err); }
+                        global.dialogs[file] = {};
+                        global.dialogs[file] = text;
+                        global.dialogs[file] = JSON.parse(global.dialogs[file]);
+                    } catch (e) { return logger.error(e); }
                 });
             }
         });
     }
-    if (global.variables == []) {
-        var files = fs.readdirSync(__dirname + '/flow');//读取该文件夹
+    if (global.variables == "") {
+        var files = require('fs').readdirSync(__dirname + '/flow');//读取该文件夹
         files.forEach(function (file) {
-            var stats = fs.statSync(fileUrl + '/' + file);
+            var stats = require('fs').statSync(__dirname + '/flow/' + file);
             if (stats.isDirectory()) {
                 require('fs').readFile(__dirname + '/flow/' + file + '/variable.json', 'utf8', function (err, text) {
                     try {
-                        global.variables[this.file] = {};
-                        global.variables[this.file] = text;
-                        global.variables[this.file] = JSON.parse(global.variables[this.file]);
-                    } catch (e) { return logger.error(err); }
+                        global.variables[file] = {};
+                        global.variables[file] = text;
+                        global.variables[file] = JSON.parse(global.variables[file]);
+                    } catch (e) { return logger.error(e); }
                 });
             }
         });
     }
-    if (global.locales == []) {
-        var files = fs.readdirSync(__dirname + '/flow');//读取该文件夹
+    if (global.locales == "") {
+        var files = require('fs').readdirSync(__dirname + '/flow');//读取该文件夹
         files.forEach(function (file) {
-            var stats = fs.statSync(fileUrl + '/' + file);
+            var stats = require('fs').statSync(__dirname + '/flow/' + file);
             if (stats.isDirectory()) {
                 require('fs').readdir(__dirname + '/flow/' + file + '/locale', function (err, locales) {
                     if (err) {
@@ -922,8 +925,11 @@ function LoadFlow(flow) {
                             if (stat.isDirectory()) {
                                 require('fs').readFile(__dirname + '/flow/' + this.flow_id + '/locale/' + locale + '/index.json', 'utf8', function (err, text) {
                                     try {
-                                        global.locales[this.flow_id][this.locale] = JSON.parse(text);
-                                    } catch (e) { return logger.error(err); }
+                                        global.locales[this.flow_id] = [];
+                                        global.locales[this.flow_id][this.locale] = {};
+                                        global.locales[this.flow_id][this.locale] = text;
+                                        global.locales[this.flow_id][this.locale] = JSON.parse(global.locales[this.flow_id][this.locale]);
+                                    } catch (e) { return logger.error(e); }
                                 }.bind({ locale: locale, flow_id: this.flow_id }));
                             }
                         }.bind({ flow_id: this.flow_id }));
@@ -1261,9 +1267,9 @@ app.put('/api/resource/:acct/:token', function (req, res) {
                 logger.info('resource.Content ' + resource.Content);
                 msg = new builder.Message(session)
                     .attachments([{
-                        contentType: 'audio/wav',
-                        contentUrl: resource.Content
-                    }]);
+                    contentType: 'audio/wav',
+                    contentUrl: resource.Content
+                }]);
             }
             if (resource.Type == 'URL') {
                 logger.info('resource.Content ' + resource.Content);
@@ -1508,17 +1514,17 @@ function RegisterSnapinEvent(client) {
                 logger.info('resource.Content ' + _resource.Content);
                 msg = new builder.Message(session)
                     .attachments([{
-                        contentType: 'image/jpeg',
-                        contentUrl: _resource.Content
-                    }]);
+                    contentType: 'image/jpeg',
+                    contentUrl: _resource.Content
+                }]);
             }
             if (_resource.Type == 'Audio') {
                 logger.info('resource.Content ' + _resource.Content);
                 msg = new builder.Message(session)
                     .attachments([{
-                        contentType: 'audio/wav',
-                        contentUrl: _resource.Content
-                    }]);
+                    contentType: 'audio/wav',
+                    contentUrl: _resource.Content
+                }]);
             }
             if (_resource.Type == 'URL') {
                 logger.info('resource.Content ' + _resource.Content);
@@ -1615,6 +1621,16 @@ var preventDialog = new Map();
 var preventMessage = new Map();
 var preventAddress = new Map();
 
+bot.on('conversationUpdate', function (message) {
+    console.log(message);
+    if (message.membersAdded && message.membersAdded.length > 0) {
+        console.log(config.channel_flow[message.address.channelId]);
+        if (config.channel_flow[message.address.channelId] != undefined) {
+            global.flow_id = config.channel_flow[message.address.channelId];
+        }
+    }
+});
+
 bot.dialog('/',
     function (session) {
         /*  這邊是用來查看session裡預設是什麼
@@ -1632,12 +1648,15 @@ bot.dialog('/',
         logger.info('session:' + JSON.stringify(session, replacer)); 
         session.userData.dialogs = JSON.parse(JSON.stringify(global.dialogs)); 
         */
+        if (config.channel_flow[session.message.address.channelId] != undefined) {
+            global.flow_id = config.channel_flow[session.message.address.channelId];
+        }
         session.userData = {};  // 若要保留上次的內容，可註解掉這一行
         session.userData.locale = 'tw';
         session.userData.status = undefined;
         session.userData._updateTime = undefined;
         session.userData.flow_id = [];
-        session.userData.push(global.flow_id);
+        session.userData.flow_id.push(global.flow_id);
         session.userData.channelId = session.message.address.channelId;
         if (session.message.address.channelId == 'directline') {
             session.userData.snapin_name = session.message.user.snapin_name;
@@ -1666,7 +1685,7 @@ bot.dialog('/',
         }
         session.beginDialog('/flow');
     }
-);
+    );
 
 function ReplaceVariable(target, conversationData) {
     var start = -1;
@@ -1727,6 +1746,7 @@ bot.dialog('/flow', [
         var userDialog = JSON.parse(preventDialog.get(session.userData.userId));
         var userConversationMessage = preventMessage.get(session.userData.userId);
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+        logger.info('Dialogs: ' + JSON.stringify(userDialog));
         logger.info('session conversationData: ' + JSON.stringify(session.conversationData));
         logger.info('session conversationData.Message: ' + JSON.stringify(userConversationMessage));
         logger.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
@@ -1796,7 +1816,7 @@ bot.dialog('/flow', [
 
         if (args == undefined || args.form == undefined) {
             args = {},
-                args.form = {};
+            args.form = {};
             args.form['conversation_Id'] = session.message.address.conversation.id;
             args.form['dialog_Id'] = session.conversationData.index;
             args.form['user_Id'] = session.userData.userId;
@@ -1917,19 +1937,15 @@ bot.dialog('/flow', [
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
             logger.info('index: ' + session.conversationData.index);
-            if (redirect_dialog(session) == 'endDialog') {
+            var redirect = redirect_dialog(session);
+            if (redirect == 'endDialog') {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
                 }
             } else {
-                session.replaceDialog(redirect_dialog(session), session.conversationData);
+                session.replaceDialog(redirect, session.conversationData);
             }
-        } else if (dialog.type == 'image') {
-            session.conversationData.image_type = dialog.prompt.attachments[0].data;
-            builder.Prompts.attachment(session, dialog.prompt.attachments[0].content);
-            userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
-            preventMessage.set(session.userData.userId, userConversationMessage);
         } else if (dialog.type == 'card') {
             session.send(dialog.prompt);
             userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
@@ -1938,42 +1954,56 @@ bot.dialog('/flow', [
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
             logger.info('index: ' + session.conversationData.index);
-            if (redirect_dialog(session) == 'endDialog') {
+            var redirect = redirect_dialog(session);
+            if (redirect == 'endDialog') {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
                 }
             } else {
-                session.replaceDialog(redirect_dialog(session), session.conversationData);
+                session.replaceDialog(redirect, session.conversationData);
             }
         } else if (dialog.type == 'input') {
             try {
-                dialog.prompt = JSON.parse(dialog.prompt);  // QnAMaker
+                dialog.prompt.attachments[0].content = JSON.parse(dialog.prompt.attachments[0].content);  // QnAMaker
+                console.log("input dialog: " + JSON.stringify(dialog));
             } catch (e) {
                 // logger.error(e);
             }
-            logger.info('dialog.prompt: ' + JSON.stringify(dialog.prompt));
-            if (typeof (dialog.prompt) == 'object') {
-                for (var idx = 0; idx < dialog.prompt.length; idx++) {
-                    var answer = dialog.prompt[idx];
-                    if (answer.type == 'text') {
-                        builder.Prompts.text(session, answer.message);
-                    } else if (answer.type == 'choice') {
-                        var IIsMessage = [];
-                        for (var index = 0; index < answer.prompt.attachments[0].content.buttons.length; index++) {
-                            IIsMessage.push(answer.prompt.attachments[0].content.buttons[index].value);
+            if (dialog.prompt.attachments[0].type == 'text') {
+                session.conversationData.input_type = 'text';
+                logger.info('dialog.prompt: ' + JSON.stringify(dialog.prompt.attachments[0].content));
+                if (typeof (dialog.prompt.attachments[0].content) == 'object') {
+                    for (var idx = 0; idx < dialog.prompt.attachments[0].content.length; idx++) {
+                        var answer = dialog.prompt.attachments[0].content[idx];
+                        if (answer.type == 'text') {
+                            builder.Prompts.text(session, answer.message);
+                        } else if (answer.type == 'choice') {
+                            var IIsMessage = [];
+                            for (var index = 0; index < answer.prompt.attachments[0].content.buttons.length; index++) {
+                                IIsMessage.push(answer.prompt.attachments[0].content.buttons[index].value);
+                            }
+                            logger.info('builder.Prompts.choice: ' + JSON.stringify(answer));
+                            builder.Prompts.choice(session, answer.prompt, IIsMessage.join('|'));
+                            userConversationMessage.push({ type: 'message', acct: 'flowbot', message: answer.prompt });
+                            preventMessage.set(session.userData.userId, userConversationMessage);
                         }
-                        logger.info('builder.Prompts.choice: ' + JSON.stringify(answer));
-                        builder.Prompts.choice(session, answer.prompt, IIsMessage.join('|'));
-                        userConversationMessage.push({ type: 'message', acct: 'flowbot', message: answer.prompt });
-                        preventMessage.set(session.userData.userId, userConversationMessage);
                     }
+                } else {
+                    builder.Prompts.text(session, dialog.prompt.attachments[0].content);
+                    userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt.attachments[0].content });
+                    preventMessage.set(session.userData.userId, userConversationMessage);
                 }
-            } else {
-                builder.Prompts.text(session, dialog.prompt);
+            } else if (dialog.prompt.attachments[0].type == 'image') {
+                session.conversationData.input_type = 'image';
+                session.conversationData.image_type = dialog.prompt.attachments[0].data;
+                builder.Prompts.attachment(session, dialog.prompt.attachments[0].content);
                 userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
                 preventMessage.set(session.userData.userId, userConversationMessage);
             }
+
+        } else if (dialog.type == 'hanfei') {
+            session.replaceDialog('/hanfei');
         } else if (dialog.type == 'choice') {
             var IIsMessage = [];
             for (var index = 0; index < dialog.prompt.attachments[0].content.buttons.length; index++) {
@@ -2053,13 +2083,14 @@ bot.dialog('/flow', [
                 }
                 session.conversationData.index = fail_dialog_id;
             }
-            if (redirect_dialog(session) == 'endDialog') {
+            var redirect = redirect_dialog(session);
+            if (redirect == 'endDialog') {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
                 }
             } else {
-                session.replaceDialog(redirect_dialog(session), session.conversationData);
+                session.replaceDialog(redirect, session.conversationData);
             }
         } else if (dialog.type == 'operate') {
             if (dialog.operate) {
@@ -2080,13 +2111,14 @@ bot.dialog('/flow', [
             // eval('session.conversationData.form["' + dialog.field + '"] = ' + dialog.operate);
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
-            if (redirect_dialog(session) == 'endDialog') {
+            var redirect = redirect_dialog(session);
+            if (redirect == 'endDialog') {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
                 }
             } else {
-                session.replaceDialog(redirect_dialog(session), session.conversationData);
+                session.replaceDialog(redirect, session.conversationData);
             }
         } else if (dialog.type == 'webapi') {
             var http;
@@ -2129,24 +2161,28 @@ bot.dialog('/flow', [
                     try {
                         var result = res.body;
                         var msg = getAPIResult(result, session);
-                        if (msg) session.send(msg);
+                        if (msg && msg != 'flow') session.send(msg);
+                        else if (msg == 'flow') return;
                         /**
                          * 在此放讀json格式的function
                          */
-                        this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = result;
+                        else {
+                            this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = result;
+                        }
                     } catch (e) {
                         logger.error(e);
                         this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
                     }
                     if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                     else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
-                    if (redirect_dialog(this.session) == 'endDialog') {
+                    var redirect = redirect_dialog(this.session);
+                    if (redirect == 'endDialog') {
                         this.session.endDialogWithResult({ response: this.session.conversationData.form });
                         if (this.session.message.address.channelId == 'directline') {
                             this.session.send('{ "action": "end_service" }');
                         }
                     } else {
-                        this.session.replaceDialog(redirect_dialog(this.session), this.session.conversationData);
+                        this.session.replaceDialog(redirect, this.session.conversationData);
                     }
                 }.bind({ session: this.session, userDialog: this.userDialog }));
             }.bind({ session: session, userDialog: userDialog }));
@@ -2155,13 +2191,14 @@ bot.dialog('/flow', [
                 this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
                 if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                 else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
-                if (redirect_dialog(this.session) == 'endDialog') {
+                var redirect = redirect_dialog(this.session);
+                if (redirect == 'endDialog') {
                     this.session.endDialogWithResult({ response: this.session.conversationData.form });
                     if (this.session.message.address.channelId == 'directline') {
                         this.session.send('{ "action": "end_service" }');
                     }
                 } else {
-                    this.session.replaceDialog(redirect_dialog(this.session), this.session.conversationData);
+                    this.session.replaceDialog(redirect, this.session.conversationData);
                 }
             }.bind({ session: session, userDialog: userDialog }));
             if (dialog.webapi.method == 'post' || dialog.webapi.method == 'put') {
@@ -2279,13 +2316,14 @@ bot.dialog('/flow', [
                             }
                             if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                             else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
-                            if (redirect_dialog(this.session) == 'endDialog') {
+                            var redirect = redirect_dialog(this.session);
+                            if (redirect == 'endDialog') {
                                 this.session.endDialogWithResult({ response: this.session.conversationData.form });
                                 if (this.session.message.address.channelId == 'directline') {
                                     this.session.send('{ "action": "end_service" }');
                                 }
                             } else {
-                                this.session.replaceDialog(redirect_dialog(this.session), this.session.conversationData);
+                                this.session.replaceDialog(redirect, this.session.conversationData);
                             }
                         }.bind({ session: this.session, dialog: this.dialog, userDialog: this.userDialog }));
                     }.bind({ session: this.session, dialog: this.dialog, userDialog: this.userDialog }));
@@ -2294,13 +2332,14 @@ bot.dialog('/flow', [
                         this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
                         if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                         else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
-                        if (redirect_dialog(this.session) == 'endDialog') {
+                        var redirect = redirect_dialog(this.session);
+                        if (redirect == 'endDialog') {
                             this.session.endDialogWithResult({ response: this.session.conversationData.form });
                             if (this.session.message.address.channelId == 'directline') {
                                 this.session.send('{ "action": "end_service" }');
                             }
                         } else {
-                            this.session.replaceDialog(redirect_dialog(this.session), this.session.conversationData);
+                            this.session.replaceDialog(redirect, this.session.conversationData);
                         }
                     }.bind({ session: this.session, userDialog: this.userDialog }));
                     req.write(JSON.stringify(this.dialog.qna_maker.body));
@@ -2315,13 +2354,14 @@ bot.dialog('/flow', [
                 this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
                 if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                 else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
-                if (redirect_dialog(this.session) == 'endDialog') {
+                var redirect = redirect_dialog(this.session);
+                if (redirect == 'endDialog') {
                     this.session.endDialogWithResult({ response: this.session.conversationData.form });
                     if (this.session.message.address.channelId == 'directline') {
                         this.session.send('{ "action": "end_service" }');
                     }
                 } else {
-                    this.session.replaceDialog(redirect_dialog(this.session), this.session.conversationData);
+                    this.session.replaceDialog(redirect, this.session.conversationData);
                 }
             }.bind({ session: session, userDialog: userDialog }));
             req.end();
@@ -2337,7 +2377,6 @@ bot.dialog('/flow', [
         logger.info('dialog type: ' + dialog.type);
         logger.info('index: ' + session.conversationData.index + ', field: ' + field + ', value: ' + results.response);
         if (results.response != undefined) {
-            console.log("results.response\n" + JSON.stringify(results.response));
             if (results.response == true || results.response == false) {
                 session.conversationData.form[field] = results.response;
                 logger.info('field value: ' + results.response);
@@ -2353,27 +2392,30 @@ bot.dialog('/flow', [
                 session.userData['locale'] = results.response.entity;
             }
             if (dialog.type == 'input') {
-                session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response;
-                // session.conversationData.index++;
-                if (dialog.next < 0) session.conversationData.index = dialog.next;
-                else session.conversationData.index = dialog.next_id;
-            } else if (dialog.type == 'image') {
-                if (session.conversationData.image_type == 'url')
-                    session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response[0].contentUrl;
-                else if (session.conversationData.image_type == 'base64') {
-                    for (var index = 0; index < session.message.attachments.length; index++) {
-                        var resource = {};
-                        if (session.message.attachments[index].contentType.indexOf('image') >= 0) {
-                            get_picture(results.response[0].contentUrl, session.message, session.message.attachments[index], function (image_file) {
-                                session.conversationData.form[userDialog[session.conversationData.index.field]] = image_file;
-                            });
+                console.log("input conversationData input_type: " + session.conversationData.input_type);
+                if (session.conversationData.input_type == 'text') {
+                    session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response;
+                    // session.conversationData.index++;
+                    if (dialog.next < 0) session.conversationData.index = dialog.next;
+                    else session.conversationData.index = dialog.next_id;
+                } else if (session.conversationData.input_type == 'image') {
+                    if (session.conversationData.image_type == 'url') {
+                        session.conversationData.form[userDialog[session.conversationData.index.field]] = results.response[0].contentUrl;
+                    } else if (session.conversationData.image_type == 'base64') {
+                        for (var index = 0; index < session.message.attachments.length; index++) {
+                            var resource = {};
+                            if (session.message.attachments[index].contentType.indexOf('image') >= 0) {
+                                get_picture(results.response[0].contentUrl, session.message, session.message.attachments[index], function (image_file) {
+                                    session.conversationData.form[userDialog[session.conversationData.index.field]] = image_file;
+                                });
+                            }
                         }
+                    } else {
+                        logger.info("不好意思，您沒有選擇要存入何種型態");
                     }
-                } else {
-                    logger.info("不好意思，您沒有選擇要存入何種型態");
+                    if (dialog.next < 0) session.conversationData.index = dialog.next;
+                    else session.conversationData.index = dialog.next_id;
                 }
-                if (dialog.next < 0) session.conversationData.index = dialog.next;
-                else session.conversationData.index = dialog.next_id;
             } else if (dialog.type == 'choice') {
                 /**
                 var exist = false;
@@ -2431,13 +2473,14 @@ bot.dialog('/flow', [
                     session.conversationData.index = dialog_id_confirm;
                 }
             }
-            if (redirect_dialog(session) == 'endDialog') {
+            var redirect = redirect_dialog(session);
+            if (redirect == 'endDialog') {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
                 }
             } else {
-                session.replaceDialog(redirect_dialog(session), session.conversationData);
+                session.replaceDialog(redirect, session.conversationData);
             }
         } else {
             session.endConversation();
@@ -2669,6 +2712,35 @@ var checkRequiresToken = function (message) {
     return message.source === 'skype' || message.source === 'msteams';
 };
 
+bot.dialog('/hanfei', function (session) {
+    var userDialog = JSON.parse(preventDialog.get(session.userData.userId));
+    console.log(userDialog);
+    var dialog = userDialog[session.conversationData.index];
+    if (session.message.text != '') {
+        post_Hanfei(session.message.text, session, userDialog, function (isOK) {
+            console.log(isOK);
+            session.message.text = '';
+            if (isOK) {
+                if (dialog.next < 0) session.conversationData.index = dialog.next;
+                else session.conversationData.index = dialog.next_id;
+                var redirect = redirect_dialog(session);
+                if (redirect == 'endDialog') {
+                    session.endDialogWithResult({ response: session.conversationData.form });
+                    if (session.message.address.channelId == 'directline') {
+                        session.send('{ "action": "end_service" }');
+                    }
+                } else {
+                    session.replaceDialog(redirect, session.conversationData);
+                }
+            }
+            else {
+                session.send("抱歉，韓非目前沒有服務!");
+                session.replaceDialog('/end', session.conversationData);
+            }
+        });
+    }
+});
+
 function createHeroCard(session, dialog) {
     console.log("create hero card\n");
     var herocardbuttons = [];
@@ -2684,8 +2756,8 @@ function createHeroCard(session, dialog) {
         .title(dialog.attachments[0].content.title)
         .subtitle(dialog.attachments[0].content.subtitle)
         .images([
-            builder.CardImage.create(session, dialog.attachments[0].content.images[0].url)
-        ])
+        builder.CardImage.create(session, dialog.attachments[0].content.images[0].url)
+    ])
         .buttons(herocardbuttons);
     return herocard;
 }
@@ -2708,14 +2780,15 @@ function redirect_dialog(session) {
             break;
         case '-5':
             session.userData.flow_id.pop();
-            session.userData.pre_flow_id = session.userData.flow_id[session.userData.length - 1];
-            if (session.userData.length <= 0) {
+            session.userData.pre_flow_id = session.userData.flow_id[session.userData.flow_id.length - 1];
+            if (session.userData.flow_id.length <= 0) {
                 preventDialog.delete(session.userData.userId);
                 preventMessage.delete(session.userData.userId);
                 preventAddress.delete(session.userData.userId);
                 result = 'endDialog';
             } else {
-                preventDialog.set(session.userData.user_Id, global.dialogs[session.userData.pre_flow_id]);
+                session.conversationData.index = 0;
+                preventDialog.set(session.userData.userId, JSON.stringify(global.dialogs[session.userData.pre_flow_id]));
                 result = '/flow';
             }
             break;
@@ -2815,6 +2888,7 @@ function get_picture(url, message, attachment, callback) {
 }
 
 function getAPIResult(result, session) {
+    console.log(result);
     try {
         result = JSON.parse(result);
     } catch (e) {
@@ -2824,24 +2898,25 @@ function getAPIResult(result, session) {
     if (result["type"] != undefined && result["content"] != undefined) {
         switch (result["type"]) {
             case "text":
-                return result["content"][text];
+                return result["content"]["text"];
                 break;
             case "image":
                 var msg = new builder.Message(session)
                     .addAttachment({
-                        content: result["content"]["description"],
-                        contentUrl: result["content"]["url"],
-                        contentType: 'image/png',
-                    });
+                    content: result["content"]["description"],
+                    contentUrl: result["content"]["url"],
+                    contentType: 'image/png',
+                });
                 return msg;
                 break;
             case "page":
                 var card = new builder.HeroCard(session)
                     .text('請問您要前往' + result["content"]["title"] + "嗎?")
                     .buttons([
-                        builder.CardAction.openUrl(session, result["content"]["url"], result["content"]["title"]),
-                    ]);
-                return card;
+                    builder.CardAction.openUrl(session, result["content"]["url"], result["content"]["title"]),
+                ]);
+                var page_msg = new builder.Message(session).addAttachment(card);
+                return page_msg;
                 break;
             case "webapi":
                 /**
@@ -2851,18 +2926,93 @@ function getAPIResult(result, session) {
             case "flow":
                 session.userData.flow_id.push(result["content"]["flowID"]);
                 preventDialog.set(session.userData.userId, JSON.stringify(global.dialogs[result["content"]["flowID"]]));
-                session.beginDialog('/flow');
-                return false;
+                session.conversationData.index = 0;
+                session.replaceDialog('/flow', session.conversationData);
+                return 'flow';
+                break;
+            case "choice":
+                var herocardbuttons = [];
+                for (var index = 0; index < result.content.buttons.length; index++) {
+                    herocardbuttons.push(builder.CardAction.openUrl(session, result.content.buttons[index].url, result.content.buttons[index].button_text));
+                }
+                var herocard = new builder.HeroCard(session)
+                    .title('產品諮詢結果')
+                    .subtitle(result["content"]["description"])
+                    .images([
+                    builder.CardImage.create(session, result["content"]["previewImageUrl"])
+                ])
+                    .buttons(herocardbuttons);
+                var file_msg = new builder.Message(session).addAttachment(herocard);
+                return file_msg;
+                break;
+            case "undefine":
+                return result["content"]["text"];
                 break;
             default:
                 logger.info("API result's attribute 'type' is not defined or API result is not our JSON type");
-                return false;
+                return "請您稍後再嘗試";
                 break;
         }
     } else {
         logger.info("API result is not our JSON type.");
         return false;
     }
+}
+
+function post_Hanfei(content, session, userDialog, callback) {
+    var http;
+    http = require('https');
+    var path = config.hanfei.path;
+    path = encodeURI(path);
+    var options = {
+        host: config.hanfei.host,
+        port: config.hanfei.port,
+        path: '/' + path,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        method: 'post'
+    };
+    var body = content;
+    options.headers['Content-Length'] = new Buffer(body).length;
+    var req = http.request(options, function (res) {
+        logger.info('STATUS: ' + res.statusCode);
+        logger.info('HEADERS: ' + JSON.stringify(res.headers));
+        res.setEncoding('utf8');
+        res.body = '';
+        res.on('data', function (chunk) {
+            logger.info('BODY: ' + chunk);
+            res.body = res.body + chunk;
+        });
+        res.on('end', function () {
+            logger.info('REQUEST END');
+            try {
+                var result = res.body;
+                var msg = getAPIResult(result, session);
+                if (msg && msg != 'flow') {
+                    session.send(msg);
+                    callback(true);
+                }
+                else if (msg == 'flow') {
+                    return;
+                    callback(false);
+                }
+                /**
+                 * 在此放讀json格式的function
+                 */
+                else {
+                    this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = result;
+                }
+            } catch (e) {
+                logger.error(e);
+                this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
+            }
+        }.bind({ session: this.session, userDialog: this.userDialog }));
+    }.bind({ session: session, userDialog: userDialog }));
+    req.on('error', function (e) {
+        logger.error(e);
+        this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
+    }.bind({ session: session, userDialog: userDialog }));
+    req.write(body);
+    req.end();
 }
 
 var listener = server.listen(process.env.port || process.env.PORT || config.port, function () {

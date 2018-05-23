@@ -126,19 +126,20 @@
                     $('#TxtField').prop('disabled', true);
                 } else if ($(this).val() == 'input') {
                     $('#DivNext').removeClass('hidden');
-                    TargetDialog = { 'dialog_id': TargetDialog.dialog_id, 'type': 'input', 'field': '', 'prompt': '顯示的文字', next: 0 };
-                } else if ($(this).val() == 'image') {
-                    $('#DivNext').removeClass('hidden');
                     TargetDialog = {
-                        'dialog_id': TargetDialog.dialog_id, 'type': 'image', 'field': '', 'prompt': {
+                        'dialog_id': TargetDialog.dialog_id, 'type': 'input', 'field': '', 'prompt': {
                             'attachments': [
                                 {
                                     'content': '顯示的文字',
+                                    'type':'',
                                     'data': ''
                                 }
                             ]
                         }, next: 0
                     };
+                } else if ($(this).val() == 'hanfei') {
+                    $('#DivNext').removeClass('hidden');
+                    TargetDialog = { 'dialog_id': TargetDialog.dialog_id, 'type': 'hanfei', 'field': '', 'prompt': '', next: 0 };
                 } else if ($(this).val() == 'card') {
                     $('#DivNext').removeClass('hidden');
                     TargetDialog = {
@@ -242,6 +243,12 @@
                     $('#DivOperate').addClass('hidden');
                     $('#DivWebAPI').addClass('hidden');
                     $('#DivQnAMaker').removeClass('hidden');
+                } else if (TargetDialog.type == 'hanfei') {
+                    $('#DivDialog').addClass('hidden');
+                    $('#DivCondition').addClass('hidden');
+                    $('#DivOperate').addClass('hidden');
+                    $('#DivWebAPI').addClass('hidden');
+                    $('#DivQnAMaker').addClass('hidden');
                 } else {
                     $('#DivDialog').removeClass('hidden');
                     $('#DivCondition').addClass('hidden');
@@ -447,7 +454,7 @@
                 $.ajax({
                     url: '../../locale/' + Locale + '/' + FlowID,
                     type: 'PUT',
-                    data: { message: TempMessage },
+                    data: { message: JSON.stringify(TempMessage) },
                     success: function (ret) {
                         Loaded();
                         $('#MessageModal').modal('toggle');
@@ -536,8 +543,11 @@
                     if (TempDialog.next == -3) {
                         TempDialog.skill = $('#TxtSkill').val();
                     }
-                    if (TempDialog.type == 'image') {
-                        TempDialog.prompt.attachments[0].data = $('#TemplateOption').find('.image_data:checked').val();
+                    if (TempDialog.type == 'input') {
+                        TempDialog.prompt.attachments[0].type = $('#TemplateInputOption').find('.input_data:checked').val();
+                        if(TempDialog.prompt.attachments[0].type == 'image'){
+                            TempDialog.prompt.attachments[0].data = $('#TemplateImageOption').find('.image_data:checked').val();
+                        }
                     }
                     if (TempDialog.type == 'condition') {
                         var condition = {};
@@ -628,10 +638,6 @@
                         $('#TxtField').prop('disabled', true);
                         $('#TxtNext').val(TargetDialog.next);
                     } else if (TargetDialog.type == 'input') {
-                        $('#DivNext').removeClass('hidden');
-                        $('#TxtField').prop('disabled', false);
-                        $('#TxtNext').val(TargetDialog.next);
-                    } else if (TargetDialog.type == 'image') {
                         $('#DivNext').removeClass('hidden');
                         $('#TxtField').prop('disabled', false);
                         $('#TxtNext').val(TargetDialog.next);
@@ -888,6 +894,18 @@
                     }
                 });
 
+            $('#checkboxGroup li .input_data').click(function () {
+                if ($(this).prop('checked')) {
+                    if ($(this).val() == 'image') {
+                        $('#TemplateImageOption').removeClass('hidden');
+                    } else {
+                        $('#TemplateImageOption').addClass('hidden');
+                    }
+                    $('#checkboxGroup li .input_data').prop('checked', false);
+                    $(this).prop('checked', true);
+                }
+            });
+            
             $('#checkboxGroup li .image_data').click(function () {
                 if ($(this).prop('checked')) {
                     $('#checkboxGroup li .image_data').prop('checked', false);
@@ -947,8 +965,11 @@
                     if (TempDialog.next == -3) {
                         TempDialog.skill = $('#TxtSkill').val();
                     }
-                    if (TempDialog.type == 'image') {
-                        TempDialog.prompt.attachments[0].data = $('#TemplateOption').find('.image_data:checked').val();
+                    if (TempDialog.type == 'input') {
+                        TempDialog.prompt.attachments[0].type = $('#TemplateInputOption').find('.input_data:checked').val();
+                        if(TempDialog.prompt.attachments[0].type == 'image'){
+                            TempDialog.prompt.attachments[0].data = $('#TemplateImageOption').find('.image_data:checked').val();
+                        }
                     }
                     if (TempDialog.type == 'choice') {
                         TempDialog.prompt.attachments[0].content.buttons[TargetDialogItem.Index].type = $('#TextOption').find('.button_type:checked').val();
@@ -1054,8 +1075,6 @@
                         var Type;
                         if (Dialogs[index].type == 'text') {
                             Type = '文字';
-                        } else if (Dialogs[index].type == 'image') {
-                            Type = '輸入圖片';
                         } else if (Dialogs[index].type == 'card') {
                             Type = '圖文';
                         } else if (Dialogs[index].type == 'choice') {
@@ -1072,6 +1091,8 @@
                             Type = 'Web API';
                         } else if (Dialogs[index].type == 'qna_maker') {
                             Type = 'QnA';
+                        } else if (Dialogs[index].type == 'hanfei') {
+                            Type = '韓非';
                         }
                         $('#TableDialogs')
                             .append(
@@ -1725,7 +1746,7 @@
                         });
                 }
                 return $Element;
-            } else if (Dialog.type == 'image') {
+            } else if (Dialog.type == 'input') {
                 var $Text;
                 if (Dialog.prompt.attachments[0].content.indexOf('{') > -1) {
                     $Text = ReplaceMessage(Dialog.prompt.attachments[0].content, Locale);
@@ -1754,55 +1775,16 @@
                 if (Mode == 'Edit') {
                     $Element
                         .find('div[name="Prompt"]')
-                        .attr('Original', Dialog.prompt)
+                        .attr('Original', Dialog.prompt.attachments[0].content)
                         .click(function () {
-                            $('[id^="Template"').addClass('hidden');
-                            $('#TxtDialog').find('.border-highlight').removeClass('border-highlight');
-                            $(this).addClass('border-highlight');
-                            $('#TemplateOption').removeClass('hidden');
-                            $('#TemplateText').removeClass('hidden');
-                            $('#TemplateText').find('[name="Prompt"]').val($(this).text());
-                            TargetDialogItem = { Type: 'dialog.content.image_file' };
-                        });
-                }
-                return $Element;
-            } else if (Dialog.type == 'input') {
-                var $Text;
-                if (Dialog.prompt.indexOf('{') > -1) {
-                    $Text = ReplaceMessage(Dialog.prompt, Locale);
-                } else {
-                    $Text = Dialog.prompt;
-                }
-                if ($Text.indexOf('%') > -1) {
-                    $Text = ReplaceVariable($Text);
-                }
-                var $Element = $('' +
-                    '<div class="wc-message wc-message-from-bot">' +
-                    '    <div class="wc-message-content">' +
-                    '        <svg class="wc-message-callout">' +
-                    '            <path class="point-left" d="m0,6 l6 6 v-12 z"></path>' +
-                    '            <path class="point-right" d="m6,6 l-6 6 v-12 z"></path>' +
-                    '        </svg>' +
-                    '        <div>' +
-                    '            <span class="format-markdown">' +
-                    '                <p>' +
-                    '                    <span><div name="Prompt">' + $Text + '</div></span>' +
-                    '                </p>' +
-                    '            </span>' +
-                    '        </div>' +
-                    '    </div>' +
-                    '</div>');
-                if (Mode == 'Edit') {
-                    $Element
-                        .find('div[name="Prompt"]')
-                        .attr('Original', Dialog.prompt)
-                        .click(function () {
+                            console.log(1);
                             $('[id^="Template"').addClass('hidden');
                             $('#TxtDialog').find('.border-highlight').removeClass('border-highlight');
                             $(this).addClass('border-highlight');
                             $('#TemplateText').removeClass('hidden');
                             $('#TemplateText').find('[name="Prompt"]').val($(this).text());
-                            TargetDialogItem = { Type: 'dialog.prompt' };
+                            $('#TemplateInputOption').removeClass('hidden');
+                            TargetDialogItem = { Type: 'dialog.content.input' };
                         });
                 }
                 return $Element;
@@ -2059,9 +2041,21 @@
                                 $('#TemplateButton').removeClass('hidden');
                                 $('#TemplateButton').attr('mode', 'edit');
                                 var Button = TargetDialog.prompt.attachments[0].content.buttons[this.Index];
+                                $('#checkboxGroup li .button_type').prop('checked', false);
+                                $('#checkboxGroup [value="' + Button.type + '"]').prop('checked', true);
                                 $('#TemplateButton').find('[name="Title"]').val(Button.title);
-                                $('#TemplateButton').find('[name="Value"]').val(Button.value);
                                 $('#TemplateButton').find('[name="DialogID"]').val(Button.dialog_id);
+                                if(Button.type == 'url'){
+                                    $('#ButtonTypeText').addClass('hidden');
+                                    $('#ButtonTypeUrl').removeClass('hidden');
+                                    $('#TextOptionPs').removeClass('hidden');
+                                    $('#TemplateButton').find('[name="Url"]').val(Button.url);
+                                } else {
+                                    $('#ButtonTypeText').removeClass('hidden');
+                                    $('#ButtonTypeUrl').addClass('hidden');
+                                    $('#TextOptionPs').addClass('hidden');
+                                    $('#TemplateButton').find('[name="Value"]').val(Button.value);
+                                }
                                 TargetDialogItem = { Type: 'dialog.content.button', Index: this.Index };
                             } else {
                                 // 雖然是在 DIV 定義 Click 事件，但從 event 抓到的物件卻是 Button
@@ -2347,7 +2341,7 @@
                 TempDialog.prompt.attachments[0].content.subtitle = Prompt;
             } else if (TargetDialogItem.Type == 'dialog.content.text') {
                 TempDialog.prompt.attachments[0].content.text = Prompt;
-            } else if (TargetDialogItem.Type == 'dialog.content.image_file') {
+            } else if (TargetDialogItem.Type == 'dialog.content.input') {
                 TempDialog.prompt.attachments[0].content = Prompt;
             }
             $('#TxtDialog').html(CreateContent(TempDialog, 'Edit'));
@@ -2561,7 +2555,6 @@
                                     <label>類型：</label>
                                     <select class="form-control" id="TxtType" name="Type">
                                         <option value="text">文字</option>
-                                        <option value="image">輸入圖片</option>
                                         <option value="card">圖文</option>
                                         <option value="input">輸入</option>
                                         <option value="choice">選單</option>
@@ -2570,6 +2563,7 @@
                                         <option value="operate">運算式</option>
                                         <option value="webapi">WEB API</option>
                                         <option value="qna_maker">QnA Maker</option>
+                                        <option value="hanfei">韓非</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -2608,7 +2602,20 @@
                                                         <input type="text" name="Prompt" class="form-control auto_complete"></input>
                                                     </div>
                                                     <br>
-                                                    <div id="TemplateOption" class="hidden">
+                                                    <div id="TemplateInputOption" class="hidden">
+                                                        <label>請問輸入資料是何種形式:</label>
+                                                        <div id="checkboxGroup">
+                                                            <ul>
+                                                                <li>
+                                                                    <input type="checkbox" class="input_data" value="text" checked/>文字</li>
+                                                                <li>
+                                                                    <input type="checkbox" class="input_data" value="image" />圖片</li>
+                                                            </ul>
+                                                        </div>
+                                                        <br>
+                                                    </div>
+                                                    <br>
+                                                    <div id="TemplateImageOption" class="hidden">
                                                         <label>請問圖片需要存成何種形式:</label>
                                                         <div id="checkboxGroup">
                                                             <ul>

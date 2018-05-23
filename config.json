@@ -5,11 +5,24 @@
     "luis_key": "0ce340e781cd4b4a84dab9e11b1783bc",
     "active_flow": "etatung",
     "port": 50000,
-	"ssl": {
+    "ssl": {
         "enable": false,
         "type": "crt",
         "key": "private.key",
         "cert": "certificate.crt",
         "ca": "ca_bundle.crt"
+    },
+    "channel_flow": {
+        "webchat": "2",
+        "directline": "2",
+        "skype": "",
+        "messenger": "",
+        "wechat": ""
+    },
+    "hanfei": {
+        "protocol": "https",
+        "host": "hanfei.azurewebsites.net",
+        "port": "",
+        "path": "hanfei"
     }
 }
