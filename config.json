@@ -13,16 +13,19 @@
         "ca": "ca_bundle.crt"
     },
     "channel_flow": {
-        "webchat": "2",
-        "directline": "2",
+        "webchat": "",
+        "directline": "",
         "skype": "",
         "messenger": "",
         "wechat": ""
     },
     "hanfei": {
         "protocol": "https",
-        "host": "hanfei.azurewebsites.net",
+        "host": "hanfei-test.azurewebsites.net",
         "port": "",
         "path": "hanfei"
+    },
+    "endconversation":{
+        "prompt": "很抱歉，因遲遲沒有得到您的回應，本次通話已自動斷線"
     }
 }

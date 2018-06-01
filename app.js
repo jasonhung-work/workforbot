@@ -698,9 +698,30 @@ app.get("/getDialog/:flow_id", function (request, response) {
                 }
                 postdata.push(data);
                 break;
+            case 'hanfei':
+                data.type = 'subroutine';
+                data.color = "blue";
+                if (dialog[i].next < 0) {
+                    data.next = dialog[i].next;
+                } else {
+                    data.next = dialog[i].next_id;
+                }
+                postdata.push(data);
+                break;
         }
     }
     response.send(postdata);
+});
+
+app.get('/QA/flow', function (request, response) {
+    var data = flows.map(function (flow) {
+        var rObj = {};
+        rObj["id"] = flow.flow_id;
+        return rObj;
+    });
+    logger.info('POST QA flow: ' + JSON.stringify(data));
+    response.send(data);
+    response.end();
 });
 
 function GetProcess(data, flow_id, callback) {
@@ -757,6 +778,14 @@ app.get('/pages/flow/:flow_id', function (request, response) {
             break;
         }
     }
+    var flow_all_id = [];
+    for (var index = 0; index < flows.length; index++) {
+        if (flows[index].flow_id != flow.flow_id) {
+            var rObj = {};
+            rObj["id"] = flows[index].flow_id;
+            flow_all_id.push(rObj);
+        }
+    }
     if (flow) {
         var fs = require('fs');
         fs.readFile(__dirname + '/pages/dialog.htm', 'utf8', function (err, data) {
@@ -775,6 +804,8 @@ app.get('/pages/flow/:flow_id', function (request, response) {
             '<script type="text/javascript"> var FlowID = "' + this.flow.flow_id + '"; </script>';
             data = data +
             '<script type="text/javascript"> var FlowDescription = "' + this.flow.flow_id + '"; </script>';
+            data = data +
+            '<script type="text/javascript"> var FlowAllId = ' + JSON.stringify(flow_all_id) + '; </script>';
             this.res.send(data);
         }.bind({ req: request, res: response, flow: flow }));
     }
@@ -1625,7 +1656,7 @@ bot.on('conversationUpdate', function (message) {
     console.log(message);
     if (message.membersAdded && message.membersAdded.length > 0) {
         console.log(config.channel_flow[message.address.channelId]);
-        if (config.channel_flow[message.address.channelId] != undefined) {
+        if (config.channel_flow[message.address.channelId] != undefined && config.channel_flow[message.address.channelId] != "") {
             global.flow_id = config.channel_flow[message.address.channelId];
         }
     }
@@ -1648,7 +1679,7 @@ bot.dialog('/',
         logger.info('session:' + JSON.stringify(session, replacer)); 
         session.userData.dialogs = JSON.parse(JSON.stringify(global.dialogs)); 
         */
-        if (config.channel_flow[session.message.address.channelId] != undefined) {
+        if (config.channel_flow[session.message.address.channelId] != undefined && config.channel_flow[session.message.address.channelId] != "") {
             global.flow_id = config.channel_flow[session.message.address.channelId];
         }
         session.userData = {};  // 若要保留上次的內容，可註解掉這一行
@@ -1937,7 +1968,7 @@ bot.dialog('/flow', [
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
             logger.info('index: ' + session.conversationData.index);
-            var redirect = redirect_dialog(session);
+            var redirect = redirect_dialog(session, dialog);
             if (redirect == 'endDialog') {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
@@ -1954,7 +1985,7 @@ bot.dialog('/flow', [
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
             logger.info('index: ' + session.conversationData.index);
-            var redirect = redirect_dialog(session);
+            var redirect = redirect_dialog(session, dialog);
             if (redirect == 'endDialog') {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
@@ -2083,7 +2114,7 @@ bot.dialog('/flow', [
                 }
                 session.conversationData.index = fail_dialog_id;
             }
-            var redirect = redirect_dialog(session);
+            var redirect = redirect_dialog(session, dialog);
             if (redirect == 'endDialog') {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
@@ -2111,7 +2142,7 @@ bot.dialog('/flow', [
             // eval('session.conversationData.form["' + dialog.field + '"] = ' + dialog.operate);
             if (dialog.next < 0) session.conversationData.index = dialog.next;
             else session.conversationData.index = dialog.next_id;
-            var redirect = redirect_dialog(session);
+            var redirect = redirect_dialog(session, dialog);
             if (redirect == 'endDialog') {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
@@ -2175,7 +2206,7 @@ bot.dialog('/flow', [
                     }
                     if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                     else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
-                    var redirect = redirect_dialog(this.session);
+                    var redirect = redirect_dialog(this.session, this.dialog);
                     if (redirect == 'endDialog') {
                         this.session.endDialogWithResult({ response: this.session.conversationData.form });
                         if (this.session.message.address.channelId == 'directline') {
@@ -2184,14 +2215,14 @@ bot.dialog('/flow', [
                     } else {
                         this.session.replaceDialog(redirect, this.session.conversationData);
                     }
-                }.bind({ session: this.session, userDialog: this.userDialog }));
-            }.bind({ session: session, userDialog: userDialog }));
+                }.bind({ session: this.session, dialog: this.dialog, userDialog: this.userDialog }));
+            }.bind({ session: session, dialog: dialog, userDialog: userDialog }));
             req.on('error', function (e) {
                 logger.error(e);
                 this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
                 if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                 else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
-                var redirect = redirect_dialog(this.session);
+                var redirect = redirect_dialog(this.session, this.dialog);
                 if (redirect == 'endDialog') {
                     this.session.endDialogWithResult({ response: this.session.conversationData.form });
                     if (this.session.message.address.channelId == 'directline') {
@@ -2200,7 +2231,7 @@ bot.dialog('/flow', [
                 } else {
                     this.session.replaceDialog(redirect, this.session.conversationData);
                 }
-            }.bind({ session: session, userDialog: userDialog }));
+            }.bind({ session: session, dialog: dialog, userDialog: userDialog }));
             if (dialog.webapi.method == 'post' || dialog.webapi.method == 'put') {
                 req.write(body);
             }
@@ -2316,7 +2347,7 @@ bot.dialog('/flow', [
                             }
                             if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                             else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
-                            var redirect = redirect_dialog(this.session);
+                            var redirect = redirect_dialog(this.session, this.dialog);
                             if (redirect == 'endDialog') {
                                 this.session.endDialogWithResult({ response: this.session.conversationData.form });
                                 if (this.session.message.address.channelId == 'directline') {
@@ -2332,7 +2363,7 @@ bot.dialog('/flow', [
                         this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
                         if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                         else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
-                        var redirect = redirect_dialog(this.session);
+                        var redirect = redirect_dialog(this.session, this.dialog);
                         if (redirect == 'endDialog') {
                             this.session.endDialogWithResult({ response: this.session.conversationData.form });
                             if (this.session.message.address.channelId == 'directline') {
@@ -2341,7 +2372,7 @@ bot.dialog('/flow', [
                         } else {
                             this.session.replaceDialog(redirect, this.session.conversationData);
                         }
-                    }.bind({ session: this.session, userDialog: this.userDialog }));
+                    }.bind({ session: this.session, dialog: this.dialog, userDialog: this.userDialog }));
                     req.write(JSON.stringify(this.dialog.qna_maker.body));
                     req.end();
 
@@ -2354,7 +2385,7 @@ bot.dialog('/flow', [
                 this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
                 if (this.userDialog[this.session.conversationData.index].next < 0) this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next;
                 else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
-                var redirect = redirect_dialog(this.session);
+                var redirect = redirect_dialog(this.session, this.dialog);
                 if (redirect == 'endDialog') {
                     this.session.endDialogWithResult({ response: this.session.conversationData.form });
                     if (this.session.message.address.channelId == 'directline') {
@@ -2363,7 +2394,7 @@ bot.dialog('/flow', [
                 } else {
                     this.session.replaceDialog(redirect, this.session.conversationData);
                 }
-            }.bind({ session: session, userDialog: userDialog }));
+            }.bind({ session: session, dialog: dialog, userDialog: userDialog }));
             req.end();
         }
     },
@@ -2473,7 +2504,7 @@ bot.dialog('/flow', [
                     session.conversationData.index = dialog_id_confirm;
                 }
             }
-            var redirect = redirect_dialog(session);
+            var redirect = redirect_dialog(session, dialog);
             if (redirect == 'endDialog') {
                 session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
@@ -2723,7 +2754,7 @@ bot.dialog('/hanfei', function (session) {
             if (isOK) {
                 if (dialog.next < 0) session.conversationData.index = dialog.next;
                 else session.conversationData.index = dialog.next_id;
-                var redirect = redirect_dialog(session);
+                var redirect = redirect_dialog(session, dialog);
                 if (redirect == 'endDialog') {
                     session.endDialogWithResult({ response: session.conversationData.form });
                     if (session.message.address.channelId == 'directline') {
@@ -2752,17 +2783,23 @@ function createHeroCard(session, dialog) {
             herocardbuttons.push(builder.CardAction.openUrl(session, dialog.attachments[0].content.buttons[index].url + '?conversation_id=' + session.message.address.conversation.id + '&dialog_id=' + session.conversationData.index, dialog.attachments[0].content.buttons[index].title));
         }
     }
+    var images = [];
+    if (dialog.attachments[0].content.images) {
+        for (var index = 0; index < dialog.attachments[0].content.images.length; index++) {
+            if (dialog.attachments[0].content.images[index].url != undefined || dialog.attachments[0].content.images[index].url != '') {
+                images.push(builder.CardImage.create(session, dialog.attachments[0].content.images[0].url));
+            }
+        }
+    }
     var herocard = new builder.HeroCard(session)
         .title(dialog.attachments[0].content.title)
         .subtitle(dialog.attachments[0].content.subtitle)
-        .images([
-        builder.CardImage.create(session, dialog.attachments[0].content.images[0].url)
-    ])
+        .images(images)
         .buttons(herocardbuttons);
     return herocard;
 }
 
-function redirect_dialog(session) {
+function redirect_dialog(session, dialog) {
     var result;
     switch (session.conversationData.index.toString()) {
         case '-2':
@@ -2791,6 +2828,12 @@ function redirect_dialog(session) {
                 preventDialog.set(session.userData.userId, JSON.stringify(global.dialogs[session.userData.pre_flow_id]));
                 result = '/flow';
             }
+            break;
+        case '-6':
+            session.userData.flow_id.push(dialog.flow_id);
+            preventDialog.set(session.userData.userId, JSON.stringify(global.dialogs[dialog.flow_id]));
+            session.conversationData.index = 0;
+            result = '/flow';
             break;
         default:
             result = '/flow';
@@ -2898,7 +2941,8 @@ function getAPIResult(result, session) {
     if (result["type"] != undefined && result["content"] != undefined) {
         switch (result["type"]) {
             case "text":
-                return result["content"]["text"];
+                var result_replace = result["content"]["text"].replaceAll('<br>', '\n');
+                return result_replace;
                 break;
             case "image":
                 var msg = new builder.Message(session)
@@ -2919,9 +2963,53 @@ function getAPIResult(result, session) {
                 return page_msg;
                 break;
             case "webapi":
-                /**
-                 * 待討論
-                 */
+                var http;
+                if (result["content"]["protocol"] == 'http') {
+                    http = require('http');
+                } else {
+                    http = require('https');
+                }
+                var path = result["content"]["path"];
+                path = encodeURI(path);
+                var options = {
+                    host: result["content"]["host"],
+                    port: result["content"]["port"],
+                    path: '/' + path,
+                    headers: {},
+                    method: result["content"]["method"].toUpperCase()
+                };
+                if (result["content"]["method"] == 'post' || result["content"]["method"] == 'put') {
+                    /*for (var idx = 0; idx < dialog.webapi.headers.length; idx++) {
+                        var header = dialog.webapi.headers[idx].value;
+                        header = ReplaceVariable(header, session.conversationData);
+                        options.headers[dialog.webapi.headers[idx].name] = header;
+                    }
+                    var body = dialog.webapi.body;
+                    body = ReplaceVariable(body, session.conversationData);
+                    options.headers['Content-Length'] = new Buffer(body).length;*/
+                }
+                var req = http.request(options, function (res) {
+                    logger.info('STATUS: ' + res.statusCode);
+                    logger.info('HEADERS: ' + JSON.stringify(res.headers));
+                    res.setEncoding('utf8');
+                    res.body = '';
+                    res.on('data', function (chunk) {
+                        logger.info('BODY: ' + chunk);
+                        res.body = res.body + chunk;
+                    });
+                    res.on('end', function () {
+                        logger.info('REQUEST END');
+                        var end_webapi = res.body;
+                        return end_webapi;
+                    }.bind({ session: this.session }));
+                }.bind({ session: session }));
+                req.on('error', function (e) {
+                    logger.error(e);
+                }.bind({ session: session }));
+                //if (result["content"]["method"] == 'post' || result["content"]["method"] == 'put') {
+                //req.write(body);
+                //}
+                req.end();
                 break;
             case "flow":
                 session.userData.flow_id.push(result["content"]["flowID"]);
@@ -3071,7 +3159,7 @@ setInterval(function () {
                     userConversationMessage.push({ type: 'message', acct: 'flowbot', message: '很抱歉，因遲遲沒有得到您的回應，本次通話已自動斷線' });
                     preventMessage.set(session.userData.userId, userConversationMessage);
                 } else {
-                    session.endConversation('很抱歉，因遲遲沒有得到您的回應，本次通話已自動斷線');
+                    session.endConversation(config.endconversation.prompt);
                     userConversationMessage.push({ type: 'message', acct: 'flowbot', message: '很抱歉，因遲遲沒有得到您的回應，本次通話已自動斷線' });
                     preventMessage.set(session.userData.userId, userConversationMessage);
                 }

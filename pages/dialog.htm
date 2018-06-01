@@ -109,9 +109,12 @@
             });
 
             $('#TxtNext').change(function () {
+                $('#DivFlow').addClass('hidden');
                 $('#DivTransfer').addClass('hidden');
                 if ($(this).val() == '-3') {
                     $('#DivTransfer').removeClass('hidden');
+                } else if ($(this).val() == -6) {
+                    $('#DivFlow').removeClass('hidden');
                 }
             });
 
@@ -540,6 +543,11 @@
                     for (var index = 0; index < Dialogs.length; index++) {
                         if (TempDialog.next == Dialogs[index].dialog_uuid) TempDialog.next_id = Dialogs[index].dialog_id;
                     }
+                    if (TempDialog.next == -6) {
+                        TempDialog.flow_id = $('#TxtFlow').val();
+                    } else{
+                        TempDialog.flow_id = '';
+                    }
                     if (TempDialog.next == -3) {
                         TempDialog.skill = $('#TxtSkill').val();
                     }
@@ -603,16 +611,23 @@
             });
 
             $('#DialogModal').on('shown.bs.modal', function () {
+                $('#DivFlow').addClass('hidden');
+                $('#TxtFlow').children().remove();
+                for(var index = 0; index < FlowAllId.length; index++){
+                    $('#TxtFlow').append('<option value=' + FlowAllId[index].id +'>'+ FlowAllId[index].id +'</option>');
+                }
                 $('[id^="Template"').addClass('hidden');
                 $('#TxtNext option[value="-2"]').remove();
                 $('#TxtNext option[value="-3"]').remove();
                 $('#TxtNext option[value="-4"]').remove();
                 $('#TxtNext option[value="-5"]').remove();
+                $('#TxtNext option[value="-6"]').remove();
                 if ($(this).attr('Mode') == 'EDIT') {
                     $('#TxtNext').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
                     $('#TxtNext').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
                     $('#TxtNext').prepend('<option value="-4" class="text-primary">#系統 等待回復</option>');
                     $('#TxtNext').prepend('<option value="-5" class="text-primary">#系統 返回上一個對話流程</option>');
+                    $('#TxtNext').prepend('<option value="-6" class="text-primary">#系統 轉跳其他對話流程</option>');
                     $('#ModalTitle').text('對話框修改');
                     $('#TxtDialogID').prop('disabled', false);
                     $('#TxtDialogID').val($(this).attr('DialogID'));
@@ -707,6 +722,12 @@
                         $('#DivQnAMaker').find('input[name="Code"]').val(TargetDialog.qna_maker.code);
                         $('#DivQnAMaker').find('input[name="Key"]').val(TargetDialog.qna_maker.key);
                         $('#DivQnAMaker').find('input[name="Problem"]').val(TargetDialog.qna_maker.problem);
+                    } else if (TargetDialog.type == 'handei') {
+                        $('#DivDialog').addClass('hidden');
+                        $('#DivCondition').addClass('hidden');
+                        $('#DivOperate').addClass('hidden');
+                        $('#DivWebAPI').addClass('hidden');
+                        $('#DivQnAMaker').addClass('hidden');
                     } else {
                         $('#DivDialog').removeClass('hidden');
                         $('#DivCondition').addClass('hidden');
@@ -716,6 +737,9 @@
                     }
                     if ($('#TxtNext').val() == '-3' && $(this).attr('Next') != 0) {
                         $('#DivTransfer').removeClass('hidden');
+                    } else if($('#TxtNext').val() == '-6') {
+                        $('#DivFlow').removeClass('hidden');
+                        $('#TxtFlow').val(TargetDialog.flow_id);
                     }
                     $('#TxtDescription').val($(this).attr('Description'));
                     $('#TxtType').val($(this).attr('Type'));
@@ -747,11 +771,12 @@
                     $('#TxtNext').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
                     $('#TxtNext').prepend('<option value="-4" class="text-primary">#系統 等待回復</option>');
                     $('#TxtNext').prepend('<option value="-5" class="text-primary">#系統 返回上一個對話流程</option>');
+                    $('#TxtNext').prepend('<option value="-6" class="text-primary">#系統 轉跳其他對話流程</option>');
                     var TxtNextIndex = $("#TxtNext").children("option").length;
-                    if (TxtNextIndex < 3) {
+                    if (TxtNextIndex < 6) {
                         $("#TxtNext")[0].selectedIndex = 0;
                     } else {
-                        $("#TxtNext")[0].selectedIndex = 2;
+                        $("#TxtNext")[0].selectedIndex = 5;
                     }
                     // Condition
                     $('#DivCondition').find('select').prop('selectedIndex', 0);
@@ -962,6 +987,11 @@
                         TempDialog.next = 0;
                         TempDialog.next_id = 0;
                     }
+                    if (TempDialog.next == -6) {
+                        TempDialog.flow_id = $('#TxtFlow').val();
+                    } else{
+                        TempDialog.flow_id = '';
+                    }
                     if (TempDialog.next == -3) {
                         TempDialog.skill = $('#TxtSkill').val();
                     }
@@ -1058,14 +1088,17 @@
                     $('#TemplateButton').find('[name="DialogID"]').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
                     $('#TemplateButton').find('[name="DialogID"]').prepend('<option value="-4" class="text-primary">#系統 等待回復</option>');
                     $('#TemplateButton').find('[name="DialogID"]').prepend('<option value="-5" class="text-primary">#系統 返回上一個對話流程</option>');
+                    $('#TemplateButton').find('[name="DialogID"]').prepend('<option value="-6" class="text-primary">#系統 轉跳其他對話流程</option>');
                     $('#DivCondition').find('[name="SuccessDialog"]').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
                     $('#DivCondition').find('[name="SuccessDialog"]').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
                     $('#DivCondition').find('[name="SuccessDialog"]').prepend('<option value="-4" class="text-primary">#系統 等待回復</option>');
                     $('#DivCondition').find('[name="SuccessDialog"]').prepend('<option value="-5" class="text-primary">#系統 返回上一個對話流程</option>');
+                    $('#DivCondition').find('[name="SuccessDialog"]').prepend('<option value="-6" class="text-primary">#系統 轉跳其他對話流程</option>');
                     $('#DivCondition').find('[name="FailDialog"]').prepend('<option value="-2" class="text-primary">#系統 結束</option>');
                     $('#DivCondition').find('[name="FailDialog"]').prepend('<option value="-3" class="text-primary">#系統 客服</option>');
                     $('#DivCondition').find('[name="FailDialog"]').prepend('<option value="-4" class="text-primary">#系統 等待回復</option>');
                     $('#DivCondition').find('[name="FailDialog"]').prepend('<option value="-5" class="text-primary">#系統 返回上一個對話流程</option>');
+                    $('#DivCondition').find('[name="FailDialog"]').prepend('<option value="-6" class="text-primary">#系統 轉跳其他對話流程</option>');
                     $('#TxtNext').empty();
                     for (var index = 0; index < Dialogs.length; index++) {
                         $('#TemplateButton').find('[name="DialogID"]').append('<option value="' + Dialogs[index].dialog_uuid + '">#' + Dialogs[index].dialog_id + ' ' + Dialogs[index].description + '</option>');
@@ -1209,19 +1242,26 @@
                                     .append(
                                         $(document.createElement('td'))
                                             .append((Dialogs[index].next_id == 0 && Dialogs[index].next > 0) ? '' : $(document.createElement('button'))
-                                                .text(Dialogs[index].next == -2 ? '結束' : (Dialogs[index].next == -3 ? '客服' : (Dialogs[index].next == -4 ? '等待回復' : (Dialogs[index].next == -5 ? '返回上一個對話流程' : (Dialogs[index].next_id == 0 ? '0' : Dialogs[index].next_id)))))
+                                                .text(Dialogs[index].next == -6 ? '轉跳其他對話流程' : (Dialogs[index].next == -2 ? '結束' : (Dialogs[index].next == -3 ? '客服' : (Dialogs[index].next == -4 ? '等待回復' : (Dialogs[index].next == -5 ? '返回上一個對話流程' : (Dialogs[index].next_id == 0 ? '0' : Dialogs[index].next_id))))))
                                                 .addClass(Dialogs[index].next < 0 ? 'btn btn-success' : 'btn')
+                                                .attr({
+                                                        DialogID: (Dialogs[index].flow_id) ? Dialogs[index].flow_id : "",
+                                                    })
                                                 .click(function () {
-                                                    location.href = '#' + $(this).text();
-                                                    $('#TableDialogs tr')
-                                                        .eq(parseInt($(this).text()) + 1)
-                                                        .animate({
-                                                            opacity: 0.5
-                                                        }, 200, function () {
-                                                            $('#TableDialogs tr').animate({
-                                                                opacity: 1
-                                                            }, 200);
-                                                        });
+                                                    if($(this).text() == '轉跳其他對話流程'){
+                                                        window.open($(this).attr('DialogID'));
+                                                    } else {
+                                                      location.href = '#' + $(this).text();
+                                                        $('#TableDialogs tr')
+                                                            .eq(parseInt($(this).text()) + 1)
+                                                            .animate({
+                                                                opacity: 0.5
+                                                            }, 200, function () {
+                                                                $('#TableDialogs tr').animate({
+                                                                    opacity: 1
+                                                                }, 200);
+                                                            });  
+                                                    }
                                                 })
                                             )
                                     )
@@ -2584,6 +2624,13 @@
                                     <label>轉接技能群組：</label>
                                     <select class="form-control" id="TxtSkill" name="Skill">
                                         <option value="DEFAULT">預設群組</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 hidden" id="DivFlow">
+                                <div class="form-group">
+                                    <label>轉跳其他流程：</label>
+                                    <select class="form-control" id="TxtFlow" name="Flow">
                                     </select>
                                 </div>
                             </div>
