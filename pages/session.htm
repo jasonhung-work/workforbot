@@ -1,12 +1,13 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
+    
     <head>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <link href="../css/botchat.css" rel="stylesheet" />
         <link href="../css/bootstrap/bootstrap.css" rel="stylesheet" />
         <link href="../css/font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet" />
         <link href="../css/bootstrap/dataTables.bootstrap.css" rel="stylesheet" />
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>線上使用者清單</title>
         <style type="text/css">
@@ -77,135 +78,156 @@
 
             var TargetSession = {};
             function Refresh() {
-                try {
-                    $MainTable.fnDestroy();
-                } catch (e) {
-                }
-                var $Table = $('#TableSessions tbody');
-                $Table.empty();
                 $.getJSON(ServiceUrl + '/sessions', function (data) {
-                    Sessions = data;
-                    for (var index = 0; index < Sessions.length; index++) {
-                        $('#TableSessions')
-                            .append(
-                                $(document.createElement('tr'))
-                                    .append(
-                                        $(document.createElement('td'))
-                                            .append(
-                                                $(document.createElement('button'))
-                                                    .attr('title', '刪除')
-                                                    .attr('SessionID', Sessions[index].sessionId)
-                                                    .addClass('btn btn-warning btn-circle')
-                                                    .addClass(Sessions[index].active == 'true' ? 'hidden' : '')
-                                                    .append(
-                                                        $(document.createElement('i'))
-                                                            .addClass('fa fa-times')
-                                                    )
-                                                    .click(function () {
-                                                        SessionID_Delete = $(this).attr('SessionID');
-                                                        bootbox.dialog({
-                                                            message: '確定要刪除此項目？',
-                                                            title: '',
-                                                            buttons: {
-                                                                Cancel: {
-                                                                    label: '取消',
-                                                                    className: 'btn-default'
-                                                                },
-                                                                OK: {
-                                                                    label: '確定刪除',
-                                                                    className: 'btn-danger',
-                                                                    callback: function () {
-                                                                        $.ajax({
-                                                                            url: ServiceUrl + '/session/' + SessionID_Delete,
-                                                                            type: 'DELETE',
-                                                                            success: function (data) {
-                                                                                Loaded();
-                                                                                Refresh();
-                                                                            }
-                                                                        });
+                    if(Sessions != data){
+                        try {
+                            $MainTable.fnDestroy();
+                        } catch (e) {
+                        }
+                        var $Table = $('#TableSessions tbody');
+                        $Table.empty();
+                        Sessions = data;
+                        for (var index = 0; index < Sessions.length; index++) {
+                            var UserID = Sessions[index].userData.userId || "";
+                            var Channel = Sessions[index].userData.channelId || "";
+                            var Flow = Sessions[index].userData.flow_id[Sessions[index].userData.flow_id.length - 1] || "";
+                            var Dialog = Sessions[index].conversationData.description || "";
+                            
+                            if(Sessions[index].userData._updateTime){
+                                var updateTime = new Date(Sessions[index].userData._updateTime);
+                                var h = updateTime.getHours();
+        　                          var m = updateTime.getMinutes();
+        　                          var s = updateTime.getSeconds();
+                                var Day = updateTime.getFullYear() + "/" + (updateTime.getMonth() + 1) + '/' + updateTime.getDate() + '-' + h + "點" + m + '分' + s + '秒';
+                            } 
+                            $('#TableSessions')
+                                .append(
+                                    $(document.createElement('tr'))
+                                        .append(
+                                            $(document.createElement('td'))
+                                                .append(
+                                                    $(document.createElement('button'))
+                                                        .attr('title', '刪除')
+                                                        .attr('SessionID', Sessions[index].sessionId)
+                                                        .addClass('btn btn-warning btn-circle')
+                                                        .addClass(Sessions[index].active == 'true' ? 'hidden' : '')
+                                                        .append(
+                                                            $(document.createElement('i'))
+                                                                .addClass('fa fa-times')
+                                                        )
+                                                        .click(function () {
+                                                            SessionID_Delete = $(this).attr('SessionID');
+                                                            bootbox.dialog({
+                                                                message: '確定要刪除此項目？',
+                                                                title: '',
+                                                                buttons: {
+                                                                    Cancel: {
+                                                                        label: '取消',
+                                                                        className: 'btn-default'
+                                                                    },
+                                                                    OK: {
+                                                                        label: '確定刪除',
+                                                                        className: 'btn-danger',
+                                                                        callback: function () {
+                                                                            $.ajax({
+                                                                                url: ServiceUrl + '/session/' + SessionID_Delete,
+                                                                                type: 'DELETE',
+                                                                                success: function (data) {
+                                                                                    Loaded();
+                                                                                    Refresh();
+                                                                                }
+                                                                            });
+                                                                        }
                                                                     }
                                                                 }
-                                                            }
-                                                        });
-                                                    })
-                                            )
-                                    )
-                                    .append(
-                                        $(document.createElement('td'))
-                                            .append(
-                                                $(document.createElement('button'))
-                                                    .attr('title', '檢視')
-                                                    .addClass('btn btn-primary btn-circle')
-                                                    .attr({
-                                                        SessionID: Sessions[index].sessionId,
-                                                        Session: JSON.stringify(Sessions[index], null, 4)
-                                                    })
-                                                    .append(
-                                                        $(document.createElement('i'))
-                                                            .addClass('fa fa-pencil-square-o')
-                                                    )
-                                                    .click(function () {
-                                                        RefreshVarialbeTable($(this).attr('Session'));
-                                                        $('#VariableModal')
-                                                            .attr({
-                                                                SessionID: $(this).attr('SessionID'),
-                                                                Session: $(this).attr('Session')
-                                                            })
-                                                            .modal();
-                                                    })
-                                            )
-                                    )
-                                    .append(
-                                        $(document.createElement('td'))
-                                            .append(
-                                                $(document.createElement('div'))
-                                                    .attr('id', Sessions[index].sessionId)
-                                                    .css('word-break', 'break-all')
-                                                    .html(Sessions[index].sessionId)
-                                            )
-                                    )
-                                    .append(
-                                        $(document.createElement('td')).html(Sessions[index].userData._updateTime ? new Date(Sessions[index].userData._updateTime) : '')
-                                    )
-                                    .append(
-                                        $(document.createElement('td')).html(Sessions[index].userData.status)
-                                    )
-                            );
-                    }
-                    $MainTable = $('#TableSessions').dataTable({
-                        'columnDefs': [
-                            { 'searchable': false, 'sortable': false, 'targets': [0, 1, 2, 3, 4] }
-                        ],
-                        'aaSorting': [[3, 'asc']],
-                        'autoWidth': false,
-                        'bPaginate': false,
-                        'bFilter': false,
-                        'sPaginationType': 'full_numbers',
-                        'oLanguage': {
-                            'sLengthMenu': '每頁顯示 _MENU_ 筆資料',
-                            'sZeroRecords': '找不到資料',
-                            'sInfo': '',
-                            'sInfoEmpty': '',
-                            'sInfoFiltered': ' (從 _MAX_ 資料的查詢結果)',
-                            'sSearch': '快速搜尋：',
-                            'oPaginate': {
-                                'sFirst': '第一頁',
-                                'sPrevious': '上一頁',
-                                'sNext': '下一頁',
-                                'sLast': '最末頁'
-                            }
+                                                            });
+                                                        })
+                                                )
+                                        )
+                                        .append(
+                                            $(document.createElement('td'))
+                                                .append(
+                                                    $(document.createElement('button'))
+                                                        .attr('title', '檢視')
+                                                        .addClass('btn btn-primary btn-circle')
+                                                        .attr({
+                                                            SessionID: Sessions[index].sessionId,
+                                                            Session: JSON.stringify(Sessions[index], null, 4)
+                                                        })
+                                                        .append(
+                                                            $(document.createElement('i'))
+                                                                .addClass('fa fa-pencil-square-o')
+                                                        )
+                                                        .click(function () {
+                                                            RefreshVarialbeTable($(this).attr('Session'));
+                                                            $('#VariableModal')
+                                                                .attr({
+                                                                    SessionID: $(this).attr('SessionID'),
+                                                                    Session: $(this).attr('Session')
+                                                                })
+                                                                .modal();
+                                                        })
+                                                )
+                                        )
+                                        .append(
+                                            $(document.createElement('td'))
+                                                .append(
+                                                    $(document.createElement('div'))
+                                                        .attr('id', Sessions[index].sessionId)
+                                                        .css('word-break', 'break-all')
+                                                        .html(Sessions[index].sessionId)
+                                                )
+                                        )
+                                        .append(
+                                            $(document.createElement('td')).html(UserID)
+                                        )
+                                        .append(
+                                            $(document.createElement('td')).html(Channel)
+                                        )
+                                        .append(
+                                            $(document.createElement('td')).html(Flow)
+                                        )
+                                        .append(
+                                            $(document.createElement('td')).html(Dialog)
+                                        )
+                                        .append(
+                                            $(document.createElement('td')).html(Sessions[index].userData._updateTime ? Day : '')
+                                        )
+                                        .append(
+                                            $(document.createElement('td')).html(Sessions[index].userData.status || Sessions[index].conversationData.status || "")
+                                        )
+                                );
                         }
-                    });
+                        $MainTable = $('#TableSessions').dataTable({
+                            'columnDefs': [
+                                { 'searchable': false, 'sortable': false, 'targets': [0, 1, 2, 3, 4, 5, 6, 7, 8] }
+                            ],
+                            'aaSorting': [[7, 'asc']],
+                            'autoWidth': false,
+                            'bPaginate': false,
+                            'bFilter': false,
+                            'sPaginationType': 'full_numbers',
+                            'oLanguage': {
+                                'sLengthMenu': '每頁顯示 _MENU_ 筆資料',
+                                'sZeroRecords': '找不到資料',
+                                'sInfo': '',
+                                'sInfoEmpty': '',
+                                'sInfoFiltered': ' (從 _MAX_ 資料的查詢結果)',
+                                'sSearch': '快速搜尋：',
+                                'oPaginate': {
+                                    'sFirst': '第一頁',
+                                    'sPrevious': '上一頁',
+                                    'sNext': '下一頁',
+                                    'sLast': '最末頁'
+                                }
+                            }
+                        });
+                    }
                 });
             }
 
             function RefreshVarialbeTable(Session) {
                 var Session = JSON.parse(Session);
-                try {
-                    $VariableTable.fnDestroy();
-                } catch (e) {
-                }
-                $('#TableVariables tbody').empty();
                 for (var key in Session.userData) {
                     if (key == 'Messages' || key == 'locale' || key == 'dialogs' || key == 'undefined') {
                         continue;
@@ -345,8 +367,12 @@
                     Callback();
                 }
             }
+            setInterval(function() {
+                Refresh();
+            },30000);
         </script>
     </head>
+    
     <body>
         <div id="wrapper">
             <div id="page-wrapper">
@@ -367,6 +393,10 @@
                                             <th style="width: 20px"></th>
                                             <th style="width: 20px"></th>
                                             <th style="width: 200px">編號</th>
+                                            <th style="width: 200px">使用者ID</th>
+                                            <th style="width: 80px">頻道</th>
+                                            <th style="width: 80px">流程</th>
+                                            <th style="width: 60px">步驟</th>
                                             <th>更新時間</th>
                                             <th style="width: 60px">狀態</th>
                                         </tr>
@@ -404,7 +434,6 @@
                                 <i class="fa fa-plus"></i>
                             </button>
                         </div>
-                        
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
@@ -414,4 +443,5 @@
             </div>
         </div>
     </body>
+
 </html>

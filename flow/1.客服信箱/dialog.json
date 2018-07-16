@@ -1,0 +1,12 @@
+[
+    {
+        "dialog_id": "0",
+        "type": "text",
+        "prompt": "您好，大同世界科技的客服信箱是：0800@etatung.com.tw，如有需求也可以直接問我喔><",
+        "dialog_uuid": "712332f4-21f4-e39a-de47-2bce55985801",
+        "field": "",
+        "description": "客服信箱",
+        "next": "-2",
+        "flow_id": ""
+    }
+]

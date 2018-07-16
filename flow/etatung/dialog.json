@@ -123,11 +123,12 @@
     {
         "dialog_id": "7",
         "type": "text",
-        "prompt": "{finished}",
+        "prompt": "{menu_transfer}",
         "field": "",
         "description": "結束",
-        "used": false,
-        "next": "-2"
+        "used": "false",
+        "next": "-3",
+        "skill": "DEFAULT"
     },
     {
         "dialog_id": "8",

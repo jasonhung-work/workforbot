@@ -1,6 +1,6 @@
 {
-    "bot_app_id": "8d0f2881-ab37-43cf-9093-889c1ee02e9e",
-    "bot_app_password": "gDf4xCmNoh0iPyacqLvY4Jb",
+    "bot_app_id": "4de147ff-e366-4cf9-9e89-2344293f690d",
+    "bot_app_password": "suAN845*|:;asxmuSXIGQ19",
     "luis_code": "6d9d5cf0-f01f-4609-b737-e4f5691cf770",
     "luis_key": "0ce340e781cd4b4a84dab9e11b1783bc",
     "active_flow": "etatung",
@@ -21,7 +21,19 @@
     },
     "hanfei": {
         "protocol": "https",
+        "host": "ticc-demo.ddns.net",
+        "port": "",
+        "path": "HanFei/hanfei"
+    },
+    "hanfei_bak": {
+        "protocol": "https",
         "host": "hanfei-test.azurewebsites.net",
+        "port": "",
+        "path": "hanfei"
+    },
+    "hanfei_heo": {
+        "protocol": "https",
+        "host": "hanfei-.herokuapp.com",
         "port": "",
         "path": "hanfei"
     },

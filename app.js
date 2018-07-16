@@ -74,6 +74,13 @@ app.get('/download/flow/:flow_id', function (request, response) {
     }
 });
 
+app.get('/systemvariable', function (request, response) {
+    response.header('Content-Type', 'application/json; charset=utf-8');
+    var system_variable = require('fs').readFileSync(__dirname + '/system_variable.json');
+    system_variable = JSON.parse(system_variable);
+    response.write(JSON.stringify(system_variable));
+    response.end();
+});
 app.get('/flows', function (request, response) {
     response.header('Content-Type', 'application/json; charset=utf-8');
     response.write(JSON.stringify(flows));
@@ -340,8 +347,6 @@ app.put('/dialog/:dialog_id/:flow_id', function (request, response) {
         } else {
             dialogs[request.params.dialog_id] = dialog;
         }
-        console.log(global.dialogs[flow.flow_id]);
-        console.log(flow.active);
         global.dialogs[flow.flow_id] = dialogs;
         if (flow.active == 'true') {
             global.flow_id = flow.flow_id;
@@ -460,11 +465,10 @@ app.put('/variables/:flow_id', function (request, response) {
     }
 });
 
-app.post('/flow_bot', function (request, response) {
-    console.log(request.body);
-    var conversation_id = request.body.conversation_id;
-    var dialog_id = request.body.dialog_id;
-    var flow_id = request.body.flow_id;
+app.put('/conversation/:conversation_id/flow/:flow_id/dialog/:dialog_id', function (request, response) {
+    var conversation_id = request.params.conversation_id;
+    var dialog_id = request.params.dialog_id;
+    var flow_id = request.params.flow_id;
     var _Variables = request.body.variables;
     try {
         _Variables = JSON.parse(request.body.variables);
@@ -484,14 +488,13 @@ app.post('/flow_bot', function (request, response) {
         response.end();
     }
     else if (preventAddress.has(conversation_id)) {
-        var userId, Dialog_length;
+        var userId, Dialog_length = -1;
         var address = preventAddress.get(conversation_id);
         if (_Variables) {
             for (var K in _Variables) {
-                console.log("k:" + K + ", value:" + _Variables[K]);
-                for (var N in global.variables) {
-                    if (global.variables[flow_id][N].name == K) {
-                        global.variables[flow_id][N].content = _Variables[K];
+                for (var N in global.variables[flow_id]) {
+                    if (global.variables[N].name == K[name]) {
+                        global.variables[N].content = K[content];
                         break;
                     }
                 }
@@ -502,8 +505,15 @@ app.post('/flow_bot', function (request, response) {
         } else {
             userId = address.user.id;
         }
-        Dialog_length = JSON.parse(preventDialog.get(userId)).length;
-        if (dialog_id < Dialog_length && dialog_id >= 0) {
+        try {
+            preventDialog.set(userId, JSON.stringify(global.dialogs[flow_id]));
+            Dialog_length = global.dialogs[flow_id].length;
+        } catch (e) {
+            response.status(401).send('No this flow');
+            response.end();
+        }
+
+        if (Dialog_length != -1 && dialog_id < Dialog_length && dialog_id >= 0) {
             var session = {
                 'index': dialog_id,
                 'messageTimestamp': new Date(),
@@ -1001,8 +1011,8 @@ function LoadFlow(flow) {
 
 // Create chat bot
 var connector = new builder.ChatConnector({
-    appId: process.env.MicrosoftAppId,
-    appPassword: process.env.MicrosoftAppPassword
+    appId: process.env.MicrosoftAppId || config.bot_app_id,
+    appPassword: process.env.MicrosoftAppPassword || config.bot_app_password
 });
 
 var inMemoryStorage = new builder.MemoryBotStorage();
@@ -1653,9 +1663,7 @@ var preventMessage = new Map();
 var preventAddress = new Map();
 
 bot.on('conversationUpdate', function (message) {
-    console.log(message);
     if (message.membersAdded && message.membersAdded.length > 0) {
-        console.log(config.channel_flow[message.address.channelId]);
         if (config.channel_flow[message.address.channelId] != undefined && config.channel_flow[message.address.channelId] != "") {
             global.flow_id = config.channel_flow[message.address.channelId];
         }
@@ -1868,6 +1876,7 @@ bot.dialog('/flow', [
 
         var dialog = userDialog[session.conversationData.index];
         var dialogs_for_id = userDialog;
+        session.conversationData.description = dialog.description;
         // 還原 Dialog 的文字內容，讓變數與訊息可以被重新置換
         if (dialog.prompt) {
             if (dialog._prompt) {
@@ -1970,10 +1979,11 @@ bot.dialog('/flow', [
             logger.info('index: ' + session.conversationData.index);
             var redirect = redirect_dialog(session, dialog);
             if (redirect == 'endDialog') {
-                session.endDialogWithResult({ response: session.conversationData.form });
+                //session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
                 }
+                session.replaceDialog('/end', session.conversationData);
             } else {
                 session.replaceDialog(redirect, session.conversationData);
             }
@@ -1987,17 +1997,18 @@ bot.dialog('/flow', [
             logger.info('index: ' + session.conversationData.index);
             var redirect = redirect_dialog(session, dialog);
             if (redirect == 'endDialog') {
-                session.endDialogWithResult({ response: session.conversationData.form });
+                //session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
                 }
+                session.replaceDialog('/end', session.conversationData);
             } else {
                 session.replaceDialog(redirect, session.conversationData);
             }
         } else if (dialog.type == 'input') {
+            session.conversationData.status = "等待輸入中";
             try {
                 dialog.prompt.attachments[0].content = JSON.parse(dialog.prompt.attachments[0].content);  // QnAMaker
-                console.log("input dialog: " + JSON.stringify(dialog));
             } catch (e) {
                 // logger.error(e);
             }
@@ -2036,6 +2047,7 @@ bot.dialog('/flow', [
         } else if (dialog.type == 'hanfei') {
             session.replaceDialog('/hanfei');
         } else if (dialog.type == 'choice') {
+            session.conversationData.status = "等待使用者選擇";
             var IIsMessage = [];
             for (var index = 0; index < dialog.prompt.attachments[0].content.buttons.length; index++) {
                 IIsMessage.push(dialog.prompt.attachments[0].content.buttons[index].value);
@@ -2048,6 +2060,7 @@ bot.dialog('/flow', [
             userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
             preventMessage.set(session.userData.userId, userConversationMessage);
         } else if (dialog.type == 'confirm') {
+            session.conversationData.status = "等待使用者確認";
             logger.info('builder.Prompts.confirm: ' + JSON.stringify(dialog.prompt));
             builder.Prompts.confirm(session, dialog.prompt, { maxRetries: 3, retryPrompt: '請重新輸入' });
             userConversationMessage.push({ type: 'message', acct: 'flowbot', message: dialog.prompt });
@@ -2116,10 +2129,11 @@ bot.dialog('/flow', [
             }
             var redirect = redirect_dialog(session, dialog);
             if (redirect == 'endDialog') {
-                session.endDialogWithResult({ response: session.conversationData.form });
+                //session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
                 }
+                session.replaceDialog('/end', session.conversationData);
             } else {
                 session.replaceDialog(redirect, session.conversationData);
             }
@@ -2144,14 +2158,16 @@ bot.dialog('/flow', [
             else session.conversationData.index = dialog.next_id;
             var redirect = redirect_dialog(session, dialog);
             if (redirect == 'endDialog') {
-                session.endDialogWithResult({ response: session.conversationData.form });
+                //session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
                 }
+                session.replaceDialog('/end', session.conversationData);
             } else {
                 session.replaceDialog(redirect, session.conversationData);
             }
         } else if (dialog.type == 'webapi') {
+            session.conversationData.status = "等待api回復";
             var http;
             if (dialog.webapi.protocol == 'http') {
                 http = require('http');
@@ -2208,10 +2224,11 @@ bot.dialog('/flow', [
                     else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
                     var redirect = redirect_dialog(this.session, this.dialog);
                     if (redirect == 'endDialog') {
-                        this.session.endDialogWithResult({ response: this.session.conversationData.form });
+                        //this.session.endDialogWithResult({ response: this.session.conversationData.form });
                         if (this.session.message.address.channelId == 'directline') {
                             this.session.send('{ "action": "end_service" }');
                         }
+                        this.session.replaceDialog('/end', this.session.conversationData);
                     } else {
                         this.session.replaceDialog(redirect, this.session.conversationData);
                     }
@@ -2224,10 +2241,11 @@ bot.dialog('/flow', [
                 else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
                 var redirect = redirect_dialog(this.session, this.dialog);
                 if (redirect == 'endDialog') {
-                    this.session.endDialogWithResult({ response: this.session.conversationData.form });
+                    //this.session.endDialogWithResult({ response: this.session.conversationData.form });
                     if (this.session.message.address.channelId == 'directline') {
                         this.session.send('{ "action": "end_service" }');
                     }
+                    this.session.replaceDialog('/end', this.session.conversationData);
                 } else {
                     this.session.replaceDialog(redirect, this.session.conversationData);
                 }
@@ -2237,6 +2255,7 @@ bot.dialog('/flow', [
             }
             req.end();
         } else if (dialog.type == 'qna_maker') {
+            session.conversationData.status = "等待QA回復";
             /** LUIS */
             logger.info('To LUIS: ' + ReplaceVariable(dialog.qna_maker.problem, session.conversationData));
             var https = require('https');
@@ -2349,10 +2368,11 @@ bot.dialog('/flow', [
                             else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
                             var redirect = redirect_dialog(this.session, this.dialog);
                             if (redirect == 'endDialog') {
-                                this.session.endDialogWithResult({ response: this.session.conversationData.form });
+                                //this.session.endDialogWithResult({ response: this.session.conversationData.form });
                                 if (this.session.message.address.channelId == 'directline') {
                                     this.session.send('{ "action": "end_service" }');
                                 }
+                                this.session.replaceDialog('/end', this.session.conversationData);
                             } else {
                                 this.session.replaceDialog(redirect, this.session.conversationData);
                             }
@@ -2365,10 +2385,11 @@ bot.dialog('/flow', [
                         else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
                         var redirect = redirect_dialog(this.session, this.dialog);
                         if (redirect == 'endDialog') {
-                            this.session.endDialogWithResult({ response: this.session.conversationData.form });
+                            //this.session.endDialogWithResult({ response: this.session.conversationData.form });
                             if (this.session.message.address.channelId == 'directline') {
                                 this.session.send('{ "action": "end_service" }');
                             }
+                            this.session.replaceDialog('/end', this.session.conversationData);
                         } else {
                             this.session.replaceDialog(redirect, this.session.conversationData);
                         }
@@ -2387,10 +2408,11 @@ bot.dialog('/flow', [
                 else this.session.conversationData.index = this.userDialog[this.session.conversationData.index].next_id;
                 var redirect = redirect_dialog(this.session, this.dialog);
                 if (redirect == 'endDialog') {
-                    this.session.endDialogWithResult({ response: this.session.conversationData.form });
+                    //this.session.endDialogWithResult({ response: this.session.conversationData.form });
                     if (this.session.message.address.channelId == 'directline') {
                         this.session.send('{ "action": "end_service" }');
                     }
+                    this.session.replaceDialog('/end', this.session.conversationData);
                 } else {
                     this.session.replaceDialog(redirect, this.session.conversationData);
                 }
@@ -2506,10 +2528,11 @@ bot.dialog('/flow', [
             }
             var redirect = redirect_dialog(session, dialog);
             if (redirect == 'endDialog') {
-                session.endDialogWithResult({ response: session.conversationData.form });
+                //session.endDialogWithResult({ response: session.conversationData.form });
                 if (session.message.address.channelId == 'directline') {
                     session.send('{ "action": "end_service" }');
                 }
+                session.replaceDialog('/end', session.conversationData);
             } else {
                 session.replaceDialog(redirect, session.conversationData);
             }
@@ -2712,7 +2735,9 @@ bot.dialog('/transfer', function (session) {
 });
 
 bot.dialog('/end', function (session) {
+    logger.info("/end----------------------------------------------");
     var userConversationMessage = preventMessage.get(session.userData.userId);
+    //logger.info("locales: " + JSON.stringify(locales));
     session.send(locales[session.userData.pre_flow_id][session.userData.locale]['finished']);
     userConversationMessage.push({ type: 'message', acct: 'flowbot', message: locales[session.userData.pre_flow_id][session.userData.locale]['finished'] });
     preventMessage.set(session.userData.userId, userConversationMessage);
@@ -2725,6 +2750,9 @@ bot.dialog('/end', function (session) {
     preventDialog.delete(session.userData.userId);
     preventMessage.delete(session.userData.userId);
     preventAddress.delete(session.message.address.conversation.id);
+    if (sessions.containsKey(session.userData.userId)) {
+        sessions.remove(session.userData.userId);
+    }
     // session.endDialog();
     session.endConversation();
 });
@@ -2745,21 +2773,20 @@ var checkRequiresToken = function (message) {
 
 bot.dialog('/hanfei', function (session) {
     var userDialog = JSON.parse(preventDialog.get(session.userData.userId));
-    console.log(userDialog);
     var dialog = userDialog[session.conversationData.index];
     if (session.message.text != '') {
         post_Hanfei(session.message.text, session, userDialog, function (isOK) {
-            console.log(isOK);
             session.message.text = '';
             if (isOK) {
                 if (dialog.next < 0) session.conversationData.index = dialog.next;
                 else session.conversationData.index = dialog.next_id;
                 var redirect = redirect_dialog(session, dialog);
                 if (redirect == 'endDialog') {
-                    session.endDialogWithResult({ response: session.conversationData.form });
+                    //session.endDialogWithResult({ response: session.conversationData.form });
                     if (session.message.address.channelId == 'directline') {
                         session.send('{ "action": "end_service" }');
                     }
+                    session.replaceDialog('/end', session.conversationData);
                 } else {
                     session.replaceDialog(redirect, session.conversationData);
                 }
@@ -2773,7 +2800,6 @@ bot.dialog('/hanfei', function (session) {
 });
 
 function createHeroCard(session, dialog) {
-    console.log("create hero card\n");
     var herocardbuttons = [];
     for (var index = 0; index < dialog.attachments[0].content.buttons.length; index++) {
         if (dialog.attachments[0].content.buttons[index].type == "postback") {
@@ -2803,9 +2829,9 @@ function redirect_dialog(session, dialog) {
     var result;
     switch (session.conversationData.index.toString()) {
         case '-2':
-            preventDialog.delete(session.userData.userId);
+            /*preventDialog.delete(session.userData.userId);
             preventMessage.delete(session.userData.userId);
-            preventAddress.delete(session.userData.userId);
+            preventAddress.delete(session.userData.userId);*/
             result = 'endDialog';
             break;
         case '-3':
@@ -2819,9 +2845,9 @@ function redirect_dialog(session, dialog) {
             session.userData.flow_id.pop();
             session.userData.pre_flow_id = session.userData.flow_id[session.userData.flow_id.length - 1];
             if (session.userData.flow_id.length <= 0) {
-                preventDialog.delete(session.userData.userId);
+                /*preventDialog.delete(session.userData.userId);
                 preventMessage.delete(session.userData.userId);
-                preventAddress.delete(session.userData.userId);
+                preventAddress.delete(session.userData.userId);*/
                 result = 'endDialog';
             } else {
                 session.conversationData.index = 0;
@@ -2931,7 +2957,6 @@ function get_picture(url, message, attachment, callback) {
 }
 
 function getAPIResult(result, session) {
-    console.log(result);
     try {
         result = JSON.parse(result);
     } catch (e) {
@@ -2948,7 +2973,7 @@ function getAPIResult(result, session) {
                 var msg = new builder.Message(session)
                     .addAttachment({
                     content: result["content"]["description"],
-                    contentUrl: result["content"]["url"],
+                    contentUrl: result["content"]["previewImageUrl"],
                     contentType: 'image/png',
                 });
                 return msg;
@@ -2979,14 +3004,14 @@ function getAPIResult(result, session) {
                     method: result["content"]["method"].toUpperCase()
                 };
                 if (result["content"]["method"] == 'post' || result["content"]["method"] == 'put') {
-                    /*for (var idx = 0; idx < dialog.webapi.headers.length; idx++) {
-                        var header = dialog.webapi.headers[idx].value;
+                    for (var idx = 0; idx < result["content"].headers.length; idx++) {
+                        var header = result["content"].headers[idx].value;
                         header = ReplaceVariable(header, session.conversationData);
-                        options.headers[dialog.webapi.headers[idx].name] = header;
+                        options.headers[result["content"].headers[idx].name] = header;
                     }
-                    var body = dialog.webapi.body;
+                    var body = result["content"].body;
                     body = ReplaceVariable(body, session.conversationData);
-                    options.headers['Content-Length'] = new Buffer(body).length;*/
+                    options.headers['Content-Length'] = new Buffer(body).length;
                 }
                 var req = http.request(options, function (res) {
                     logger.info('STATUS: ' + res.statusCode);
@@ -3000,15 +3025,15 @@ function getAPIResult(result, session) {
                     res.on('end', function () {
                         logger.info('REQUEST END');
                         var end_webapi = res.body;
-                        return end_webapi;
+                        session.send(end_webapi);
                     }.bind({ session: this.session }));
                 }.bind({ session: session }));
                 req.on('error', function (e) {
                     logger.error(e);
                 }.bind({ session: session }));
-                //if (result["content"]["method"] == 'post' || result["content"]["method"] == 'put') {
-                //req.write(body);
-                //}
+                if (result["content"]["method"] == 'post' || result["content"]["method"] == 'put') {
+                    req.write(body);
+                }
                 req.end();
                 break;
             case "flow":
@@ -3035,6 +3060,18 @@ function getAPIResult(result, session) {
                 break;
             case "undefine":
                 return result["content"]["text"];
+                logger.error("From QnA Maker User :" + session.userData.userId + " asked this question: " + result["content"]["question"] + " is undefined");
+                break;
+            case "mult":
+                var multbuttons = [];
+                for (var index = 0; index < result.content.length; index++) {
+                    multbuttons.push(builder.CardAction.postBack(session, result.content[index].value, result.content[index].text));
+                }
+                var mult = new builder.HeroCard(session)
+                    .text(result["title"])
+                    .buttons(multbuttons);
+                var mult_msg = new builder.Message(session).addAttachment(mult);
+                return mult_msg;
                 break;
             default:
                 logger.info("API result's attribute 'type' is not defined or API result is not our JSON type");
@@ -3049,17 +3086,32 @@ function getAPIResult(result, session) {
 
 function post_Hanfei(content, session, userDialog, callback) {
     var http;
-    http = require('https');
-    var path = config.hanfei.path;
+    http = require(config.hanfei_bak.protocol);
+    var path = config.hanfei_bak.path;
     path = encodeURI(path);
     var options = {
-        host: config.hanfei.host,
-        port: config.hanfei.port,
+        host: config.hanfei_bak.host,
+        port: config.hanfei_bak.port,
         path: '/' + path,
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: { "Content-Type": "application/json" },
         method: 'post'
     };
-    var body = content;
+    var data = {
+        "question": content
+    }
+    var reward = {
+        "reward_ID": "",
+        "ask_time": "",
+        "ans_time": "",
+        "user_ID": "",
+        "questions": "",
+        "answers": ""
+    }
+    reward.ask_time = new Date();
+    reward.questions = content;
+    reward.user_ID = session.userData.userId;
+
+    var body = JSON.stringify(data);
     options.headers['Content-Length'] = new Buffer(body).length;
     var req = http.request(options, function (res) {
         logger.info('STATUS: ' + res.statusCode);
@@ -3073,6 +3125,15 @@ function post_Hanfei(content, session, userDialog, callback) {
         res.on('end', function () {
             logger.info('REQUEST END');
             try {
+                var reward_data = JSON.parse(res.body);
+                this.reward.ans_time = new Date();
+                this.reward.answers = res.body;
+                this.reward.reward_ID = reward_data.reward_ID;
+                require('fs').appendFile(__dirname + '/logs/HanFei.json', JSON.stringify(this.reward) + '\n', function (err) {
+                    if (err) logger.error('Flow Bot reward HanFei write Log error: ' + err);
+                    else logger.info('Flow Bot reward HanFei write Log success');
+                });
+
                 var result = res.body;
                 var msg = getAPIResult(result, session);
                 if (msg && msg != 'flow') {
@@ -3093,8 +3154,8 @@ function post_Hanfei(content, session, userDialog, callback) {
                 logger.error(e);
                 this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;
             }
-        }.bind({ session: this.session, userDialog: this.userDialog }));
-    }.bind({ session: session, userDialog: userDialog }));
+        }.bind({ session: this.session, userDialog: this.userDialog, reward: this.reward }));
+    }.bind({ session: session, userDialog: userDialog, reward: reward }));
     req.on('error', function (e) {
         logger.error(e);
         this.session.conversationData.form[this.userDialog[this.session.conversationData.index].field] = e.message;

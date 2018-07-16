@@ -1,0 +1,45 @@
+[
+    {
+        "dialog_id": "0",
+        "type": "text",
+        "prompt": "你好 歡迎來到測試enddialog途中",
+        "dialog_uuid": "6d335ccf-0125-9ba0-1c14-dcb5f0ef6e04",
+        "field": "",
+        "description": "跳轉流程測試",
+        "next": "6ffe14e2-e331-f681-5f69-90c1fc696a8e",
+        "flow_id": "",
+        "used": "false",
+        "next_id": "1"
+    },
+    {
+        "dialog_id": "1",
+        "type": "text",
+        "prompt": "我等等會把您跳到hanfei",
+        "dialog_uuid": "6ffe14e2-e331-f681-5f69-90c1fc696a8e",
+        "field": "",
+        "description": "測試途中",
+        "next": "06d560d1-d347-3854-688e-f419056d6006",
+        "next_id": "2",
+        "flow_id": "",
+        "used": "false"
+    },
+    {
+        "dialog_id": "2",
+        "type": "input",
+        "field": "",
+        "prompt": {
+            "attachments": [
+                {
+                    "content": "請幫我輸入一些字",
+                    "type": "text",
+                    "data": ""
+                }
+            ]
+        },
+        "next": "-6",
+        "dialog_uuid": "06d560d1-d347-3854-688e-f419056d6006",
+        "description": "跳過去",
+        "flow_id": "session2",
+        "used": "false"
+    }
+]

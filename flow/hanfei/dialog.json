@@ -1,0 +1,12 @@
+[
+    {
+        "dialog_id": "0",
+        "type": "hanfei",
+        "field": "",
+        "prompt": "",
+        "next": "-2",
+        "dialog_uuid": "caeadc14-90da-26f0-4fa5-2d51fad572e0",
+        "description": "hanfei",
+        "flow_id": ""
+    }
+]
